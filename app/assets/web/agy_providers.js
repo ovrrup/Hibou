@@ -10,7 +10,7 @@
   if (window.__agyProvidersReady) return;
   window.__agyProvidersReady = true;
 
-  function ru() { try { return window.__agyI18n ? window.__agyI18n.getLanguage() === "ru" : true; } catch (e) { return true; } }
+  function ru() { try { return window.__agyI18n ? window.__agyI18n.getLanguage() === "ru" : false; } catch (e) { return false; } }
   function T(r, e) { return ru() ? r : e; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   // A capability toggle chip for a selected model (images / tools / reasoning).

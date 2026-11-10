@@ -24,14 +24,20 @@
   var ATTRS = ["title", "aria-label", "placeholder", "data-placeholder", "data-tooltip-content"];
 
   function readMode() {
-    var m = "system";
-    try { m = (window.AgyLang && window.AgyLang.getLang()) || "system"; } catch (e) {}
-    return m === "ru" || m === "en" ? m : "system";
+    var m = "";
+    try { m = (window.AgyLang && window.AgyLang.getLang()) || ""; } catch (e) {}
+    try { if (!m) m = localStorage.getItem("agy_lang") || ""; } catch (e) {}
+    if (m === "ru" || m === "en" || m === "system") return m;
+    // Default language of the app is English
+    return "en";
   }
   function resolve(m) {
     if (m === "ru" || m === "en") return m;
-    var loc = (navigator.languages && navigator.languages[0]) || navigator.language || "en";
-    return /^ru(?:-|$)/i.test(loc) ? "ru" : "en";
+    if (m === "system") {
+      var loc = (navigator.languages && navigator.languages[0]) || navigator.language || "en";
+      return /^ru(?:-|$)/i.test(loc) ? "ru" : "en";
+    }
+    return "en";
   }
   var mode = readMode();
   var effective = resolve(mode);
@@ -382,6 +388,7 @@
   function setLanguage(next) {
     if (next !== "ru" && next !== "en" && next !== "system") return;
     try { window.AgyLang && window.AgyLang.setLang(next); } catch (e) {}
+    try { localStorage.setItem("agy_lang", next); } catch (e) {}
     mode = next;
     var eff = resolve(next);
     if (eff === effective) return;

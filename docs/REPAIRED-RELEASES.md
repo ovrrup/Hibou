@@ -1,41 +1,29 @@
-# Исправленные пакеты 3.0.3, 3.0.4 и 3.0.5
+# Repaired Releases: 3.0.3, 3.0.4, and 3.0.5
 
-[Главная](../README.md)
+[Home](../README.md) · [Repair Analysis](REPAIR-3.0.6.md)
 
-## Причина
+## Background
 
-В исходных шести APK после замены шести строк Antigravity → Leostryx не обновили SHA-1 и Adler-32 заголовка `classes.dex`. Лог Android точно совпал с байтами APK: `Bad checksum (d58dfb03, expected 25d3ffb3)`. Класс AppFileProvider присутствовал, но Android отвергал весь DEX.
+In the original six release APKs across versions 3.0.3, 3.0.4, and 3.0.5, replacing strings in `classes.dex` without recalculating SHA-1 and Adler-32 header checksums caused Android to crash at startup with: `Bad checksum (d58dfb03, expected 25d3ffb3)`. While `AppFileProvider` was compiled into the DEX, Android rejected the entire binary.
 
-ZIP и подписи исходных APK были корректны; повреждение возникло при сборке, а не скачивании. Также веб-интерфейс инструментов содержал синтаксическую ошибку, а обновлятор неверно разбирал название релиза с пробелами.
+The APK containers and signatures were structurally valid; corruption occurred during the build process rather than during download.
 
-## Что теперь опубликовано
+## Repaired Packages
 
-| Версия | code | Различия кода |
+| Version | versionCode | Key Functional Additions |
 |---|---|---|
-| 3.0.3 | 19 | Исправленный базовый запуск, инструменты и брендинг |
-| 3.0.4 | 20 | Плюс группы провайдеров и согласованные пути резервных копий |
-| 3.0.5 | 21 | Плюс встроенные проверка, загрузка и системная установка обновлений |
+| 3.0.3 | 19 | Fixed base launch, initial tools tab, and visual branding |
+| 3.0.4 | 20 | Added provider grouping in model selector and unified backup paths |
+| 3.0.5 | 21 | Added integrated updater: checking, downloading, and system installer handoff |
 
-Для каждой версии собраны Standard и Bypass. Повторно загруженные APK занимают прежние имена файлов. Старые повреждённые пакеты сохранены под именами `.before-repair`, чтобы замена была обратимой; их не следует устанавливать. Файл SHA256SUMS.txt каждого релиза относится к новым APK.
+Standard and Bypass APKs were reassembled for each version. Original corrupted packages were renamed with the `.before-repair` extension to preserve history, while release downloads and `SHA256SUMS.txt` reflect the verified packages.
 
-## Совместимость установки
+## Installation Compatibility
 
-Предоставленные автором PEM-ключи и сертификаты совпали с исходной подписью всех шести APK. Ключи не публиковались в GitHub. Подпись исправленных файлов:
+The author's signing key matches the original release signature:
 
 ```text
 d72235a57bb27fe9755199e8b9daca1ae305adf8a0f0feac3ac98434f6f7e416
 ```
 
-Package ID остался `com.agyru.t2`. Удалять установленную 3.0.3–3.0.5 не требуется. Исправленная 3.0.5 подходит для обновления поверх этих трёх выпусков. Понижение versionCode Android может запретить.
-
-Промежуточные файлы 3.0.6, ранее подготовленные с другим доступным ключом, не используются для этой повторной публикации.
-
-## Проверки
-
-Все шесть APK проверены: ZIP CRC и отсутствие дублей, внутренние SHA-1/Adler-32 каждого DEX, наличие AppFileProvider, правильные versionName/versionCode/вариант, сертификат подписи, права обновлятора только в 3.0.5, SHA-256 runtime. Signer подтвердил подписи v2/v3, выравнивание и исходный сертификат для всех шести файлов.
-
-Android-ресурсы, четыре набора эмблем, библиотеки и файлы runtime сохранены побайтово из соответствующих исходных APK. Различия функций между выпусками проверены по фактическому содержимому.
-
-На физическом Android запуск и установка поверх не выполнялись. Совместимость подписи и package/version проверена статически; требуется проверка запуска на устройстве автора.
-
-Изменения описывают повторно загруженные APK. Дополнительное изменение исходного сборочного дерева этим обновлением документации не выполняется.
+Because the package ID remains `com.agyru.t2` and the signing certificate is identical, uninstalling existing installations of 3.0.3–3.0.5 is not required. Installing the repaired 3.0.5 upgrades existing setups cleanly.

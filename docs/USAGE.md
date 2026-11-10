@@ -1,64 +1,70 @@
-# Настройка и диагностика
+# Setup & Diagnostics
 
-[Главная](../README.md) · [Сборка](BUILD.md) · [История версий](../CHANGELOG.md)
+[Home](../README.md) · [Building](BUILD.md) · [Changelog](../CHANGELOG.md)
 
-## Установка и обновление
+## Installation & Upgrades
 
-Скачайте **Standard** или **Bypass** со страницы [Releases](https://github.com/ovrrup/Hibou/releases/latest). Оба варианта предназначены для Android ARM64; Bypass содержит патч региональных проверок ядра.
+Download the **Standard** or **Bypass** package from the [Releases](https://github.com/ovrrup/Hibou/releases/latest) page. Both variants target Android ARM64; the Bypass build patches regional verification checks in the core engine.
 
-При совместимой подписи приложение можно обновить поверх установленной версии. Если Android сообщает о конфликте пакета или подписи:
+When signatures match, the app can be upgraded in place over an existing installation. If Android reports a package conflict or signature mismatch:
 
-1. Сохраните проекты и резервную копию во внешнее хранилище.
-2. Убедитесь, что нужные файлы доступны за пределами внутренних данных приложения.
-3. Удалите конфликтующую установку, затем установите выбранный APK.
-4. Пройдите первоначальную настройку и восстановите данные из резервной копии, если она создана.
+1. Backup your projects and application data to external storage (`/storage/emulated/0/Documents/Hibou Backup/`).
+2. Verify that important files are safely stored outside the app's internal sandbox.
+3. Uninstall the conflicting application, then install the new APK.
+4. Complete the initial setup walkthrough and restore your data from backup.
 
-Удаление приложения стирает его внутренние данные. Возможность обновления старых сборок зависит от использованного сертификата; универсальной гарантии для всех APK нет.
+> [!NOTE]
+> Uninstalling the app completely clears internal app data (`/data/user/0/com.agyru.t2/`). Ensure you have exported backups before reinstalling.
 
-## Провайдеры и модели
+## Providers & Models
 
-Стандартные и пользовательские провайдеры используют разные режимы ядра. Для собственного API укажите Base URL и ключ, загрузите список моделей или добавьте ID вручную. Выбранные модели отображаются в селекторе с группировкой по провайдерам.
+Standard and custom model providers use separate core modes. To configure a custom API endpoint:
+- Navigate to **Settings → Providers**.
+- Select the provider format (OpenAI-compatible, Anthropic Claude, or Gemini-compatible).
+- Enter the Base URL and API Key.
+- Tap **Load Models** or add model identifiers manually.
 
-Поддержка изображений, инструментов и режимов мышления зависит от модели и API. Для диктовки с пользовательскими провайдерами используется системное распознавание речи Android.
+Configured models appear grouped under provider headers in the chat model selector. Capability toggles (images, tools, reasoning effort) can be fine-tuned per model. Voice dictation with custom providers uses Android's native SpeechRecognizer service.
 
-## Инструменты
+## Developer Tooling
 
-Откройте **Настройки → Инструменты**, выберите нужные компоненты или готовый набор и запустите установку. Доступны компоненты для Android-разработки, Python, Java, Node.js и Flutter/Dart.
+Open **Settings → Tools** to manage development packages:
+- Android development toolchain: `aapt`, `aapt2`, `d8`, `apksigner`, `aidl`, and `android-tools` (`adb`, `fastboot`).
+- Compilers & build tools: Clang/LLVM, LLD, CMake, Make, Ninja, and Python 3.
+- JVM ecosystem: OpenJDK 17 LTS, OpenJDK 21, Kotlin, and Gradle.
+- Web development: Node.js LTS, npm, Yarn, pnpm, and TypeScript.
+- Flutter & Dart SDKs.
 
-Для JavaScript-компонентов используйте **Node.js LTS**. Не выбирайте одновременно LTS и текущую ветку Node.js: они предоставляют одну команду `node`. При ошибке проверки сначала посмотрите фактическую версию и журнал, а не устанавливайте вторую ветку поверх первой.
+> [!IMPORTANT]
+> When installing Node.js, use **Node.js LTS**. Do not install both LTS and the current branch simultaneously, as they conflict over the `node` binary.
+
+Verify installations via the terminal:
 
 ```bash
-command -v node
-node --version
-command -v npm
-npm --version
+command -v node && node --version
+command -v npm && npm --version
+command -v clang && clang --version
 ```
 
-Для Flutter и Java-инструментов есть отдельные инструкции: [Flutter/Dart](flutter-toolchain.md), [JVM/jadx](jadx-fixes.md).
+For specialized tooling guidance, see: [Flutter/Dart](flutter-toolchain.md) and [JVM/jadx](jadx-fixes.md).
 
-## Консоль и история ошибок
+## Console & Error History
 
-В разделе **«Инструменты»** доступны консоль приложения и история ошибок. Их можно открыть без создания чата.
+The **Tools** settings tab includes an integrated application console and error log inspector:
+- **Console:** Runs individual commands in separate background jobs, displays real-time execution logs, supports clearing output, and captures device `logcat`. (Note: this runs commands non-interactively; environment state between tasks is managed via the shell profile).
+- **Error History:** Dedicated log stream capturing package installation and verification failures. Includes quick copy-all and clear actions.
 
-- **Консоль** запускает команды отдельными заданиями, позволяет копировать вывод, очищать экран и получать `logcat`. Это не постоянная интерактивная PTY-сессия: состояние shell между заданиями не сохраняется.
-- **История ошибок** предназначена для сбоев установки и проверки компонентов. Есть копирование всей истории и очистка журнала.
+When reporting an issue, provide your APK version and variant, Android OS version, reproduction steps, and relevant log snippets. Never include API keys or secret tokens in public reports.
 
-Для отчёта приложите версию и вариант APK, версию Android, действия до сбоя и полный текст ошибки. Не включайте API-ключи и токены в публичный отчёт.
+## MCP, UTCP & Plugins
 
-## MCP, UTCP и плагины
+- **Model Context Protocol (MCP):** Configured in **Settings → MCP Servers**. JavaScript-based MCP servers require Node.js LTS. Configuration template: [`mcp_config.example.json`](../mcp_config.example.json); live configuration: `~/.gemini/config/mcp_config.json`.
+- **UTCP / OpenAPI:** Connect external tools and APIs dynamically via the agent tooling bridge.
+- **Agent Customizations:** Manage agent skills, global instructions (`AGENTS.md`), and UI plugins in **Settings → Customizations**.
 
-MCP-серверы настраиваются в отдельном разделе настроек. Для серверов на JavaScript требуется Node.js LTS; необходимые ключи задаются в карточках серверов. После изменения конфигурации может потребоваться перезапуск ядра.
+## Sessions & Backups
 
-В исходной истории описан порядок первоначального добавления MCP через стандартный режим с последующим переключением на пользовательского провайдера. Более поздние записи описывают прямую передачу MCP-инструментов пользовательским моделям. Это последовательные доработки, а не требование переключать ядро перед каждым вызовом инструмента.
-
-Шаблон конфигурации — [`mcp_config.example.json`](../mcp_config.example.json); рабочий файл — `~/.gemini/config/mcp_config.json`. Пути и переменные окружения необходимо адаптировать к установке приложения. Значение `MCP_SERVER_STATUS_READY` подтверждает запуск сервера, но не заменяет проверку конкретного вызова API.
-
-UTCP/OpenAPI служит для подключения внешних сервисов через мост инструментов. Навыки, глобальные инструкции и плагины доступны в пользовательских настройках. Доступность интеграции зависит от её зависимостей, ключей и возможностей Android.
-
-## Сессии и резервные копии
-
-**Экспорт сессии** сохраняет материал отдельного диалога: текст и изображения; в истории версий также описан PDF-экспорт.
-
-**Резервное копирование** — отдельный раздел настроек, добавленный в 3.0.2. Он экспортирует и импортирует ZIP с выбранными категориями данных: настройками, историей чатов, вложениями, провайдерами и ключами. Папка по умолчанию — **Hibou Backup**, рабочая папка — **Hibou Projects**.
-
-Резервная копия с выбранными ключами содержит секреты. Для публикации или передачи отчёта используйте материалы без ключей.
+- **Export Session:** Saves conversation history, prompt steps, and media attachments as text, Markdown, or PDF (via PyMuPDF).
+- **Backup & Restore:** Located in **Settings → Backup**. Exports and imports full application state as a ZIP archive, including provider configurations, MCP configurations, custom settings, chat history, and attachments.
+  - Default backup path: `Hibou Backup` (`/storage/emulated/0/Documents/Hibou Backup/`).
+  - Default project directory: `Hibou Projects` (`/storage/emulated/0/Documents/Hibou Projects/`).

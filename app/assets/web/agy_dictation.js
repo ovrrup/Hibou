@@ -14,8 +14,8 @@
 
   function T(ru, en) {
     var l;
-    try { l = (document.documentElement.getAttribute("data-agy-language") || "ru").toLowerCase(); } catch (e) { l = "ru"; }
-    return l.indexOf("en") === 0 ? en : ru;
+    try { l = (document.documentElement.getAttribute("data-agy-language") || "en").toLowerCase(); } catch (e) { l = "en"; }
+    return l.indexOf("ru") === 0 ? ru : en;
   }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
 

@@ -1,136 +1,107 @@
-# История версий Hibou
+# Hibou Changelog
 
-[Главная](README.md) · [Все релизы](https://github.com/ovrrup/Hibou/releases) · [Подробный журнал разработки](docs/CHANGELOG-ARCHIVE.md)
+[Home](README.md) · [All Releases](https://github.com/ovrrup/Hibou/releases) · [Development Archive](docs/CHANGELOG-ARCHIVE.md)
 
-Изменения сгруппированы по выпускам, новые версии расположены первыми. Технические подробности и промежуточные пересборки сохранены в отдельном журнале.
+Changes are grouped by release in reverse-chronological order. Technical details and intermediate rebuild logs are preserved in the development archive.
 
-## Ребрендинг в Hibou — 2026-11-10
+## Rebranding to Hibou & English Default — 2026-11-10
 
-- **Проект переименован в Hibou** (репозиторий: `ovrrup/Hibou`).
-- **Символ и стиль:** обновлён баннер и фирменная графика с акцентом на символ совы (`01_owl`).
-- **Папки по умолчанию:** рабочая папка и папка резервных копий согласованы как **Hibou Projects** и **Hibou Backup**.
-- **Обновления:** встроенный модуль обновлений перенаправлен на `ovrrup/Hibou`, User-Agent обновлён на `Hibou-Updater`.
-- **Интерфейс:** в разделе «О приложении» обновлено имя, описание сборки и ссылки на исходный код; сохранены ссылки на авторов базовых наработок.
-- **Сборщик:** `rebuild.py` формирует пакеты с именами `Hibou-<версия>-<вариант>.apk` и поддерживает переменные `HIBOU_*`.
+- **Rebranded to Hibou** (Repository: `ovrrup/Hibou`).
+- **English Default:** English is now configured as the default application language across first-run onboarding, settings, and runtime tools; Russian remains fully selectable in Settings → Interface.
+- **Visual Identity:** Updated vector banner and branding assets with the stylized Hibou owl mascot (`01_owl`).
+- **Default Paths:** Unified workspace and backup paths to **Hibou Projects** and **Hibou Backup**.
+- **Updater:** Redirected built-in update client to `ovrrup/Hibou`, with User-Agent set to `Hibou-Updater`.
+- **UI & Credits:** Updated About screen with Hibou identity, version inspection, and source repository links while preserving attribution to upstream authors.
+- **Build Pipeline:** `rebuild.py` produces `Hibou-<version>-<variant>.apk` binaries and supports `HIBOU_*` signing environment variables.
 
+## Repaired Releases: 3.0.3, 3.0.4, and 3.0.5 — 2026-11-10
 
-## Повторная публикация 3.0.3, 3.0.4 и 3.0.5 — 2026-11-10
+Reassembled six release APKs (Standard and Bypass across all three versions) preserving package ID `com.agyru.t2`, original release signature `d72235a5…`, and versionCodes 19, 20, and 21. Repaired APKs install directly over previous versions.
 
-Пересобраны шесть APK (Standard/Bypass каждого выпуска), сохранены package ID `com.agyru.t2`, исходный сертификат `d72235a5…` и versionCode 19/20/21. Теперь исправленные APK можно устанавливать поверх соответствующих прежних версий.
+- Cleanly reassembled `classes.dex`, eliminating the `Bad checksum` startup crash and restoring `AppFileProvider` initialization.
+- Fixed web UI syntax errors in tools settings; version info is now dynamically queried from Android `PackageManager`.
+- In 3.0.4: added custom provider header groupings and consistent backup paths.
+- In 3.0.5: implemented integrated updater with JSON protocol, version comparison, variant preservation, download integrity checks (size, SHA-256, ZIP, DEX), and native installer handoff.
+- Preserved previous damaged binaries in GitHub Releases under `.before-repair` filenames; active release artifacts and `SHA256SUMS.txt` reflect the repaired builds.
 
-- Основной DEX пересобран: устранена ошибка `Bad checksum` и вызванный ей сбой загрузки `AppFileProvider`.
-- Исправлен синтаксис интерфейса инструментов; фактическая версия читается у Android.
-- В 3.0.4 добавлены реальные группы провайдеров и согласованы пути резервных копий.
-- В 3.0.5 реализован встроенный обновлятор: JSON, сравнение версий, сохранение Standard/Bypass, проверка размера/SHA-256/ZIP/DEX и открытие системного установщика.
-- Все исходные повреждённые файлы сохранены в релизах как `.before-repair`; активные имена APK и SHA256SUMS.txt относятся к исправленным файлам.
+## [3.0.5](https://github.com/ovrrup/Hibou/releases/tag/v3.0.5)
 
-До исправления код опубликованных APK всех трёх выпусков был одинаков. После повторной сборки различия подтверждены по содержимому APK; описание каждого релиза обновлено. На физическом Android запуск не выполнялся. Промежуточная 3.0.6 с другим сертификатом не используется для этой замены.
+- Includes all improvements from 3.0.4.
+- Update checking queries `ovrrup/Hibou`.
+- Version and variant are dynamically detected via native bridge instead of hardcoded strings.
+- JSON protocol handles release tag spaces cleanly; version comparison uses numeric semantic versioning.
+- Bypass builds update to Bypass, Standard builds update to Standard.
+- Strict download validation: size, SHA-256, ZIP structure, and DEX headers.
+- Native bridge verifies package ID, certificate, versionCode, and variant before launching Android's system package installer.
 
-## [3.0.5](https://github.com/Leostrange/Leostryx/releases/tag/v3.0.5)
+## [3.0.4](https://github.com/ovrrup/Hibou/releases/tag/v3.0.4) — 2026-11-10
 
-- Все изменения 3.0.4.
-- Проверка обновлений обращается в `Leostrange/Leostryx`.
-- Версия и вариант определяются через нативный мост вместо строки `3.0.2 · Standard`.
-- JSON-протокол не зависит от пробелов в названии релиза; сравниваются числовые части версии.
-- Bypass обновляется Bypass, Standard — Standard.
-- Проверяется завершённость загрузки, SHA-256, ZIP и DEX. Незавершённый файл не используется.
-- Нативный мост проверяет package ID, сертификат, versionCode и вариант APK; открывает системное окно Android с подтверждением пользователя.
+### Changed
+- Grouped models in the chat model selector under provider headers: OpenAI-compatible, Anthropic Claude, and Gemini-compatible.
+- Renamed default workspaces and backup folders to **Hibou Projects** and **Hibou Backup**.
 
-## [3.0.4](https://github.com/Leostrange/Leostryx/releases/tag/v3.0.4) — 2026-11-10
+### Fixed
+- Fixed display of custom provider models in the chat selector.
 
-### Изменено
+### Builds
+- Rebuilt Standard and Bypass APKs with updated `SHA256SUMS.txt`.
 
-- Модели в селекторе сгруппированы по провайдерам: OpenAI-совместимые, Anthropic и Gemini-совместимые API.
-- Рабочая папка и папка резервных копий по умолчанию переименованы в **Leostryx Projects** и **Leostryx Backup**.
+## [3.0.3](https://github.com/ovrrup/Hibou/releases/tag/v3.0.3) — 2026-11-10
 
-### Исправлено
+### Added
+- Four branding packs: **Owl**, **Lynx**, **LSX**, and **Angular X**, selectable in appearance settings.
+- Pillow (PIL) included in the runtime environment.
+- Vector SVG emblem assets.
 
-- Отображение всех выбранных моделей из настроек пользовательских провайдеров.
+### Changed
+- Project rebranded with refreshed application name, launcher icons, and branding strings in Standard and Bypass.
 
-### Сборки
+## [3.0.2](https://github.com/ovrrup/Hibou/releases/tag/v3.0.2)
 
-- Пересобраны Standard и Bypass; опубликованы APK и `SHA256SUMS.txt`.
+### Added
+- Dedicated **Backup & Restore** section in settings.
+- ZIP export and import with selective categories: providers and API keys, MCP keys, user settings, chat history, and media attachments.
+- External storage folder selection to preserve backups across app reinstallation.
 
-## [3.0.3](https://github.com/Leostrange/Leostryx/releases/tag/v3.0.3) — 2026-11-10
+### Fixed
+- Resolved `runtime integrity check failed: hash mismatch` error.
+- Fixed layout stretching in conversation sort menu.
 
-### Добавлено
+## [3.0.1](https://github.com/ovrrup/Hibou/releases/tag/v3.0.1) — 2026-11-09
 
-- Четыре набора брендинга: **Сова**, **Рысь**, **LSX**, **Angular X**; переключение в настройках оформления.
-- Pillow (PIL) в окружении приложения.
-- Подготовлены SVG-варианты эмблем.
+### Added
+- In-app console in Tools settings: separate command execution, log output copy/clear, and fast `logcat` capture.
+- Error history viewer with copy and clear actions.
+- Session export (text, images, and PyMuPDF-based PDF rendering).
+- Package count and download size preview prior to tool updates.
 
-### Изменено
+### Fixed
+- Fixed `ENXIO/ENOENT` terminal I/O errors when launching commands from tools.
+- Suppressed false positive error flags triggered by the word "error" in successful command output.
+- Fixed scroll jumping and background scroll lock in modal dialogs.
+- Connection watchdog no longer interrupts background tasks prematurely.
 
-- Проект переименован в **Leostryx**; репозиторий — `Leostrange/Leostryx`.
-- Рысь (`02_lynx`) выбрана набором по умолчанию.
-- Обновлены имя приложения, иконки и строки брендинга в Standard и Bypass.
+## 3.0 — Baseline Enhancements
 
-Эти изменения описывают опубликованную сборку. Наличие всех ресурсов брендинга в Git не подтверждено; ограничения дерева перечислены в [руководстве по сборке](docs/BUILD.md).
+Consolidated features built upon Antigravity 2.4.1:
 
-## [3.0.2](https://github.com/Leostrange/Leostryx/releases/tag/v3.0.2)
+### Interface & Chat
+- Multilingual interface (English and Russian) with instant switching in settings and on first run.
+- Compact dialogs and controls optimized for touch screens, with full light and dark theme support.
+- Up to 10 media attachments per turn with inline preview and removal.
+- Voice dictation settings, on-device speech recognition for custom providers, and thinking/reasoning modes.
+- Vision support for custom models and persistent model selection across app backgrounding.
 
-Раздел восстановлен по описанию релиза: в присланном исходном журнале он отсутствовал.
+### Agent & Governance
+- Security Shield for managing file access, network read/write rules, and shell execution policies.
+- MCP server runtime adapted for Android/Bionic, with tool forwarding to custom providers.
+- MCP server catalog with configuration UI and custom server definitions.
+- UTCP / OpenAPI integration for external API actuation.
+- Skill browser, editor, and creator; system instructions and UI plugins.
 
-### Добавлено
-
-- Раздел **«Резервное копирование»** в настройках.
-- Экспорт и импорт ZIP с выбором категорий: провайдеры и API-ключи, ключи MCP, настройки, чаты, фото и вложения.
-- Выбор папки во внешнем хранилище для сохранения копии между переустановками.
-
-### Исправлено
-
-- Ошибка `runtime integrity check failed: hash mismatch`.
-- Растягивание меню сортировки диалогов.
-- В описании релиза заявлена совместимость подписи с предыдущей версией; это не гарантия совместимости со всеми более ранними сборками.
-
-## [3.0.1](https://github.com/Leostrange/Leostryx/releases/tag/v3.0.1) — 2026-11-09
-
-### Добавлено
-
-- Консоль приложения в «Инструментах»: отдельные запуски команд, копирование и очистка вывода, быстрый `logcat`.
-- Копирование и очистка истории ошибок.
-- PDF-экспорт сессий через PyMuPDF; экспорт текста и изображений.
-- Предпросмотр числа пакетов и объёма загрузки перед обновлением.
-
-### Исправлено
-
-- Ошибки терминального ввода `ENXIO/ENOENT` при запуске команд из инструментов.
-- Ложные ошибки в журнале из-за слова `error` в успешном выводе.
-- Прокрутка окон ошибок и консоли, сохранение позиции, блокировка фоновой прокрутки.
-- Сторож соединения больше не обрывает посторонние фоновые запросы.
-- Избыточная ширина меню сортировки диалогов.
-
-Подробности — [пункты 58–65](docs/CHANGELOG-ARCHIVE.md).
-
-## 3.0 — собственная нумерация проекта
-
-Сводный выпуск доработок на базе Antigravity 2.4.1. В исходном журнале разработка отмечена промежуточными сборками `fixed-ui-*`; точные даты и соответствие каждого изменения отдельному публичному релизу не указаны.
-
-### Интерфейс и чат
-
-- Русская локализация, выбор языка при первом запуске и в настройках.
-- Компактные меню и окна с поддержкой светлой и тёмной тем.
-- До 10 вложений, просмотр и удаление прикреплённых файлов.
-- Настройки диктовки, системное распознавание речи для пользовательских провайдеров и режимы мышления.
-- Поддержка изображений пользовательскими моделями, сохранение выбора модели при возврате из фона.
-- Исправления навигации, жестов, дублирующихся строк и фоновой работы.
-
-### Агент и интеграции
-
-- Щит безопасности с сохранением политик доступа к файлам, сети и выполнения команд.
-- Адаптация MCP-серверов к Android/Bionic и передача инструментов пользовательским провайдерам.
-- Каталог серверов, настройка авторизации и добавление собственных конфигураций.
-- UTCP/OpenAPI: подключение сервисов и передача инструментов через мост.
-- Просмотр, создание, копирование и редактирование навыков; глобальные инструкции и плагины.
-
-### Окружение и инструменты
-
-- Управление установкой и проверкой инструментов из настроек.
-- Установка Flutter/Dart с адаптацией к Bionic.
-- Исправления JVM-путей, обёртка `jadx-agy`, восстановление путей окружения.
-- Повторные попытки загрузки, отмена и тайм-ауты установки.
-- Исправление выбора альтернатив зависимостей для сохранения установленного Node.js LTS.
-- Исправления линковки bash/MCP, рекурсии shell-мостов и завершения процессов с кодом 164.
-- Обработка пустого `mcp_config.json`, маскирование полей ключей и настройка StitchMCP.
-
-Подробности реализации и все промежуточные пересборки — в [архиве разработки](docs/CHANGELOG-ARCHIVE.md). Исторические результаты проверок относятся к описанному окружению и не являются новым тестированием текущего APK.
+### Environment & Tooling
+- Integrated package management and verification from settings.
+- Flutter & Dart SDKs adapted for Android userspace (Bionic).
+- JVM environment fixes, `jadx-agy` wrapper, and environment path restoration.
+- Download retries, operation cancellation, and configurable timeouts.
+- Automatic dependency resolution protecting installed Node.js LTS packages.

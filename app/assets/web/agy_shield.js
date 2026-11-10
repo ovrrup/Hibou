@@ -13,7 +13,7 @@
 
   function ru() {
     try { return window.__agyI18n ? window.__agyI18n.getLanguage() === "ru" : document.documentElement.getAttribute("data-agy-language") === "ru"; }
-    catch (e) { return true; }
+    catch (e) { return false; }
   }
   function T(r, e) { return ru() ? r : e; }
   function tr(s) { try { return window.__agyI18n ? window.__agyI18n.translate(s) : s; } catch (e) { return s; } }

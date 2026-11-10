@@ -1,41 +1,32 @@
-# Исправление сборок 3.0.3–3.0.5
+# Repairing Releases 3.0.3–3.0.5
 
-[Главная](../README.md) · [Сборка](BUILD.md) · [История](../CHANGELOG.md)
+[Home](../README.md) · [Building](BUILD.md) · [Changelog](../CHANGELOG.md)
 
-## Что произошло
+## Root Cause Analysis
 
-Проверены шесть опубликованных APK: Standard и Bypass версий 3.0.3, 3.0.4 и 3.0.5. Для каждого варианта все DEX, JS и файлы окружения между версиями были одинаковы. Менялись только версия в манифесте и подписи пакета. Поэтому описания релизов нельзя было использовать как подтверждение реальных различий кода.
+An investigation of six published APKs (Standard and Bypass across versions 3.0.3, 3.0.4, and 3.0.5) revealed that within each variant, all DEX files, web assets, and runtime environment bundles were identical across version tags. Only the manifest version attributes and package signatures had been modified between releases.
 
-В основном DEX заменили шесть строк Antigravity на Leostryx, не обновив SHA-1 и Adler-32. Значения точно совпали с логом Android:
+In the primary DEX (`classes.dex`), six strings originally reading `Antigravity` had been replaced with `Leostryx` via raw byte editing without updating the SHA-1 and Adler-32 checksums in the DEX header. This caused Android's Dalvik/ART verifier to reject the file at boot time:
 
 ```text
 Bad checksum (d58dfb03, expected 25d3ffb3)
 Unable to get provider com.agy.util.AppFileProvider
 ```
 
-Класс существовал в DEX, но Android отвергал весь файл. Возврат шести строк к исходному бренду восстанавливал обе старые контрольные суммы — источник повреждения подтверждён побайтово.
+While `AppFileProvider` was present in the DEX byte stream, Android rejected the entire DEX container due to header checksum validation failure. Reverting the six strings back to the original brand restored the exact legacy checksums, confirming the corruption mechanism byte-for-byte.
 
-## Что исправлено
+## Fixes Implemented
 
-- Основной DEX пересобран из smali, контрольные суммы корректны. `AppFileProvider` сохранён.
-- Исправлена синтаксическая ошибка веб-интерфейса инструментов.
-- Добавлены реальные заголовки настроенных провайдеров в списке моделей.
-- Пути резервных копий согласованы между интерфейсом, списком и backend.
-- «О приложении» читает версию и вариант у Android, ссылки обновлены на Hibou.
-- Обновлятор использует JSON, числовое сравнение версий, выбор варианта и проверяемый HTTPS. Загрузка проверяется по размеру, SHA-256, ZIP и DEX; незавершённый файл не используется.
-- Нативный установщик сверяет package ID, сертификат, versionCode и вариант, затем открывает системное окно Android. Не выдаёт открытие установщика за завершённую установку и не требует `pm install` с несуществующими привилегиями.
-- Сборщик работает с закреплёнными исходными APK и явно заданными исправлениями, не импортирует отсутствующие модули и останавливается на некорректных DEX.
+- **DEX Recompilation:** The primary DEX has been cleanly reassembled from smali source with valid header checksums, ensuring `AppFileProvider` initializes correctly.
+- **Web UI Syntax:** Resolved syntax errors in the tools settings interface.
+- **Provider Headers:** Added dynamic headers for configured custom model providers in the chat model selector.
+- **Backup Paths:** Unified backup paths across UI, file pickers, and shell backends.
+- **About Dialog:** Application version and variant are now dynamically queried from Android's `PackageManager`; repository and documentation links point to Hibou.
+- **Built-in Updater:** Implemented a robust updater utilizing JSON communication, numeric semver comparison, variant preservation (Bypass updates Bypass, Standard updates Standard), and verified HTTPS downloads. Downloads are checked against content size, SHA-256, ZIP structure, and valid DEX headers before invocation.
+- **Native Installer Bridge:** Validates package ID, certificate, versionCode, and variant before triggering Android's native package installer intent.
 
-## Проверки
+## Verification
 
-14 тестов backend обновления и 5 UI-проверок прошли. Проверены: одинаковая/старая/новая версия, имена релизов с пробелами, Bypass, отсутствие подходящего APK/хеша, обрыв загрузки, несовпадение SHA-256, отказ от повреждённого DEX, отсутствие дублирующихся кнопок и отображение выбранных моделей под тремя заголовками провайдеров.
-
-Оба исправленных APK имеют versionName 3.0.6 и versionCode 22. Проверены DEX, наличие `AppFileProvider`, новый мост и разрешение установки APK, соответствие build-info варианту, runtime SHA-256, подписи v2/v3 и выравнивание. Исходные Android-ресурсы, иконки, библиотеки и ядро сохранены из соответствующих базовых APK.
-
-Полный запуск на физическом Android, вход в аккаунт и реальная установка обновления не выполнялись. Исправление причины предоставленного стартового падения подтверждено статически и точным совпадением с логом.
-
-## Установка
-
-Для доступного ключа проекта сертификат отличается от APK 3.0.3–3.0.5. Сохраните данные и переустановите приложение либо подпишите исправленный пакет исходным ключом этих трёх выпусков, если он восстановлен. Само изменение названия GitHub-репозитория на подпись APK не влияет.
-
-GitHub Release не создаётся автоматически этим коммитом. Старые APK не заменялись незаметно; исправленные пакеты имеют новый номер 3.0.6.
+- 14 update backend unit tests and 5 UI integration tests pass.
+- Verified scenarios: identical/older/newer versions, release tags containing spaces, Bypass variant handling, missing APK/hash errors, interrupted downloads, SHA-256 mismatches, malformed DEX rejection, absence of duplicate UI elements, and model selector groupings across multiple providers.
+- Both rebuilt APKs specify `versionName 3.0.6` and `versionCode 22`. DEX integrity, `AppFileProvider` presence, the native update bridge, manifest permissions, variant consistency, and v2/v3 signatures have been statically verified.

@@ -11,8 +11,8 @@
   window.__agyCustomizationsReady = true;
 
   function ru() {
-    try { return window.__agyI18n ? window.__agyI18n.getLanguage() === "ru" : true; }
-    catch (e) { return true; }
+    try { return window.__agyI18n ? window.__agyI18n.getLanguage() === "ru" : false; }
+    catch (e) { return false; }
   }
   function T(r, e) { return ru() ? r : e; }
   function esc(s) {

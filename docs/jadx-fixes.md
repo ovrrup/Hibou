@@ -1,33 +1,30 @@
-# Отчёт: ошибки декомпиляции jadx — фиксы для AGY
+# jadx Decompilation Fixes for Android Userspace
 
-Файл-пример: `/storage/emulated/0/Download/xgesture-1.62.0-full.apk` (~70 МБ).
+Reference target: `/storage/emulated/0/Download/xgesture-1.62.0-full.apk` (~70 MB).
 
-## Корневая причина всех ошибок jadx
+## Root Cause
 
-В окружении AGY установлена **Termux-сборка OpenJDK 17**, у которой зашиты (hardcoded)
-пути Termux:
-
-- RPATH бинарника: `/data/data/com.termux/files/usr/lib/jvm/java-17-openjdk/lib:...`
+The AGY environment utilizes a Termux-built OpenJDK 17 package with hardcoded Termux filesystem paths:
+- Binary RPATH: `/data/data/com.termux/files/usr/lib/jvm/java-17-openjdk/lib:...`
 - `user.home` → `/data/data/com.termux/files/home`
 - `java.io.tmpdir` → `/data/data/com.termux/files/usr/tmp`
 
-Эти пути из песочницы AGY (`/data/user/0/com.agyru.bp/files`) **недоступны** →
-`java.nio.file.AccessDeniedException`.
+These directories are inaccessible from the AGY sandbox (`$HOME`), triggering `java.nio.file.AccessDeniedException`.
 
 ---
 
-## Ошибки и фиксы
+## Errors & Solutions
 
 ### 1. `ExceptionInInitializerError: Failed to init common directories`
 
-```
+```text
 java.nio.file.AccessDeniedException: /data/data/com.termux/files/home/.cache
   at jadx.commons.app.JadxCommonFiles$DirsLoader.loadEnvDir
 ```
 
-**Причина:** jadx кладёт кэш в `user.home/.cache`, а `user.home` указывает на Termux.
+**Cause:** jadx initializes cache inside `user.home/.cache`, but `user.home` targets the nonexistent Termux home.
 
-**Фикс:** задать `user.home` и `XDG_CACHE_HOME` на доступный каталог:
+**Fix:** Redirect `user.home` and `XDG_CACHE_HOME` to an accessible directory:
 
 ```bash
 env HOME="$HOME" XDG_CACHE_HOME="$WORK/cache" \
@@ -36,48 +33,44 @@ env HOME="$HOME" XDG_CACHE_HOME="$WORK/cache" \
 
 ### 2. `Failed to create temp root directory`
 
-```
+```text
 java.nio.file.AccessDeniedException: /data/data/com.termux/files/usr/tmp/jadx-instance-...
   at jadx.core.utils.files.FileUtils.createTempRootDir
 ```
 
-**Причина:** `java.io.tmpdir` зашит в Termux-prefixed путь. JVM **игнорирует**
-`TMPDIR` для `java.io.tmpdir` — нужен явный JVM-флаг.
+**Cause:** `java.io.tmpdir` is hardcoded to Termux paths. The JVM ignores the `$TMPDIR` environment variable for `java.io.tmpdir`, requiring an explicit JVM property flag.
 
-**Фикс:** `JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$WORK/cache/tmp" jadx ...`
+**Fix:** `JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$WORK/cache/tmp" jadx ...`
 
 ### 3. Exit code 137 (SIGKILL)
 
-**Причина:** либо OOM (70 МБ APK, jadx подъедает много RAM; на устройстве ~2 ГБ
-свободно), либо убийство процесса при рестарте сервера.
+**Cause:** Out-of-memory (OOM) on large APKs (~70 MB) when running unbounded threads on devices with limited RAM.
 
-**Фикс:** ограничить кучу и потоки:
+**Fix:** Restrict heap and thread concurrency:
 
 ```bash
 JAVA_TOOL_OPTIONS="... -Xmx1500m" jadx -j 2 ...
 ```
 
-Также снизить нагрузку: `--no-res` (ресурсы даёт apktool) и не гонять jadx и apktool
-параллельно, если память на исходе.
+Also pass `--no-res` when resource decoding is unnecessary or handled by apktool.
 
 ### 4. `Unknown option: --single-class-thread`
 
-Просто несуществующий флаг jadx 1.5.6. Для ограничения параллелизма используется `-j N`.
+This option does not exist in jadx 1.5.x. Use `-j N` to control parallelism instead.
 
 ### 5. apktool: `W: Could not decode file, replacing by NULL value: res/*.9.png`
 
-**Причина:** обфускатор (Ali/梆梆-style) ломает chunk-структуру девятипачных PNG —
-apktool не может их декодировать в `res/`.
+**Cause:** Obfuscation tools break chunk structures in nine-patch PNGs.
 
-**Фикс:** безвредно для smali/манифеста. Если нужны сами картинки — взять сырые из APK:
+**Fix:** Safe to ignore for smali and manifest inspection. Extract raw PNG assets directly if needed:
 
 ```bash
-unzip -o xgesture-1.62.0-full.apk "res/*.9.png" -d raw_res
+unzip -o app.apk "res/*.9.png" -d raw_res
 ```
 
 ---
 
-## Рабочая универсальная команда jadx для AGY
+## Universal jadx Invocation
 
 ```bash
 WORK="$HOME/.gemini/antigravity-app/scratch/<job>"
@@ -87,28 +80,16 @@ env HOME="$HOME" XDG_CACHE_HOME="$WORK/cache" TMPDIR="$WORK/cache/tmp" \
   jadx -d "$WORK/jadx_out" --no-res -j 2 /path/to/app.apk
 ```
 
-## Постоянный фикс (реализован в сборке)
+## Permanent Wrapper: `jadx-agy`
 
-Обёртка **`jadx-agy`** (`$PREFIX/bin/jadx-agy`, поставляется в overlay):
+The `jadx-agy` wrapper resides at `$PREFIX/bin/jadx-agy`:
 
 ```sh
-#!/data/user/0/com.agyru.bp/files/usr/bin/env sh
+#!/data/user/0/com.agyru.t2/files/usr/bin/bash
 WORK="${XDG_CACHE_HOME:-$HOME/.cache}/jadx"
 mkdir -p "$WORK/tmp"
 export JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$WORK/tmp -Duser.home=$HOME -Xmx1500m ${JAVA_TOOL_OPTIONS:-}"
 exec jadx "$@"
 ```
 
-Использование: `jadx-agy -d out --no-res -j 2 app.apk`.
-
-Для **всех** Java-инструментов (apktool, d8, apksigner, jadx-gui, Gradle) флаги
-путь-путей обеспечиваются профилем `$PREFIX/etc/profile.d/65-agy-jvm.sh`
-(`JAVA_TOOL_OPTIONS`), который `agy-fix-paths` восстанавливает при отсутствии.
-
-> [!TIP]
-> То же касается любого Java-инструмента в AGY: Termux-JDK всегда требует
-> `-Djava.io.tmpdir` и `-Duser.home`.
-
-> [!NOTE]
-> `agy-fix-paths` дополнен шагом 3: при отсутствии создаёт
-> `etc/profile.d/65-agy-jvm.sh`.
+Usage: `jadx-agy -d out --no-res -j 2 app.apk`.

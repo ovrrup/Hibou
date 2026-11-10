@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
@@ -95,17 +95,17 @@
     <h1 data-t="langTitle"></h1>
     <p data-t="langBody"></p>
     <div class="options">
-      <button class="option" data-act="chooseLang" data-arg="system">
-        <span class="badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
-        <span><strong data-t="sysName"></strong><small data-t="sysHint"></small></span>
+      <button class="option" data-act="chooseLang" data-arg="en">
+        <span class="badge">EN</span>
+        <span><strong>English</strong><small>Interface in English</small></span>
       </button>
       <button class="option" data-act="chooseLang" data-arg="ru">
         <span class="badge">RU</span>
         <span><strong>Русский</strong><small>Интерфейс на русском</small></span>
       </button>
-      <button class="option" data-act="chooseLang" data-arg="en">
-        <span class="badge">EN</span>
-        <span><strong>English</strong><small>Interface in English</small></span>
+      <button class="option" data-act="chooseLang" data-arg="system">
+        <span class="badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
+        <span><strong data-t="sysName"></strong><small data-t="sysHint"></small></span>
       </button>
     </div>
   </div>
@@ -154,7 +154,7 @@
 
   function render() {
     var p = params();
-    var lang = /^ru\b/i.test(p.locale || navigator.language || "") ? "ru" : "en";
+    var lang = (p.lang === "ru" || (p.locale && /^ru\b/i.test(p.locale))) ? "ru" : "en";
     var dict = T[lang];
     document.documentElement.lang = lang;
     document.documentElement.classList.toggle("light", p.theme === "light");
