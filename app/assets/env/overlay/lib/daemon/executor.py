@@ -122,20 +122,22 @@ def _run_task_worker(task):
     if not command and prompt:
         command = f"agy-notify post -t 'AI Task Trigger' -m '{prompt[:100]}'"
 
-    notify("Antigravity Daemon", f"Running task: {name}", tag=f"task_{task_id}")
+    notify("Hibou Daemon", f"Running task: {name}", tag=f"task_{task_id}")
 
     start_t = time.time()
     success = False
     output = ""
     env = os.environ.copy()
-    env["PATH"] = f"/data/user/0/com.agyru.t2/files/usr/bin:{env.get('PATH', '')}"
-    env["HOME"] = "/data/user/0/com.agyru.t2/files"
+    home = os.environ.get("HOME", "/data/user/0/agy.hibou/files")
+    prefix = os.environ.get("PREFIX", f"{home}/usr")
+    env["PATH"] = f"{prefix}/bin:{env.get('PATH', '')}"
+    env["HOME"] = home
     if convo_id:
         env["AGY_CONVERSATION_ID"] = convo_id
     if project:
         env["AGY_PROJECT_DIR"] = project
 
-    cwd = project if (project and os.path.isdir(project)) else "/data/user/0/com.agyru.t2/files"
+    cwd = project if (project and os.path.isdir(project)) else home
 
     try:
         res = subprocess.run(

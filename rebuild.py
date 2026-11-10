@@ -104,7 +104,7 @@ def pack(source, variant, destination):
             subprocess.run([node, '--check', str(overrides[name])], check=True)
     subprocess.run(['bash', '-n', str(overrides['assets/web/agy_tools.sh'])], check=True)
     info = {'versionName': VERSION, 'versionCode': VERSION_CODE, 'variant': variant,
-            'packageName': 'com.agyru.t2', 'sourceRelease': 'v3.0.5', 'sourceSha256': BASE[variant][1]}
+            'packageName': 'agy.hibou', 'sourceRelease': 'v3.0.5', 'sourceSha256': BASE[variant][1]}
     metadata_path = 'assets/web/build-info.json'
     with zipfile.ZipFile(source) as base:
         bundle = patch_bundle(base.read('assets/web/generated/main.js').decode('utf-8')).encode('utf-8')

@@ -14,7 +14,7 @@ When signatures match, the app can be upgraded in place over an existing install
 4. Complete the initial setup walkthrough and restore your data from backup.
 
 > [!NOTE]
-> Uninstalling the app completely clears internal app data (`/data/user/0/com.agyru.t2/`). Ensure you have exported backups before reinstalling.
+> Uninstalling the app completely clears internal app data (`/data/user/0/agy.hibou/`). Ensure you have exported backups before reinstalling.
 
 ## Providers & Models
 

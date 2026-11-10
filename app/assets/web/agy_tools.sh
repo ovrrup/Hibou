@@ -29,7 +29,7 @@ pkg_retry() {
         local fetch_dst="$PREFIX/libexec/pkg/lib/fetch.sh"
         if [ -f "$fetch_dst" ]; then
             cat > "$fetch_dst.agy-new" <<'AGY_PKG_FETCH_EOF'
-#!/data/user/0/com.agyru.t2/files/usr/bin/bash
+#!/data/user/0/agy.hibou/files/usr/bin/bash
 # fetch.sh -- download with sha256 verification and cache.
 # Requires curl, sha256sum, log, die.
 

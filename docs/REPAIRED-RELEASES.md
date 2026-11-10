@@ -26,4 +26,4 @@ The author's signing key matches the original release signature:
 d72235a57bb27fe9755199e8b9daca1ae305adf8a0f0feac3ac98434f6f7e416
 ```
 
-Because the package ID remains `com.agyru.t2` and the signing certificate is identical, uninstalling existing installations of 3.0.3–3.0.5 is not required. Installing the repaired 3.0.5 upgrades existing setups cleanly.
+In the legacy 3.0.3–3.0.5 releases, the package ID was `com.agyru.t2`. Starting with Hibou `1.0.0-beta.1`, the application transitions to its standalone identity with Application ID `agy.hibou`. Because the package ID changes to `agy.hibou`, users upgrading from legacy versions can install Hibou cleanly alongside or migrate via export/import without package signature conflicts.

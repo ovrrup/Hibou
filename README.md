@@ -26,6 +26,14 @@ Custom model providers, developer toolchains, and granular agent governance.</p>
 
 As the first unified model of the app, Hibou versioning begins with **`1.0.0-beta.1`**.
 
+| Attribute | Specification |
+|---|---|
+| **Application ID** | `agy.hibou` |
+| **Initial Release** | `1.0.0-beta.1` (versionCode 1) |
+| **Platform & Architecture** | Android 8.0+ (API 26+) · Native `arm64-v8a` (ARM64) |
+| **Runtime Environment** | Native Android Userspace / Bionic libc (no PRoot/chroot overhead) |
+| **Default Language** | English (`en`) with full Russian (`ru`) support |
+
 ---
 
 ## Credits & Acknowledgements

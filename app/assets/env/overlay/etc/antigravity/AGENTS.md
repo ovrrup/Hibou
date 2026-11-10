@@ -1,7 +1,7 @@
-# Antigravity Android Agent Rules & Environment Guidelines
+# Hibou Android Agent Rules & Environment Guidelines
 
 > [!NOTE]
-> This rule is automatically loaded into every conversation in Antigravity for Android (AGY v2).
+> This rule is automatically loaded into every conversation in Hibou for Android.
 > It defines the operating environment, execution rules, package management, elevated permissions, and development standards.
 
 ---
@@ -9,10 +9,10 @@
 ## 1. Platform & Environment Identity
 
 - **Platform:** Native Android (Linux kernel 6.1+, ARM64 / `aarch64` architecture, **ARMv8.0-A+ baseline** with ARMv8.0 LSE emulation and native ARMv8.1-A+ LSE atomics).
-- **Application Context:** Runs directly inside the Antigravity (`com.agyru.t2`) sandbox.
+- **Application Context:** Runs directly inside the Hibou (`agy.hibou`) sandbox.
 - **Key Filesystem Paths:**
-  - Application Root (`$HOME`): `/data/user/0/com.agyru.t2/files` (or app-private `files/` directory).
-  - Linux Userspace Prefix (`$PREFIX`): `$HOME/usr` (`/data/user/0/com.agyru.t2/files/usr`).
+  - Application Root (`$HOME`): `/data/user/0/agy.hibou/files` (or app-private `files/` directory).
+  - Linux Userspace Prefix (`$PREFIX`): `$HOME/usr` (`/data/user/0/agy.hibou/files/usr`).
   - Binary Directory: `$PREFIX/bin`.
   - Runtime Internals: `$HOME/runtime/bin`.
   - External / Shared Storage: `/storage/emulated/0` (Projects typically reside in `/storage/emulated/0/Documents/`).

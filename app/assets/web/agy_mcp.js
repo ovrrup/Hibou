@@ -57,7 +57,7 @@
       title: "Open-Meteo Weather API",
       desc: T("Точный прогноз погоды и текущая температура по координатам по всему миру без API ключа.",
               "Accurate weather forecast and current temperature by coordinates worldwide without API key."),
-      source: "/data/user/0/com.agyru.t2/files/.gemini/config/utcp_manuals/open-meteo.json",
+      source: "/data/user/0/agy.hibou/files/.gemini/config/utcp_manuals/open-meteo.json",
       tools: ["get_weather"]
     },
     {
@@ -65,7 +65,7 @@
       title: "IP Geolocation API",
       desc: T("Определение страны, города, координат и интернет-провайдера по любому IP адресу.",
               "Detect country, city, coordinates and ISP for any IP address."),
-      source: "/data/user/0/com.agyru.t2/files/.gemini/config/utcp_manuals/ip-lookup.json",
+      source: "/data/user/0/agy.hibou/files/.gemini/config/utcp_manuals/ip-lookup.json",
       tools: ["lookup_ip"]
     },
     {
@@ -73,7 +73,7 @@
       title: "REST Countries Global API",
       desc: T("Энциклопедические данные по странам мира (столицы, валюты, население, границы, языки).",
               "Comprehensive data on world countries (capitals, currencies, population, languages)."),
-      source: "/data/user/0/com.agyru.t2/files/.gemini/config/utcp_manuals/rest-countries.json",
+      source: "/data/user/0/agy.hibou/files/.gemini/config/utcp_manuals/rest-countries.json",
       tools: ["get_country"]
     },
     {
@@ -81,7 +81,7 @@
       title: "CoinGecko Crypto API",
       desc: T("Актуальные курсы криптовалют (BTC, ETH, TON, SOL) в USD, EUR, RUB и динамика за 24 часа.",
               "Live cryptocurrency prices (BTC, ETH, TON, SOL) in USD/EUR/RUB and 24h change."),
-      source: "/data/user/0/com.agyru.t2/files/.gemini/config/utcp_manuals/coingecko.json",
+      source: "/data/user/0/agy.hibou/files/.gemini/config/utcp_manuals/coingecko.json",
       tools: ["get_crypto_price"]
     }
   ];
@@ -748,7 +748,7 @@
       html += '    <div class="agy-mcp-modal-desc">' + esc(T("Укажите идентификатор сервера, исполняемый файл или команду, аргументы и переменные окружения.", "Specify server identifier, executable command, arguments and environment variables.")) + '</div>';
       html += '    <div class="agy-mcp-modal-form">';
       html += '      <div class="agy-mcp-field"><label>' + esc(T("Имя / ID сервера (без пробелов)", "Server ID")) + '</label><input type="text" id="mcp-modal-name" placeholder="my-custom-mcp"></div>';
-      html += '      <div class="agy-mcp-field"><label>' + esc(T("Команда (node, python3 или путь)", "Command")) + '</label><input type="text" id="mcp-modal-cmd" placeholder="/data/user/0/com.agyru.t2/files/runtime/bin/node"></div>';
+      html += '      <div class="agy-mcp-field"><label>' + esc(T("Команда (node, python3 или путь)", "Command")) + '</label><input type="text" id="mcp-modal-cmd" placeholder="/data/user/0/agy.hibou/files/runtime/bin/node"></div>';
       html += '      <div class="agy-mcp-field"><label>' + esc(T("Аргументы (через запятую)", "Arguments (comma-separated)")) + '</label><input type="text" id="mcp-modal-args" placeholder="/path/to/server.js,arg1"></div>';
       html += '      <div class="agy-mcp-field"><label>' + esc(T("Переменные среды (KEY1=VAL1,KEY2=VAL2)", "Env Variables (comma-separated)")) + '</label><input type="text" id="mcp-modal-env" placeholder="API_KEY=xyz,DEBUG=1"></div>';
       html += '    </div>';

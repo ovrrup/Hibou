@@ -85,7 +85,7 @@ env HOME="$HOME" XDG_CACHE_HOME="$WORK/cache" TMPDIR="$WORK/cache/tmp" \
 The `jadx-agy` wrapper resides at `$PREFIX/bin/jadx-agy`:
 
 ```sh
-#!/data/user/0/com.agyru.t2/files/usr/bin/bash
+#!/data/user/0/agy.hibou/files/usr/bin/bash
 WORK="${XDG_CACHE_HOME:-$HOME/.cache}/jadx"
 mkdir -p "$WORK/tmp"
 export JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$WORK/tmp -Duser.home=$HOME -Xmx1500m ${JAVA_TOOL_OPTIONS:-}"

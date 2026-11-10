@@ -11,6 +11,7 @@ Initial beta release of Hibou, an AI-powered development environment designed fo
 ### Highlights & Architecture
 - **Official Versioning:** Reset project versioning to start from `1.0.0-beta.1` for the first unified distribution of the application.
 - **Project Identity:** Rebranded to Hibou with owl mascot vector identity (`01_owl`), copper styling, and standalone repository at `ovrrup/Hibou`.
+- **Standalone Application ID (`agy.hibou`):** Transitioned application ID and package namespace from legacy `com.agyru.t2` to `agy.hibou`, updating compiled binary manifests, primary DEX bytecode, internal IPC broadcasts, Shizuku `rish` authorization, and all terminal shims.
 - **English by Default:** Interface defaults to English across first-run onboarding, settings, and developer tool managers. Full Russian localization is preserved and accessible via *Settings → Interface → App language*.
 - **Foundational Credits:** Explicit in-app and documentation attribution to upstream creators:
   - **werdio325-png** ([werdio325-png/antigravity-android](https://github.com/werdio325-png/antigravity-android)): Pioneer of native Android ARM64 execution, Chromium WebView bridge, and Shizuku/IntentBridge integration.
