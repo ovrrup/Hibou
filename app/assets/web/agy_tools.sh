@@ -2191,6 +2191,7 @@ PYPDF
 op_termrun() {
     AGY_TERM_B64="$ARG" python3 - <<'PYRUN'
 import os, sys, base64, subprocess
+
 raw = os.environ.get("AGY_TERM_B64", "")
 try:
     cmd = base64.b64decode(raw).decode("utf-8", "replace")
@@ -2201,8 +2202,11 @@ if not cmd.strip():
     print("(empty)"); sys.exit(0)
 if len(cmd) > 4000:
     print("command too long"); sys.exit(1)
-home = os.environ.get("HOME", "/")
+
+home   = os.environ.get("HOME", "/")
 prefix = os.environ.get("PREFIX", "")
+
+# ------------------------------------------------------------------ env
 env = os.environ.copy()
 env["PATH"] = ":".join(x for x in [
     prefix + "/bin" if prefix else "",
@@ -2210,12 +2214,76 @@ env["PATH"] = ":".join(x for x in [
     "/system/bin",
     env.get("PATH", ""),
 ] if x)
-env["TERM"] = "dumb"
-env["HOME"] = home
+env["TERM"]   = "xterm-256color"
+env["HOME"]   = home
+env["PREFIX"] = prefix
+
+# ------------------------------------------------------------------ shell selection + LD_PRELOAD
+# chmod the prefix bash binary in case APK extraction stripped +x.
+bash_bin = (prefix + "/bin/bash") if prefix else ""
+if bash_bin and os.path.isfile(bash_bin):
+    try:
+        os.chmod(bash_bin, 0o755)
+    except Exception:
+        pass  # read-only fs; will fall through to /system/bin/sh
+
+def _is_exec(p):
+    return bool(p) and os.path.isfile(p) and os.access(p, os.X_OK)
+
+shell = bash_bin if _is_exec(bash_bin) else "/system/bin/sh"
+
+# LD_PRELOAD (libtermux-exec) must ONLY travel with the prefix bash binary.
+# Injecting it into /system/bin/sh triggers Bionic's linker namespace guard
+# (CANNOT LINK EXECUTABLE) and SELinux denials on enforcing devices.
+if "bash" in shell:
+    _lse       = os.path.join(prefix, "lib", "libtermux-exec.so")
+    _lse_compat = os.path.join(prefix, "lib", "liblse_compat.so")
+    if os.path.isfile(_lse):
+        env["LD_PRELOAD"] = (_lse_compat + ":" + _lse) if os.path.isfile(_lse_compat) else _lse
+else:
+    # Strip any inherited LD_PRELOAD so Bionic can link /system/bin/sh cleanly.
+    env.pop("LD_PRELOAD", None)
+
+# ------------------------------------------------------------------ CWD state
+# op_termrun is a one-shot process; to emulate persistent CWD (so that
+# "cd /sdcard" in one command affects the next) we save pwd to a state file.
+CWD_FILE = os.path.join(home, ".agy_term_cwd")
+
+# Restore saved CWD from the previous command, if it still exists.
+start_cwd = home
+try:
+    if os.path.isfile(CWD_FILE):
+        saved = open(CWD_FILE).read().strip()
+        if saved and os.path.isdir(saved):
+            start_cwd = saved
+except Exception:
+    pass  # ignore read errors; fall back to $HOME
+
+# Wrap the user command so that:
+#   1. We start in the saved CWD.
+#   2. After the user command finishes we print a sentinel with the new pwd.
+# The sentinel "@@PWD:<path>" is stripped from the displayed output below.
+PWD_SENTINEL = "@@PWD:"
+if "bash" in shell:
+    shell_flags = ["--noprofile", "--norc", "-lc"]
+    wrapped = (
+        "cd " + repr(start_cwd) + " 2>/dev/null || cd " + repr(home) + "; "
+        + cmd
+        + "; printf '\\n" + PWD_SENTINEL + "%s\\n' \"$PWD\""
+    )
+else:
+    shell_flags = ["-c"]
+    wrapped = (
+        "cd " + repr(start_cwd) + " 2>/dev/null || cd " + repr(home) + "; "
+        + cmd
+        + "; printf '\\n" + PWD_SENTINEL + "%s\\n' \"$PWD\""
+    )
+
+# ------------------------------------------------------------------ run
 try:
     p = subprocess.run(
-        [prefix + "/bin/bash", "--noprofile", "--norc", "-lc", cmd],
-        cwd=home,
+        [shell] + shell_flags + [wrapped],
+        cwd=home,          # initial fork dir; shell cd overrides immediately
         env=env,
         capture_output=True,
         timeout=25,
@@ -2225,7 +2293,30 @@ except subprocess.TimeoutExpired as e:
     sys.stdout.buffer.write(out)
     print("\n(timeout 25s)")
     sys.exit(124)
+
 data = (p.stdout or b"") + (p.stderr or b"")
+
+# ------------------------------------------------------------------ extract and save new CWD
+new_cwd = None
+sentinel_bytes = PWD_SENTINEL.encode()
+if sentinel_bytes in data:
+    before, _, after = data.rpartition(sentinel_bytes)
+    # 'before' may contain a bare newline we prepended; strip it.
+    if before.endswith(b"\n"):
+        before = before[:-1]
+    new_cwd_candidate = after.split(b"\n", 1)[0].decode("utf-8", "replace").strip()
+    if new_cwd_candidate and os.path.isdir(new_cwd_candidate):
+        new_cwd = new_cwd_candidate
+    data = before  # drop the sentinel line from displayed output
+
+try:
+    if new_cwd:
+        with open(CWD_FILE, "w") as f:
+            f.write(new_cwd + "\n")
+except Exception:
+    pass  # write failure is non-fatal
+
+# ------------------------------------------------------------------ output
 if len(data) > 200000:
     data = data[:200000] + b"\n...(truncated)"
 sys.stdout.buffer.write(data)
@@ -2235,6 +2326,8 @@ print("(exit %d)" % p.returncode)
 sys.exit(0 if p.returncode == 0 else 1)
 PYRUN
 }
+
+
 
 
 # AGY-P2-20: очистка журнала ошибок инструментов (логи джоб с rc!=0).
