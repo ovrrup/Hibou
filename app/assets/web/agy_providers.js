@@ -82,6 +82,8 @@
           // the exclusive AGY_LLM_GATEWAY to the provider, which expects the raw
           // model id (e.g. "mimo-v2.6-pro").
           label: m, modelName: m,
+          providerName: c.name || ({openai:"OpenAI",anthropic:"Anthropic",gemini:"Gemini"}[c.type] || c.type || "Provider"),
+          providerId: c.id || c.type || "provider",
           maxTokens: md.ctx && md.ctx > 0 ? md.ctx : 200000,
           images: md.images !== false, tools: md.tools !== false, thinking: md.thinking !== false,
           efforts: Array.isArray(md.efforts) && md.efforts.length ? md.efforts.slice() : null,
@@ -113,6 +115,22 @@
     return Object.assign({}, status, { cascadeModelConfigData: Object.assign({}, data, {
       clientModelConfigs: (data.clientModelConfigs || []).filter(function (m) { return !ids.has(m.label) && !ids.has(m.modelId); })
     }) });
+  };
+  // One section per configured provider, preserving its selected-model order.
+  window.__agyGroupProviderModels = function (models) {
+    var specs = window.__agyProviderSpecs(), byLabel = {}, groups = [], index = {};
+    specs.forEach(function (spec) { byLabel[spec.label] = spec; });
+    (models || []).forEach(function (model) {
+      var spec = byLabel[model.label];
+      var key = spec ? spec.providerId : "other";
+      var group = index[key];
+      if (!group) {
+        group = { id: key, name: spec ? spec.providerName : T("Другие модели", "Other models"), models: [] };
+        index[key] = group; groups.push(group);
+      }
+      group.models.push(model);
+    });
+    return groups;
   };
   window.__agySetCustomEffort = function (modelId, effort) {
     var cfg = readPersisted();

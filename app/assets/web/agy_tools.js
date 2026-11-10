@@ -849,8 +849,8 @@
     var note = document.createElement("div");
     note.className = "agy-t-note";
     note.textContent = T(
-      "Отметьте, что сохранить, и укажите путь. По умолчанию — папка «Antigravity Backup» на телефоне. Включает провайдеры, ключи MCP, настройки и историю чатов с фото.",
-      "Check what to save and set the path. Default folder: Antigravity Backup on the phone. Includes providers, MCP keys, settings and chat history with photos."
+      "Отметьте, что сохранить, и укажите путь. По умолчанию — папка «Leostryx Backup» на телефоне. Включает провайдеры, ключи MCP, настройки и историю чатов с фото.",
+      "Check what to save and set the path. Default folder: Leostryx Backup on the phone. Includes providers, MCP keys, settings and chat history with photos."
     );
     wrap.appendChild(note);
 
@@ -863,7 +863,7 @@
     pathRow.appendChild(pathLabel);
     var pathInput = document.createElement("input");
     pathInput.type = "text";
-    pathInput.value = "/storage/emulated/0/Antigravity Backup";
+    pathInput.value = "/storage/emulated/0/Leostryx Backup";
     pathInput.style.cssText = "flex:1;min-width:0;background:#101012;color:#eee;border:1px solid #555;border-radius:8px;padding:8px;font-size:12px";
     pathInput.setAttribute("data-backup-path", "");
     pathRow.appendChild(pathInput);
@@ -990,11 +990,11 @@
     btnImport.onclick = function () {
       var b = bridge();
       if (!b) { alert(T("Мост недоступен.", "Bridge unavailable.")); return; }
-      var lsId = b.start("termrun", btoa("ls -1t /storage/emulated/0/Antigravity\\ Backup/agy-backup-*.zip 2>/dev/null | head -10"));
+      var lsId = b.start("termrun", btoa("ls -1t /storage/emulated/0/Leostryx\\ Backup/agy-backup-*.zip 2>/dev/null | head -10"));
       if (!lsId || /^ERR/.test(lsId)) { alert(String(lsId)); return; }
       pollStandalone(lsId, function (r) {
         var lines = (r.log || "").split("\n").filter(function (l) { return l.trim() && l.indexOf(".zip") >= 0; });
-        if (!lines.length) { alert(T("Нет файлов бэкапа в папке Antigravity Backup.", "No backup files found.")); return; }
+        if (!lines.length) { alert(T("Нет файлов бэкапа в папке Leostryx Backup.", "No backup files found.")); return; }
         var overlay = document.createElement("div");
         overlay.style.cssText = "position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px";
         var box = document.createElement("div");
@@ -1163,10 +1163,10 @@
     var appInfo = document.createElement("div");
     var appName = document.createElement("div");
     appName.style.cssText = "font-size:17px;font-weight:600;color:var(--foreground,#eee)";
-    appName.textContent = "Antigravity-BP";
+    appName.textContent = "Leostryx";
     var appVer = document.createElement("div");
     appVer.style.cssText = "font-size:12px;color:#888;margin-top:2px";
-    appVer.textContent = "3.0.2 · Standard";
+    try { var info = JSON.parse(window.AgyTools.getAppInfo()); appVer.textContent = info.versionName + " · " + info.variant; } catch (_) { appVer.textContent = "Leostryx"; }
     appInfo.appendChild(appName);
     appInfo.appendChild(appVer);
     appRow.appendChild(appInfo);
@@ -1198,8 +1198,8 @@
       a.style.cssText = "font-size:13px;color:" + ACCENT + ";text-decoration:none;cursor:pointer;border-bottom:1px solid rgba(11,132,255,.3);padding-bottom:1px";
       return a;
     }
-    linksRow.appendChild(makeLink(T("Исходный код", "Source code"), "https://github.com/Leostrange/antigravity-android"));
-    linksRow.appendChild(makeLink(T("История изменений", "Changelog"), "https://github.com/Leostrange/antigravity-android/blob/main/CHANGELOG.md"));
+    linksRow.appendChild(makeLink(T("Исходный код", "Source code"), "https://github.com/Leostrange/Leostryx"));
+    linksRow.appendChild(makeLink(T("История изменений", "Changelog"), "https://github.com/Leostrange/Leostryx/blob/main/CHANGELOG.md"));
     c1.appendChild(linksRow);
 
     var credit = document.createElement("div");
@@ -1278,68 +1278,94 @@
     btnUpd.textContent = T("Проверить обновления", "Check for updates");
     c3.appendChild(btnUpd);
 
+    var downloadButton = null;
+    function installedAppInfo() {
+      try { return JSON.parse(window.AgyTools.getAppInfo()); } catch (_) { return null; }
+    }
+    function updateResult(log, marker) {
+      var lines = String(log || "").split(/\r?\n/);
+      for (var i = lines.length - 1; i >= 0; i--) {
+        if (lines[i].indexOf(marker + " ") === 0) {
+          try { return JSON.parse(lines[i].slice(marker.length + 1)); } catch (_) { return null; }
+        }
+      }
+      return null;
+    }
+    function installDownloaded() {
+      var result = "error:bridge";
+      try { result = window.AgyTools.installUpdate(); } catch (_) {}
+      if (result === "permission") {
+        updStatus.textContent = T("Разрешите установку из Leostryx, вернитесь и нажмите «Установить обновление».", "Allow installs from Leostryx, return and tap Install update.");
+      } else if (result === "installer") {
+        updStatus.textContent = T("Подтвердите обновление в системном установщике Android.", "Confirm the update in Android's package installer.");
+      } else {
+        var messages = {
+          "error:signature": T("Подпись APK отличается. Обновление поверх невозможно.", "APK signing certificate differs; an in-place update is unavailable."),
+          "error:variant": T("APK предназначен для другого варианта сборки.", "APK belongs to a different build variant."),
+          "error:version": T("Загруженная версия не новее установленной.", "Downloaded version is not newer than the installed one."),
+          "error:checksum": T("Проверка загруженного файла не пройдена. Скачайте обновление заново.", "Downloaded file failed verification. Download again.")
+        };
+        updStatus.textContent = messages[result] || T("Не удалось открыть установщик: ", "Could not open installer: ") + result;
+      }
+    }
     btnUpd.onclick = function () {
+      var b = bridge(), current = installedAppInfo();
+      if (!b || !current || !current.versionName || !current.variant) {
+        updStatus.textContent = T("Не удалось определить версию приложения.", "Could not read installed app version.");
+        return;
+      }
+      if (downloadButton) { downloadButton.remove(); downloadButton = null; }
       btnUpd.disabled = true;
-      btnUpd.textContent = "";
-      var spin = document.createElement("div");
-      spin.style.cssText = "width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:agy-usage-spin .7s linear infinite";
-      btnUpd.appendChild(spin);
-      var stx = document.createElement("span");
-      stx.textContent = T(" Проверяем…", " Checking…");
-      btnUpd.appendChild(stx);
-      updStatus.textContent = "";
-      var b = bridge();
-      if (!b) { updStatus.textContent = T("Мост недоступен.", "Bridge unavailable."); btnUpd.disabled = false; btnUpd.textContent = T("Проверить обновления", "Check for updates"); return; }
-      var id = b.start("updatecheck", "");
+      btnUpd.textContent = T("Проверка…", "Checking…");
+      var id = b.start("updatecheck", JSON.stringify(current));
       if (!id || /^ERR/.test(id)) {
-        updStatus.textContent = T("Не удалось проверить обновления.", "Could not check for updates.");
-        btnUpd.disabled = false; btnUpd.textContent = T("Проверить обновления", "Check for updates");
+        btnUpd.disabled = false;
+        btnUpd.textContent = T("Проверить обновления", "Check for updates");
+        updStatus.textContent = T("Не удалось начать проверку.", "Could not start update check.");
         return;
       }
       pollStandalone(id, function (r) {
         btnUpd.disabled = false;
         btnUpd.textContent = T("Проверить обновления", "Check for updates");
-        var m = /@@UPDATE (\S+) (\S+) (\S+)/.exec(r.log || "");
-        if (m && m[1] && !m[1].startsWith("ERR")) {
-          var tag = m[1], apkUrl = m[3];
-          if (tag.replace("v", "") === "3.0.2") {
-            updStatus.textContent = T("Установлена актуальная версия (3.0.2).", "Latest version installed (3.0.2).");
-          } else {
-            updStatus.textContent = T("Доступна версия ", "Update available: ") + tag;
-            var btnDl = document.createElement("button");
-            btnDl.style.cssText = "width:100%;margin-top:10px;padding:11px;border:1px solid " + ACCENT + ";border-radius:12px;background:transparent;color:" + ACCENT + ";font-size:14px;font-weight:500;cursor:pointer;transition:background .15s";
-            btnDl.onmouseenter = function() { btnDl.style.background = "rgba(11,132,255,.1)"; };
-            btnDl.onmouseleave = function() { btnDl.style.background = "transparent"; };
-            btnDl.textContent = T("Скачать обновление", "Download update");
-            btnDl.onclick = function () {
-              btnDl.disabled = true;
-              btnDl.textContent = T("Скачивание…", "Downloading…");
-              var dlId = b.start("updatedownload", apkUrl);
-              if (!dlId || /^ERR/.test(dlId)) {
-                updStatus.textContent = T("Не удалось начать загрузку.", "Download failed to start.");
-                btnDl.disabled = false; btnDl.textContent = T("Скачать обновление", "Download update");
-                return;
-              }
-              pollStandalone(dlId, function (r2) {
-                var log = r2.log || "";
-                if (log.indexOf("@@UPDOK") >= 0) {
-                  updStatus.textContent = T("Обновление установлено! Перезапустите приложение.", "Update installed! Restart the app.");
-                  btnDl.remove();
-                } else if (log.indexOf("@@UPD manual") >= 0) {
-                  updStatus.textContent = T("APK сохранён в «Загрузки». Установите вручную.", "APK saved to Downloads. Install manually.");
-                  btnDl.remove();
-                } else {
-                  updStatus.textContent = T("Ошибка загрузки.", "Download error.");
-                  btnDl.disabled = false;
-                  btnDl.textContent = T("Скачать обновление", "Download update");
-                }
-              }, 0);
-            };
-            c3.appendChild(btnDl);
-          }
-        } else {
-          updStatus.textContent = T("Не удалось проверить обновления.", "Could not check for updates.");
+        var release = updateResult(r.log, "@@UPDATE_JSON");
+        if (!release) {
+          updStatus.textContent = T("Не удалось проверить обновления. Повторите позже.", "Could not check for updates. Try again later.");
+          return;
         }
+        if (!release.available) {
+          updStatus.textContent = T("Установлена актуальная версия.", "You are up to date.");
+          return;
+        }
+        updStatus.textContent = T("Доступна версия ", "Update available: ") + release.tag + " · " + current.variant;
+        var button = document.createElement("button");
+        downloadButton = button;
+        button.style.cssText = "width:100%;margin-top:10px;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--secondary);color:var(--foreground);cursor:pointer";
+        button.textContent = T("Скачать обновление", "Download update");
+        button.onclick = function () {
+          button.disabled = true;
+          button.textContent = T("Скачивание и проверка…", "Downloading and verifying…");
+          var args = Object.assign({}, current, { tag: release.tag });
+          var job = b.start("updatedownload", JSON.stringify(args));
+          if (!job || /^ERR/.test(job)) {
+            button.disabled = false;
+            button.textContent = T("Скачать обновление", "Download update");
+            updStatus.textContent = T("Не удалось начать загрузку.", "Could not start download.");
+            return;
+          }
+          pollStandalone(job, function (output) {
+            var result = updateResult(output.log, "@@UPDATE_DOWNLOAD");
+            button.disabled = false;
+            if (result && result.ready) {
+              button.textContent = T("Установить обновление", "Install update");
+              button.onclick = installDownloaded;
+              installDownloaded();
+            } else {
+              updStatus.textContent = T("Загрузка или проверка APK не удалась. Повторите попытку.", "APK download or verification failed. Try again.");
+              button.textContent = T("Скачать обновление", "Download update");
+            }
+          }, 0);
+        };
+        c3.appendChild(button);
       }, 0);
     };
 
