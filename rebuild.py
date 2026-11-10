@@ -31,7 +31,7 @@ BASE = {
     'bypass': ('Leostryx-3.0.5-bypass.apk', 'd612eaeb2b592c37d2f5636be363669ff351ed431769ce55990bebe5723f7546'),
 }
 OVERRIDES = [
-    'AndroidManifest.xml', 'classes.dex', 'classes4.dex',
+    'AndroidManifest.xml', 'classes.dex', 'classes4.dex', 'resources.arsc',
     'assets/web/agy_tools.js', 'assets/web/agy_tools.sh',
     'assets/web/agy_providers.js',
 ]

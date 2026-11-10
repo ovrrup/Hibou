@@ -324,8 +324,8 @@
     if (finance.test(title)) return "Финансовые данные и операции " + title + " через MCP.";
     if (legal.test(title)) return "Юридические данные и документы " + title + " через MCP.";
     if (cloud.test(title)) return "Управление ресурсами " + title + " через MCP.";
-    if (dev.test(title)) return "Интеграция " + title + " с агентом Antigravity через MCP.";
-    return "Подключение сервиса " + title + " к Antigravity через MCP.";
+    if (dev.test(title)) return "Интеграция " + title + " с агентом Hibou через MCP.";
+    return "Подключение сервиса " + title + " к Hibou через MCP.";
   }
   var mcpOrig = new WeakMap();
   function mcpCatalog() {

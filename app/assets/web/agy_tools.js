@@ -1129,7 +1129,7 @@
   function openAboutSection(hostEl) {
     if (!hostEl || hostEl.querySelector("[data-about-section]")) return;
 
-    var ACCENT = "#0b84ff";
+    var ACCENT = "#D58151";
     var BORDER = "rgba(127,127,127,.18)";
     var BG = "rgba(255,255,255,.025)";
 
@@ -1157,7 +1157,7 @@
     var appRow = document.createElement("div");
     appRow.style.cssText = "display:flex;align-items:center;gap:12px;margin-bottom:12px";
     var appIcon = document.createElement("div");
-    appIcon.style.cssText = "width:40px;height:40px;border-radius:12px;background:rgba(11,132,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0";
+    appIcon.style.cssText = "width:40px;height:40px;border-radius:12px;background:rgba(213,129,81,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0";
     appIcon.innerHTML = '<svg width="22" height="22" fill="none" stroke="' + ACCENT + '" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
     appRow.appendChild(appIcon);
     var appInfo = document.createElement("div");
@@ -1262,8 +1262,8 @@
     var devDesc = document.createElement("div");
     devDesc.style.cssText = "font-size:14px;line-height:1.55;color:var(--foreground,#ddd);margin-bottom:14px";
     devDesc.textContent = T(
-      "Развитие Hibou — сборки Antigravity для Android. Поддержка и адаптация открытых инструментов для мобильной разработки.",
-      "Developing and maintaining Hibou — Antigravity for Android. Supporting and adapting open-source mobile development tools."
+      "Развитие Hibou — автономной среды разработки с искусственным интеллектом для Android. Поддержка и адаптация открытых инструментов для мобильной разработки.",
+      "Developing and maintaining Hibou — an autonomous AI development environment for Android. Supporting and adapting open-source mobile development tools."
     );
     c2.appendChild(devDesc);
 
@@ -1271,11 +1271,9 @@
       { icon: '<svg width="15" height="15" fill="#888" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>',
         text: "GitHub · ovrrup", url: "https://github.com/ovrrup" },
       { icon: '<svg width="15" height="15" fill="#888" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>',
-        text: T("GitHub · Leostrange (автор Leostryx)", "GitHub · Leostrange (author of Leostryx)"), url: "https://github.com/Leostrange" },
-      { icon: '<svg width="15" height="15" fill="none" stroke="#888" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>',
-        text: "xmetalcore@outlook.com", url: "mailto:xmetalcore@outlook.com" },
-      { icon: '<svg width="15" height="15" fill="none" stroke="#888" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>',
-        text: "chester.god.alive@gmail.com", url: "mailto:chester.god.alive@gmail.com" }
+        text: "GitHub · ovrrup/Hibou", url: "https://github.com/ovrrup/Hibou" },
+      { icon: '<svg width="15" height="15" fill="none" stroke="#888" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+        text: T("Вопросы и предложения (GitHub Issues)", "Issues & Feedback (GitHub Issues)"), url: "https://github.com/ovrrup/Hibou/issues" }
     ];
     contacts.forEach(function (ct) {
       var row = document.createElement("div");
@@ -1533,7 +1531,7 @@
         return;
       }
       var catName = categories.filter(function(c) { return c.id === selectedCat; })[0];
-      var subject = "[Antigravity-BP] " + (catName ? catName.label : "");
+      var subject = "[Hibou] " + (catName ? catName.label : "");
       var body = text;
       if (emailInput.value.trim()) {
         body += "\n\n---\n" + T("Ответить на: ", "Reply to: ") + emailInput.value.trim();

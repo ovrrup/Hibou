@@ -54,8 +54,12 @@ public final class LeostryxUpdates {
     }
     public static String installUpdate(Context ctx) {
         try {
-            File apk = new File(ctx.getFilesDir(), "updates/leostryx-update.apk");
-            File checksum = new File(ctx.getFilesDir(), "updates/leostryx-update.sha256");
+            File apk = new File(ctx.getFilesDir(), "updates/hibou-update.apk");
+            File checksum = new File(ctx.getFilesDir(), "updates/hibou-update.sha256");
+            if (!apk.isFile() || !checksum.isFile()) {
+                apk = new File(ctx.getFilesDir(), "updates/leostryx-update.apk");
+                checksum = new File(ctx.getFilesDir(), "updates/leostryx-update.sha256");
+            }
             if (!apk.isFile() || !checksum.isFile()) return "error:missing_download";
             String expected = read(new FileInputStream(checksum)).trim();
             if (!expected.matches("[a-f0-9]{64}") || !expected.equals(sha256(apk))) return "error:checksum";

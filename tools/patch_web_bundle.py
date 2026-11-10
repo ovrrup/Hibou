@@ -5,4 +5,14 @@ NEW_MODEL_ROWS = '''(window.__agyGroupProviderModels?window.__agyGroupProviderMo
 def patch_bundle(source):
     if source.count(OLD_MODEL_ROWS) != 1:
         raise ValueError('Unexpected base web bundle; model selector patch does not match exactly once')
-    return source.replace(OLD_MODEL_ROWS, NEW_MODEL_ROWS).replace('Antigravity Projects', 'Hibou Projects').replace('Antigravity Backup', 'Hibou Backup').replace('Leostryx Projects', 'Hibou Projects').replace('Leostryx Backup', 'Hibou Backup')
+    return (source.replace(OLD_MODEL_ROWS, NEW_MODEL_ROWS)
+            .replace('Antigravity Projects', 'Hibou Projects')
+            .replace('Antigravity Backup', 'Hibou Backup')
+            .replace('Leostryx Projects', 'Hibou Projects')
+            .replace('Leostryx Backup', 'Hibou Backup')
+            .replace('Open in Antigravity IDE', 'Open in Hibou IDE')
+            .replace('Antigravity Interactive HTML', 'Hibou Interactive HTML')
+            .replace('running Antigravity', 'running Hibou')
+            .replace("Antigravity's Browser", "Hibou's Browser")
+            .replace('quit Antigravity', 'quit Hibou')
+            .replace('Jetski Web', 'Hibou'))

@@ -12,12 +12,13 @@ The damaged `classes.dex` in the base APK is replaced by the rebuilt, verified D
 
 | File | Purpose |
 |---|---|
-| `app/AndroidManifest.xml` | Compiled 3.0.6 manifest (versionCode 22), with package installation permissions |
-| `app/classes.dex` | Rebuilt primary DEX with fixed AgyTools bridge and valid checksums |
+| `app/AndroidManifest.xml` | Compiled manifest with agy.hibou application ID, versionCode 1, and package installation permissions |
+| `app/resources.arsc` | Compiled resource table with Hibou application label and agy.hibou package identity |
+| `app/classes.dex` | Rebuilt primary DEX with agy.hibou IPC shims, fixed bridge and valid checksums |
 | `app/classes4.dex` | Native metadata and system installer invocation bridge |
 | `app/assets/web/agy_tools.js`, `agy_tools.sh` | Tools settings UI and updater backend module |
 | `app/assets/web/agy_providers.js` | Configured model provider groupings |
-| `tools/patch_web_bundle.py` | Verified patch for model group rendering in the base JS bundle |
+| `tools/patch_web_bundle.py` | Verified patch for model group rendering and Hibou branding in web bundle |
 | `tools/update_backend.py` | Source of the update logic, embedded into the shell script |
 | `native-src/` | New Java bridge sources, modified AgyTools smali, and raw manifest XML |
 
