@@ -5,7 +5,7 @@ function check(name,fn){fn();console.log('PASS '+name);passed++;}
 function setup(available=true){
  const dom=new JSDOM('<div id="host"></div>',{url:'https://app.local',runScripts:'outside-only'}),w=dom.window;
  let calls=[],jobs={},counter=0, installs=0;
- w.AgyTools={getAppInfo:()=>JSON.stringify({versionName:'3.0.6',versionCode:22,variant:'bypass'}),installUpdate:()=>{installs++;return'installer';},start:(op,arg)=>{calls.push({op,arg:JSON.parse(arg)});let id=String(++counter);jobs[id]={rc:'0',log:op==='updatecheck'?'@@UPDATE_JSON '+JSON.stringify({available,tag:'v3.0.7',variant:'bypass',name:'Leostryx 3.0.7 with spaces'}):'@@UPDATE_DOWNLOAD {"ready":true}'};return id;},read:id=>JSON.stringify(jobs[id])};
+ w.AgyTools={getAppInfo:()=>JSON.stringify({versionName:'3.0.6',versionCode:22,variant:'bypass'}),installUpdate:()=>{installs++;return'installer';},start:(op,arg)=>{calls.push({op,arg:JSON.parse(arg)});let id=String(++counter);jobs[id]={rc:'0',log:op==='updatecheck'?'@@UPDATE_JSON '+JSON.stringify({available,tag:'v3.0.7',variant:'bypass',name:'Hibou 3.0.7 with spaces'}):'@@UPDATE_DOWNLOAD {"ready":true}'};return id;},read:id=>JSON.stringify(jobs[id])};
  w.eval(fs.readFileSync(root+'agy_tools.js','utf8'));w.__agyAboutMount(w.document.getElementById('host'));
  return {dom,w,calls,get installs(){return installs;}};
 }

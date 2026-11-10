@@ -849,8 +849,8 @@
     var note = document.createElement("div");
     note.className = "agy-t-note";
     note.textContent = T(
-      "Отметьте, что сохранить, и укажите путь. По умолчанию — папка «Leostryx Backup» на телефоне. Включает провайдеры, ключи MCP, настройки и историю чатов с фото.",
-      "Check what to save and set the path. Default folder: Leostryx Backup on the phone. Includes providers, MCP keys, settings and chat history with photos."
+      "Отметьте, что сохранить, и укажите путь. По умолчанию — папка «Hibou Backup» на телефоне. Включает провайдеры, ключи MCP, настройки и историю чатов с фото.",
+      "Check what to save and set the path. Default folder: Hibou Backup on the phone. Includes providers, MCP keys, settings and chat history with photos."
     );
     wrap.appendChild(note);
 
@@ -863,7 +863,7 @@
     pathRow.appendChild(pathLabel);
     var pathInput = document.createElement("input");
     pathInput.type = "text";
-    pathInput.value = "/storage/emulated/0/Leostryx Backup";
+    pathInput.value = "/storage/emulated/0/Hibou Backup";
     pathInput.style.cssText = "flex:1;min-width:0;background:#101012;color:#eee;border:1px solid #555;border-radius:8px;padding:8px;font-size:12px";
     pathInput.setAttribute("data-backup-path", "");
     pathRow.appendChild(pathInput);
@@ -990,11 +990,11 @@
     btnImport.onclick = function () {
       var b = bridge();
       if (!b) { alert(T("Мост недоступен.", "Bridge unavailable.")); return; }
-      var lsId = b.start("termrun", btoa("ls -1t /storage/emulated/0/Leostryx\\ Backup/agy-backup-*.zip 2>/dev/null | head -10"));
+      var lsId = b.start("termrun", btoa("ls -1t /storage/emulated/0/Hibou\\ Backup/agy-backup-*.zip 2>/dev/null | head -10"));
       if (!lsId || /^ERR/.test(lsId)) { alert(String(lsId)); return; }
       pollStandalone(lsId, function (r) {
         var lines = (r.log || "").split("\n").filter(function (l) { return l.trim() && l.indexOf(".zip") >= 0; });
-        if (!lines.length) { alert(T("Нет файлов бэкапа в папке Leostryx Backup.", "No backup files found.")); return; }
+        if (!lines.length) { alert(T("Нет файлов бэкапа в папке Hibou Backup.", "No backup files found.")); return; }
         var overlay = document.createElement("div");
         overlay.style.cssText = "position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px";
         var box = document.createElement("div");
@@ -1163,10 +1163,10 @@
     var appInfo = document.createElement("div");
     var appName = document.createElement("div");
     appName.style.cssText = "font-size:17px;font-weight:600;color:var(--foreground,#eee)";
-    appName.textContent = "Leostryx";
+    appName.textContent = "Hibou";
     var appVer = document.createElement("div");
     appVer.style.cssText = "font-size:12px;color:#888;margin-top:2px";
-    try { var info = JSON.parse(window.AgyTools.getAppInfo()); appVer.textContent = info.versionName + " · " + info.variant; } catch (_) { appVer.textContent = "Leostryx"; }
+    try { var info = JSON.parse(window.AgyTools.getAppInfo()); appVer.textContent = info.versionName + " · " + info.variant; } catch (_) { appVer.textContent = "Hibou"; }
     appInfo.appendChild(appName);
     appInfo.appendChild(appVer);
     appRow.appendChild(appInfo);
@@ -1183,8 +1183,8 @@
     var appDesc2 = document.createElement("div");
     appDesc2.style.cssText = "font-size:13px;line-height:1.5;color:#999;margin-bottom:14px";
     appDesc2.textContent = T(
-      "Сборка Leostrange: русский интерфейс, пользовательские ИИ-провайдеры, настройки безопасности, MCP и инструменты разработки.",
-      "Leostrange build: Russian UI, custom AI providers, security settings, MCP and developer tools."
+      "Сборка Hibou: русский интерфейс, пользовательские ИИ-провайдеры, настройки безопасности, MCP и инструменты разработки.",
+      "Hibou build: Russian UI, custom AI providers, security settings, MCP and developer tools."
     );
     c1.appendChild(appDesc2);
 
@@ -1198,13 +1198,13 @@
       a.style.cssText = "font-size:13px;color:" + ACCENT + ";text-decoration:none;cursor:pointer;border-bottom:1px solid rgba(11,132,255,.3);padding-bottom:1px";
       return a;
     }
-    linksRow.appendChild(makeLink(T("Исходный код", "Source code"), "https://github.com/Leostrange/Leostryx"));
-    linksRow.appendChild(makeLink(T("История изменений", "Changelog"), "https://github.com/Leostrange/Leostryx/blob/main/CHANGELOG.md"));
+    linksRow.appendChild(makeLink(T("Исходный код", "Source code"), "https://github.com/ovrrup/Hibou"));
+    linksRow.appendChild(makeLink(T("История изменений", "Changelog"), "https://github.com/ovrrup/Hibou/blob/main/CHANGELOG.md"));
     c1.appendChild(linksRow);
 
     var credit = document.createElement("div");
     credit.style.cssText = "margin-top:12px;font-size:11px;color:#666;line-height:1.4";
-    credit.innerHTML = T("На основе проекта ", "Based on ") + '<a href="https://github.com/werdio325-png/antigravity-android" target="_blank" style="color:#888;text-decoration:underline">werdio325-png/antigravity-android</a>';
+    credit.innerHTML = T("На основе проектов ", "Based on ") + '<a href="https://github.com/werdio325-png/antigravity-android" target="_blank" style="color:#888;text-decoration:underline">antigravity-android</a> · <a href="https://github.com/Leostrange/Leostryx" target="_blank" style="color:#888;text-decoration:underline">Leostryx</a>';
     c1.appendChild(credit);
     wrap.appendChild(c1);
 
@@ -1217,20 +1217,22 @@
 
     var devName = document.createElement("div");
     devName.style.cssText = "font-size:15px;font-weight:500;color:var(--foreground,#eee);margin-bottom:6px";
-    devName.textContent = "Leostrange";
+    devName.textContent = "ovrrup";
     c2.appendChild(devName);
 
     var devDesc = document.createElement("div");
     devDesc.style.cssText = "font-size:14px;line-height:1.55;color:var(--foreground,#ddd);margin-bottom:14px";
     devDesc.textContent = T(
-      "Создаю приложения для Android и компьютеров, инструменты с ИИ и русификации программ. Развиваю открытые проекты, стараясь делать технологии удобнее и доступнее. Пишу книгу, увлекаюсь музыкой и фотографией.",
-      "Creating apps for Android and desktop, AI tools and software localization. Building open-source projects to make technology more accessible. Writing a book, passionate about music and photography."
+      "Развитие русской сборки Antigravity для Android — Hibou. Поддержка и адаптация открытых инструментов для мобильной разработки.",
+      "Maintaining Hibou, the Russian build of Antigravity for Android. Supporting and adapting open-source mobile development tools."
     );
     c2.appendChild(devDesc);
 
     var contacts = [
       { icon: '<svg width="15" height="15" fill="#888" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>',
-        text: "GitHub · Leostrange", url: "https://github.com/Leostrange" },
+        text: "GitHub · ovrrup", url: "https://github.com/ovrrup" },
+      { icon: '<svg width="15" height="15" fill="#888" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>',
+        text: "GitHub · Leostrange (автор Leostryx)", url: "https://github.com/Leostrange" },
       { icon: '<svg width="15" height="15" fill="none" stroke="#888" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>',
         text: "xmetalcore@outlook.com", url: "mailto:xmetalcore@outlook.com" },
       { icon: '<svg width="15" height="15" fill="none" stroke="#888" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>',
@@ -1295,7 +1297,7 @@
       var result = "error:bridge";
       try { result = window.AgyTools.installUpdate(); } catch (_) {}
       if (result === "permission") {
-        updStatus.textContent = T("Разрешите установку из Leostryx, вернитесь и нажмите «Установить обновление».", "Allow installs from Leostryx, return and tap Install update.");
+        updStatus.textContent = T("Разрешите установку из Hibou, вернитесь и нажмите «Установить обновление».", "Allow installs from Hibou, return and tap Install update.");
       } else if (result === "installer") {
         updStatus.textContent = T("Подтвердите обновление в системном установщике Android.", "Confirm the update in Android's package installer.");
       } else {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild Leostryx from pinned release APKs plus this repository's repair payload.
+"""Rebuild Hibou from pinned release APKs plus this repository's repair payload.
 
 Usage: python3 rebuild.py [both|standard|bypass] --fetch-base
 Or supply --standard-apk /path/base.apk and --bypass-apk /path/base.apk.
@@ -139,7 +139,7 @@ def main():
     args = parser.parse_args()
     variants = ['standard','bypass'] if args.variant == 'both' else [args.variant]
     jar = ROOT/'tools/uber-apk-signer.jar'
-    keystore = Path(os.environ.get('LEOSTRYX_KEYSTORE', str(ROOT/'dist/antigravity-debug.keystore')))
+    keystore = Path(os.environ.get('HIBOU_KEYSTORE', os.environ.get('LEOSTRYX_KEYSTORE', str(ROOT/'dist/antigravity-debug.keystore'))))
     if not jar.is_file() or not keystore.is_file():
         parser.error('Missing signer JAR or keystore; see docs/BUILD.md')
     signed = ROOT/'dist/signed'
@@ -147,15 +147,15 @@ def main():
     records = []
     for variant in variants:
         source = base_apk(variant, getattr(args, variant+'_apk'), args.fetch_base)
-        basename = 'Leostryx-'+VERSION+'-'+variant
+        basename = 'Hibou-'+VERSION+'-'+variant
         unsigned = ROOT/'dist'/(basename+'-unsigned.apk')
         pack(source, variant, unsigned)
         for suffix in ['-aligned-signed.apk','-unsigned-aligned-signed.apk','-unsigned-signed.apk']:
             (signed/(basename+suffix)).unlink(missing_ok=True)
         subprocess.run(['java','-jar',str(jar),'--apks',str(unsigned),'--ks',str(keystore),
-            '--ksAlias',os.environ.get('LEOSTRYX_KEY_ALIAS','debug'),
-            '--ksPass',os.environ.get('LEOSTRYX_STORE_PASSWORD','android'),
-            '--ksKeyPass',os.environ.get('LEOSTRYX_KEY_PASSWORD','android'),
+            '--ksAlias',os.environ.get('HIBOU_KEY_ALIAS', os.environ.get('LEOSTRYX_KEY_ALIAS','debug')),
+            '--ksPass',os.environ.get('HIBOU_STORE_PASSWORD', os.environ.get('LEOSTRYX_STORE_PASSWORD','android')),
+            '--ksKeyPass',os.environ.get('HIBOU_KEY_PASSWORD', os.environ.get('LEOSTRYX_KEY_PASSWORD','android')),
             '--out',str(signed)], check=True)
         candidates = [signed/(basename+suffix) for suffix in ['-aligned-signed.apk','-unsigned-aligned-signed.apk','-unsigned-signed.apk']]
         generated = next((p for p in candidates if p.is_file()), None)

@@ -1,9 +1,10 @@
-"""Leostryx release checks/downloads. Embedded into agy_tools.sh at build time."""
+"""Hibou release checks/downloads. Embedded into agy_tools.sh at build time."""
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import shutil
 import ssl
 import struct
 import sys
@@ -12,8 +13,8 @@ import urllib.request
 import zipfile
 import zlib
 
-API = 'https://api.github.com/repos/Leostrange/Leostryx/releases/latest'
-DOWNLOAD_PREFIX = 'https://github.com/Leostrange/Leostryx/releases/download/'
+API = 'https://api.github.com/repos/ovrrup/Hibou/releases/latest'
+DOWNLOAD_PREFIX = 'https://github.com/ovrrup/Hibou/releases/download/'
 
 def version_tuple(value):
     match = re.fullmatch(r'v?(\d+)\.(\d+)\.(\d+)', str(value))
@@ -31,7 +32,7 @@ def tls_context():
     return ssl.create_default_context()
 
 def request(url):
-    return urllib.request.Request(url, headers={'Accept': 'application/vnd.github+json', 'User-Agent': 'Leostryx-Updater'})
+    return urllib.request.Request(url, headers={'Accept': 'application/vnd.github+json', 'User-Agent': 'Hibou-Updater'})
 
 def release_info(current, variant, open_url=urllib.request.urlopen):
     if variant not in ('standard', 'bypass'):
@@ -98,10 +99,13 @@ def download(info, open_url=urllib.request.urlopen):
         raise ValueError('Invalid download metadata')
     folder = Path(os.environ['HOME'])/'updates'
     folder.mkdir(parents=True, exist_ok=True)
-    partial = folder/'leostryx-update.apk.part'
-    destination = folder/'leostryx-update.apk'
-    checksum = folder/'leostryx-update.sha256'
+    partial = folder/'hibou-update.apk.part'
+    destination = folder/'hibou-update.apk'
+    checksum = folder/'hibou-update.sha256'
+    legacy_destination = folder/'leostryx-update.apk'
+    legacy_checksum = folder/'leostryx-update.sha256'
     checksum.unlink(missing_ok=True)
+    legacy_checksum.unlink(missing_ok=True)
     try:
         digest = hashlib.sha256()
         done = 0
@@ -121,6 +125,8 @@ def download(info, open_url=urllib.request.urlopen):
         if done != size or digest.hexdigest() != expected:
             raise ValueError('Download size or SHA-256 mismatch')
         validate_apk(partial)
+        shutil.copyfile(partial, legacy_destination)
+        legacy_checksum.write_text(expected+'\n')
         os.replace(partial, destination)
         checksum.write_text(expected+'\n')
         return {'ready': True}
