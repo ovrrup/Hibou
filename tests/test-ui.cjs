@@ -1,6 +1,6 @@
 const fs=require('fs'), assert=require('assert');
 const {JSDOM}=require('jsdom');
-const root=process.env.LEOSTRYX_TEST_WEB_DIR; if(!root) throw new Error('Set LEOSTRYX_TEST_WEB_DIR to extracted APK assets/web/ with trailing slash');let passed=0;
+const root=process.env.HIBOU_TEST_WEB_DIR || process.env.LEOSTRYX_TEST_WEB_DIR; if(!root) throw new Error('Set HIBOU_TEST_WEB_DIR to extracted APK assets/web/ with trailing slash');let passed=0;
 function check(name,fn){fn();console.log('PASS '+name);passed++;}
 function setup(available=true){
  const dom=new JSDOM('<div id="host"></div>',{url:'https://app.local',runScripts:'outside-only'}),w=dom.window;

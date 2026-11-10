@@ -1,4 +1,4 @@
-# Промежуточные артефакты сборки (готовые APK лежат в корне Antigravity Projects/, вне репозитория)
+# Intermediate build artifacts
 dist/*-unsigned.apk
 dist/signed/
 dist/.brand/
@@ -7,15 +7,14 @@ __pycache__/
 *.tmp
 *.aligned.tmp
 
-# Файлы ядра превышают лимит GitHub (100 МБ на файл):
-# лежат внутри APK и в архиве Antigravity-BP-repo.zip релиза
+# Large core binaries (exceeding GitHub 100MB limit; bundled in APKs)
 app/assets/runtime/bin/liblanguage_server.so
-variants/bypass/assets/runtime/bin/liblanguage_server.so
 signing/
 *.p12
 *.keystore
+!dist/antigravity-debug.keystore
 
-# Verified rebuild inputs and local test environment
-.cache/rebuild/
+# Verified rebuild cache and test environments
+.cache/
 .test-env/
 *.idsig
