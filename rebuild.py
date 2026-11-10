@@ -139,7 +139,7 @@ def main():
     args = parser.parse_args()
     variants = ['standard','bypass'] if args.variant == 'both' else [args.variant]
     jar = ROOT/'tools/uber-apk-signer.jar'
-    keystore = Path(os.environ.get('HIBOU_KEYSTORE', os.environ.get('LEOSTRYX_KEYSTORE', str(ROOT/'dist/antigravity-debug.keystore'))))
+    keystore = Path(os.environ.get('HIBOU_KEYSTORE', os.environ.get('LEOSTRYX_KEYSTORE', str(ROOT/'dist/hibou-debug.keystore'))))
     if not jar.is_file() or not keystore.is_file():
         parser.error('Missing signer JAR or keystore; see docs/BUILD.md')
     signed = ROOT/'dist/signed'

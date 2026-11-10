@@ -1,4 +1,4 @@
-/* Antigravity RU — small runtime fixes on top of the original 2.4.1 bundle.
+/* Hibou — small runtime fixes on top of the original bundle.
  * Never moves or edits React-owned nodes; only adds its own fixed elements. */
 (function () {
   "use strict";
@@ -8,7 +8,7 @@
 
   /* ---- Usage: "Refreshing…" without changing the panel height ----------
    * 2.4.1 inserts a status row (+ separator) above the quota list while it
-   * refreshes, so the sheet grows and then shrinks. agy_ru.css hides that row;
+   * refreshes, so the sheet grows and then shrinks. hibou.css hides that row;
    * here we mirror its presence as a small spinner pinned to the right end of
    * the sheet header (the row with "‹ Usage"). */
   var ROW_SEL = '[data-testid="model-quota-refreshing"]';

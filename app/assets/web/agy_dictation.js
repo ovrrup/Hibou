@@ -1,9 +1,9 @@
-/* Antigravity RU — Dictation / speech-recognition settings tab.
+/* Hibou — Dictation / speech-recognition settings tab.
  *
  * Decouples voice input from the Providers page into its own Settings tab.
  * Chooses the recognition engine and language used by the in-chat mic (in
  * provider mode, where the core's own transcription is unavailable). Settings
- * are stored in localStorage and read by agy_ru.js.
+ * are stored in localStorage and read by hibou.js.
  *
  * Config (localStorage "agy_dictation"):
  *   { enabled: bool, engine: "auto"|"vosk"|"system", lang: "auto"|"ru"|"en" }

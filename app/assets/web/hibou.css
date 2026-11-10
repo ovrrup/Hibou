@@ -1,4 +1,4 @@
-/* Antigravity RU — targeted fixes on top of the original 2.4.1 bundle.
+/* Hibou — targeted fixes on top of the original bundle.
    Every rule is scoped to one concrete component; no global containers. */
 
 /* Login card: in 2.4.1 the card is a fixed 480px inside a shrink-to-fit flex

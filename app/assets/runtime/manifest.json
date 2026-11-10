@@ -28,9 +28,11 @@
     "lib/libpthread.so.0": "adf2a3b38694cdd6b8e6c08f56a64786420cb20d736ceece48c3871147357ff2",
     "lib/libresolv.so.2": "490093f15e8f6a5966e89f61c01887657ababeb154b755c48d91a6e2ab9888f2",
     "lib/librt.so.1": "a941a6c9eb45597c47597e7711e8cd24b039eb488f20337d2a96e35c22daf327",
-    "seed/AGENTS.md": "c93c8342587cf522a6eec701e1b71e370bd5bb1d35a73479869a63ffa0207c41",
+    "seed/AGENTS.md": "fb3e535dc8d6a50503dfaa114a4499d9a286782b5d4d3507c29fda3f3d276847",
     "seed/antigravity_state.gemini.pbtxt": "2c32aa7eeb7ef52f434dcf89304941099772e4fadcbcbb345d820342fc290183",
     "seed/antigravity_state.pbtxt": "60473fc7675b596375a39e9657ac7304edc1ec645dcb2c7689262922c3d48297",
+    "seed/hibou_state.gemini.pbtxt": "2c32aa7eeb7ef52f434dcf89304941099772e4fadcbcbb345d820342fc290183",
+    "seed/hibou_state.pbtxt": "60473fc7675b596375a39e9657ac7304edc1ec645dcb2c7689262922c3d48297",
     "seed/jetski_state.pbtxt": "60473fc7675b596375a39e9657ac7304edc1ec645dcb2c7689262922c3d48297"
   },
   "generated_at": "2026-10-22T09:00:19Z",

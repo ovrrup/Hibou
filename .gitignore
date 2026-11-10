@@ -12,7 +12,7 @@ app/assets/runtime/bin/liblanguage_server.so
 signing/
 *.p12
 *.keystore
-!dist/antigravity-debug.keystore
+!dist/hibou-debug.keystore
 
 # Verified rebuild cache and test environments
 .cache/

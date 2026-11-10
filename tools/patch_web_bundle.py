@@ -15,4 +15,6 @@ def patch_bundle(source):
             .replace('running Antigravity', 'running Hibou')
             .replace("Antigravity's Browser", "Hibou's Browser")
             .replace('quit Antigravity', 'quit Hibou')
-            .replace('Jetski Web', 'Hibou'))
+            .replace('Jetski Web', 'Hibou')
+            .replace('/antigravityCascadeDone.mp3', '/hibouCascadeDone.mp3')
+            .replace('/antigravityActionRequired.mp3', '/hibouActionRequired.mp3'))

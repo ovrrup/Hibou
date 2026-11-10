@@ -14,7 +14,7 @@ SDK="$HOME/android-sdk"
 CMDLINE_URL="https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip"
 NDK_REPO="lzhiyong/termux-ndk"
 ENVF="$PREFIX/etc/profile.d/60-agy-android.sh"
-AGENTS="$PREFIX/etc/antigravity/AGENTS.md"
+AGENTS="$PREFIX/etc/hibou/AGENTS.md"
 
 say()  { printf '%s\n' "$*"; }
 step() { printf '\n== %s\n' "$*"; }
@@ -1998,6 +1998,7 @@ PY
         reset-instructions)
             step "Resetting AGENTS.md to standard seed guidelines"
             local seed="$HOME/runtime/seed/AGENTS.md"
+            [ -f "$seed" ] || seed="$PREFIX/etc/hibou/AGENTS.md"
             [ -f "$seed" ] || seed="$PREFIX/etc/antigravity/AGENTS.md"
             if [ -f "$seed" ]; then
                 cp "$seed" "$cfg_dir/AGENTS.md"

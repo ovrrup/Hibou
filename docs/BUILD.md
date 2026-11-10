@@ -30,7 +30,7 @@ Remaining files from the old `app/` tree are not treated as implicit overrides. 
 - Bash & standard POSIX utilities
 - Java Runtime Environment (JRE)
 - `tools/uber-apk-signer.jar` (included in repository)
-- Default signing keystore: `dist/antigravity-debug.keystore` (alias: `debug`)
+- Default signing keystore: `dist/hibou-debug.keystore` (alias: `debug`)
 
 ## Build Commands
 
