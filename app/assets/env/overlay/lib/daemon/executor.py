@@ -132,6 +132,9 @@ def _run_task_worker(task):
     prefix = os.environ.get("PREFIX", f"{home}/usr")
     env["PATH"] = f"{prefix}/bin:{env.get('PATH', '')}"
     env["HOME"] = home
+    env["PREFIX"] = prefix
+    # Ensure a known terminal type so tools like logcat, tput, and less don't abort.
+    env.setdefault("TERM", "xterm-256color")
     if convo_id:
         env["AGY_CONVERSATION_ID"] = convo_id
     if project:
@@ -139,17 +142,54 @@ def _run_task_worker(task):
 
     cwd = project if (project and os.path.isdir(project)) else home
 
+    # Ensure BASH_BIN is executable before we try to use it; also fix any
+    # scripts that the native bridge may have extracted without +x.
+    def _ensure_executable(path):
+        """Try to chmod 755 a file; ignore errors (e.g. read-only fs)."""
+        try:
+            if os.path.isfile(path):
+                os.chmod(path, 0o755)
+        except Exception as _exc:
+            log(f"chmod 755 {path} skipped: {_exc}")
+
+    _ensure_executable(BASH_BIN)
+    _agy_tools_dir = os.path.join(home, "agy-tools")
+    if os.path.isdir(_agy_tools_dir):
+        for _entry in os.listdir(_agy_tools_dir):
+            _ensure_executable(os.path.join(_agy_tools_dir, _entry))
+
+    # Pick shell: use BASH_BIN only when the file is present AND executable.
+    def _is_executable(path):
+        return os.path.isfile(path) and os.access(path, os.X_OK)
+
+    _shell = BASH_BIN if _is_executable(BASH_BIN) else "/system/bin/sh"
+
+    # LD_PRELOAD (libtermux-exec) must only be set when the shell binary lives
+    # inside the app's private prefix.  Injecting it into /system/bin/sh causes
+    # Bionic's linker to reject the cross-namespace load (CANNOT LINK EXECUTABLE)
+    # and SELinux may also block it on enforcing devices.
+    if _shell == BASH_BIN:
+        _lse = os.path.join(prefix, "lib", "libtermux-exec.so")
+        _lse_compat = os.path.join(prefix, "lib", "liblse_compat.so")
+        if os.path.isfile(_lse):
+            _preload = f"{_lse_compat}:{_lse}" if os.path.isfile(_lse_compat) else _lse
+            env["LD_PRELOAD"] = _preload
+    else:
+        # Fallback to system sh: strip any inherited LD_PRELOAD so Bionic
+        # can link the system binary without touching app-private libraries.
+        env.pop("LD_PRELOAD", None)
+
     try:
         res = subprocess.run(
             command,
             shell=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stderr=subprocess.STDOUT,  # merge stderr so errors appear in job log
             text=True,
             timeout=task.get("timeout_sec", 600),
             env=env,
             cwd=cwd,
-            executable=BASH_BIN if os.path.isfile(BASH_BIN) else "/system/bin/sh"
+            executable=_shell,
         )
         success = (res.returncode == 0)
         output = res.stdout.strip()
