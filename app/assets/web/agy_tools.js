@@ -1166,7 +1166,7 @@
     appName.textContent = "Hibou";
     var appVer = document.createElement("div");
     appVer.style.cssText = "font-size:12px;color:#888;margin-top:2px";
-    try { var info = JSON.parse(window.AgyTools.getAppInfo()); appVer.textContent = info.versionName + " · " + info.variant; } catch (_) { appVer.textContent = "Hibou"; }
+    try { var info = JSON.parse(window.AgyTools.getAppInfo()); appVer.textContent = (info.versionName || "1.0.0-beta.1") + (info.variant ? " · " + info.variant : ""); } catch (_) { appVer.textContent = "1.0.0-beta.1"; }
     appInfo.appendChild(appName);
     appInfo.appendChild(appVer);
     appRow.appendChild(appInfo);
@@ -1183,8 +1183,8 @@
     var appDesc2 = document.createElement("div");
     appDesc2.style.cssText = "font-size:13px;line-height:1.5;color:#999;margin-bottom:14px";
     appDesc2.textContent = T(
-      "Сборка Hibou: русский интерфейс, пользовательские ИИ-провайдеры, настройки безопасности, MCP и инструменты разработки.",
-      "Hibou build: Russian UI, custom AI providers, security settings, MCP and developer tools."
+      "Сборка Hibou: многоязычный интерфейс, пользовательские ИИ-провайдеры, настройки безопасности, MCP и инструменты разработки.",
+      "Hibou build: multilingual UI, custom AI providers, security settings, MCP and developer tools."
     );
     c1.appendChild(appDesc2);
 
@@ -1201,12 +1201,51 @@
     linksRow.appendChild(makeLink(T("Исходный код", "Source code"), "https://github.com/ovrrup/Hibou"));
     linksRow.appendChild(makeLink(T("История изменений", "Changelog"), "https://github.com/ovrrup/Hibou/blob/main/CHANGELOG.md"));
     c1.appendChild(linksRow);
-
-    var credit = document.createElement("div");
-    credit.style.cssText = "margin-top:12px;font-size:11px;color:#666;line-height:1.4";
-    credit.innerHTML = T("На основе проектов ", "Based on ") + '<a href="https://github.com/werdio325-png/antigravity-android" target="_blank" style="color:#888;text-decoration:underline">antigravity-android</a> · <a href="https://github.com/Leostrange/Leostryx" target="_blank" style="color:#888;text-decoration:underline">Leostryx</a>';
-    c1.appendChild(credit);
     wrap.appendChild(c1);
+
+    /* ── Card: Foundational Contributors ── */
+    var cCred = makeCard();
+    var credTitle = document.createElement("div");
+    credTitle.style.cssText = "font-size:16px;font-weight:600;color:var(--foreground,#eee);margin-bottom:10px";
+    credTitle.textContent = T("Благодарности создателям", "Foundational Contributors & Credits");
+    cCred.appendChild(credTitle);
+
+    var cCredList = [
+      {
+        name: "werdio325-png",
+        repo: "https://github.com/werdio325-png/antigravity-android",
+        repoTag: "werdio325-png/antigravity-android",
+        desc: T(
+          "Создатель оригинального порта Antigravity для Android: архитектура нативного userspace ARM64/Bionic, связь Chromium WebView с сервером language_server, интеграция Shizuku и IntentBridge.",
+          "Original creator of the Antigravity Android port: engineered native ARM64/Bionic userspace execution, Chromium WebView to language_server bridge, Shizuku and native IntentBridge."
+        )
+      },
+      {
+        name: "Leostrange (Leostryx)",
+        repo: "https://github.com/Leostrange/Leostryx",
+        repoTag: "Leostrange/Leostryx",
+        desc: T(
+          "Создатель проекта Leostryx: интеграция пользовательских провайдеров моделей (OpenAI, Claude, Gemini), мост инструментов MCP, щит безопасности и встроенный установщик инструментов.",
+          "Creator of Leostryx: engineered custom model provider management (OpenAI, Claude, Gemini APIs), Model Context Protocol (MCP) tool forwarding, Security Shield policies, and in-app toolchain management."
+        )
+      }
+    ];
+
+    cCredList.forEach(function (cr) {
+      var crBox = document.createElement("div");
+      crBox.style.cssText = "padding:10px 0;border-top:1px solid " + BORDER;
+      var crHeader = document.createElement("div");
+      crHeader.style.cssText = "display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:6px";
+      crHeader.innerHTML = '<strong style="color:var(--foreground,#eee);font-size:14px">' + esc(cr.name) + '</strong>' +
+        '<a href="' + cr.repo + '" target="_blank" style="color:var(--primary,#3b82f6);font-size:12px;text-decoration:none">' + esc(cr.repoTag) + ' ↗</a>';
+      var crBody = document.createElement("div");
+      crBody.style.cssText = "font-size:12px;color:var(--muted-foreground,#888);line-height:1.45";
+      crBody.textContent = cr.desc;
+      crBox.appendChild(crHeader);
+      crBox.appendChild(crBody);
+      cCred.appendChild(crBox);
+    });
+    wrap.appendChild(cCred);
 
     /* ── Card 2: Разработчик ── */
     var c2 = makeCard();

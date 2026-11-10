@@ -1,6 +1,6 @@
-# Building Hibou 3.0.6
+# Building Hibou 1.0.0-beta.1
 
-[Home](../README.md) · [3.0.6 Repair Notes](REPAIR-3.0.6.md)
+[Home](../README.md) · [Repair Notes](REPAIR-3.0.6.md)
 
 ## Input Files
 
@@ -49,7 +49,7 @@ python3 rebuild.py both \
   --bypass-apk /path/to/Hibou-3.0.5-bypass.apk
 ```
 
-Outputs are written to `dist/signed/Hibou-3.0.6-standard.apk`, `Hibou-3.0.6-bypass.apk`, and `SHA256SUMS.txt`. Fetched base APKs are cached in `.cache/rebuild/`.
+Outputs are written to `dist/signed/Hibou-1.0.0-beta.1-standard.apk`, `Hibou-1.0.0-beta.1-bypass.apk`, and `SHA256SUMS.txt`. Fetched base APKs are cached in `.cache/rebuild/`.
 
 The build script verifies exact base APK SHA-256 checksums, modified JS and shell syntax, DEX header integrity, ZIP structure, and runtime hashes before and after signing. Alignment and signatures are validated via `uber-apk-signer`.
 

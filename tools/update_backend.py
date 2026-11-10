@@ -17,10 +17,13 @@ API = 'https://api.github.com/repos/ovrrup/Hibou/releases/latest'
 DOWNLOAD_PREFIX = 'https://github.com/ovrrup/Hibou/releases/download/'
 
 def version_tuple(value):
-    match = re.fullmatch(r'v?(\d+)\.(\d+)\.(\d+)', str(value))
+    clean = str(value).strip().lstrip('v')
+    match = re.match(r'^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.]+))?$', clean)
     if not match:
         raise ValueError('Invalid release version')
-    return tuple(int(p) for p in match.groups())
+    major, minor, patch, prerelease = match.groups()
+    pre_tuple = (0, prerelease) if prerelease else (1,)
+    return (int(major), int(minor), int(patch)) + pre_tuple
 
 def tls_context():
     prefix = Path(os.environ.get('PREFIX', '/nonexistent'))

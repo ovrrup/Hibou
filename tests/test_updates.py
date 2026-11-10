@@ -9,7 +9,10 @@ class Updates(unittest.TestCase):
  def http(self,obj):return lambda *a,**k:Response(json.dumps(obj).encode())
  def test_up_to_date(self):self.assertFalse(m.release_info('3.0.6','standard',self.http(self.release(tag='v3.0.6')))['available'])
  def test_no_downgrade(self):self.assertFalse(m.release_info('3.0.6','standard',self.http(self.release(tag='v3.0.5')))['available'])
- def test_numeric_versions(self):self.assertGreater(m.version_tuple('3.0.10'),m.version_tuple('3.0.9'))
+ def test_numeric_versions(self):
+  self.assertGreater(m.version_tuple('3.0.10'),m.version_tuple('3.0.9'))
+  self.assertGreater(m.version_tuple('1.0.0-beta.2'),m.version_tuple('1.0.0-beta.1'))
+  self.assertGreater(m.version_tuple('1.0.0'),m.version_tuple('1.0.0-beta.1'))
  def test_keep_bypass(self):self.assertTrue(m.release_info('3.0.6','bypass',self.http(self.release()))['url'].endswith('-bypass.apk'))
  def test_names_with_spaces(self):self.assertTrue(m.release_info('3.0.6','standard',self.http(self.release()))['url'].startswith('https://'))
  def test_unknown_variant(self):

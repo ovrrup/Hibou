@@ -24,8 +24,8 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT/'tools'))
 from patch_web_bundle import patch_bundle
 
-VERSION = '3.0.6'
-VERSION_CODE = 22
+VERSION = '1.0.0-beta.1'
+VERSION_CODE = 1
 BASE = {
     'standard': ('Leostryx-3.0.5-standard.apk', 'c7a4ee1d85edbdb2fd05b6bb5cf54b4e3867527ea6c1c192d0219efab9d1f5d1'),
     'bypass': ('Leostryx-3.0.5-bypass.apk', 'd612eaeb2b592c37d2f5636be363669ff351ed431769ce55990bebe5723f7546'),

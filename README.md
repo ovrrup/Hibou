@@ -3,14 +3,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ovrrup/Hibou/releases/latest"><img src="https://img.shields.io/github/v/release/ovrrup/Hibou?style=flat-square&color=D58151&label=release" alt="Latest release" /></a>
+  <a href="https://github.com/ovrrup/Hibou/releases/latest"><img src="https://img.shields.io/badge/release-v1.0.0--beta.1-D58151?style=flat-square" alt="Initial Beta Release" /></a>
   <img src="https://img.shields.io/badge/Android-arm64--v8a-373438?style=flat-square&logo=android&logoColor=F0DFCC" alt="Android · arm64-v8a" />
   <img src="https://img.shields.io/badge/Interface-EN%20%2F%20RU-373438?style=flat-square" alt="English & Russian UI" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-373438?style=flat-square" alt="Apache 2.0" /></a>
 </p>
 
 <p align="center"><b>An AI-powered development environment directly on Android.</b><br />
-Custom model providers, developer toolchain, and granular agent control.</p>
+Custom model providers, developer toolchains, and granular agent governance.</p>
 
 <p align="center">
   <a href="https://github.com/ovrrup/Hibou/releases/latest"><b>Download APK</b></a> ·
@@ -22,7 +22,31 @@ Custom model providers, developer toolchain, and granular agent control.</p>
 
 ## About the Project
 
-**Hibou** is an enhanced build of [Antigravity for Android](https://github.com/werdio325-png/antigravity-android) featuring an improved user interface, custom model provider configuration, and built-in development tooling management. The autonomous AI agent can read and edit project files, execute terminal commands, and trigger builds directly on your device. The runtime operates natively in Android userspace on ARM64/Bionic without PRoot, QEMU, or chroot overhead.
+**Hibou** is an autonomous AI coding assistant and development environment designed to run natively on Android devices. It equips developers with an intelligent coding agent that reads, creates, and refactors project source code, executes shell commands, and builds software packages on-device without requiring a PC, root permissions, or heavy virtualization containers (PRoot/chroot/QEMU).
+
+As the first unified model of the app, Hibou versioning begins with **`1.0.0-beta.1`**.
+
+---
+
+## Credits & Acknowledgements
+
+Hibou is built upon the foundational contributions of two developers whose ingenuity and open-source projects made this application possible. We express our deepest gratitude to:
+
+### 1. [werdio325-png](https://github.com/werdio325-png) — [`werdio325-png/antigravity-android`](https://github.com/werdio325-png/antigravity-android)
+* **What they made possible:**
+  - **Native Android Architecture:** Pioneered running Google Antigravity directly in an Android userspace sandbox (`ARM64` / Bionic libc).
+  - **Chromium-to-Engine Bridge:** Engineered the loopback HTTPS connection between the Chromium WebView UI and the local Go/C++ `language_server` core.
+  - **Privilege & System Integration:** Created the native `IntentBridge` and Shizuku (`rish`) execution pipeline, granting terminal tools process management capabilities without root.
+
+### 2. [Leostrange](https://github.com/Leostrange) — [`Leostrange/Leostryx`](https://github.com/Leostrange/Leostryx)
+* **What they made possible:**
+  - **Custom AI Model Providers:** Designed the third-party provider interface supporting OpenAI-compatible, Anthropic Claude, and Gemini API endpoints with real-time model catalog queries and model selector grouping.
+  - **Model Context Protocol (MCP):** Enabled MCP server integration and dynamic tool forwarding directly to custom AI models.
+  - **Developer Toolchain & Security:** Built the in-app package manager and tool installer (OpenJDK, Python, Node.js, Flutter), the in-app diagnostics console, error history tracking, and the Security Shield policy governance.
+
+Hibou is developed, maintained, and curated by [@ovrrup](https://github.com/ovrrup), unifying these foundations with an English-first interface, streamlined updates, and owl visual branding.
+
+---
 
 ## Features
 
@@ -33,7 +57,7 @@ Custom model providers, developer toolchain, and granular agent control.</p>
 | **Developer Tooling** | In-app component installer, Android SDK/NDK, OpenJDK, Node.js LTS, Python 3, and Flutter/Dart toolchains |
 | **Integrations** | Model Context Protocol (MCP) servers, UTCP/OpenAPI, agent skills, system rules, and UI plugins |
 | **Diagnostics & Data** | In-app console and error history in Tools settings, logcat extraction, session export (text, images, PDF), and comprehensive backup/restore |
-| **UI & Customization** | English and Russian interface with immediate switching, light and dark themes, and four branding packs: Owl (Hibou mascot), Lynx, LSX, and Angular X |
+| **UI & Customization** | English default with instant Russian switching, light and dark themes, and four branding packs: Owl (Hibou mascot), Lynx, LSX, and Angular X |
 
 ## Screenshots
 
@@ -58,32 +82,16 @@ Custom model providers, developer toolchain, and granular agent control.</p>
 
 </details>
 
-## Download & Install · Repaired Releases
+## Download & Install · v1.0.0-beta.1
 
-| Variant · 3.0.5 | Description | Download |
+| Variant · 1.0.0-beta.1 | Description | Download |
 |---|---|---|
-| **Standard** | Base build without core regional check patches | [Standard APK](https://github.com/ovrrup/Hibou/releases/download/v3.0.5/Hibou-3.0.5-standard.apk) |
-| **Bypass** | Build patched to bypass core regional restrictions | [Bypass APK](https://github.com/ovrrup/Hibou/releases/download/v3.0.5/Hibou-3.0.5-bypass.apk) |
+| **Standard** | Clean baseline build without core regional check patches | [Standard APK](https://github.com/ovrrup/Hibou/releases/download/v1.0.0-beta.1/Hibou-1.0.0-beta.1-standard.apk) |
+| **Bypass** | Patched build bypassing core engine regional restrictions | [Bypass APK](https://github.com/ovrrup/Hibou/releases/download/v1.0.0-beta.1/Hibou-1.0.0-beta.1-bypass.apk) |
 
 1. Download your preferred APK from [Releases](https://github.com/ovrrup/Hibou/releases/latest).
 2. Allow installation from unknown sources in Android settings and install the APK.
-3. On first run, complete the initial setup (permissions and language), then sign in or configure your custom model provider.
-
-The repaired APKs are signed with the original release certificate used in versions 3.0.3–3.0.5. Always install the same or newer version; Android prevents downgrading `versionCode`. If you had previously downloaded an older, corrupted APK file, re-download the repaired package.
-
-## Release Differences
-
-All six APKs across versions 3.0.3–3.0.5 have been rebuilt with the original signature. The DEX startup crash has been resolved; previous corrupted packages are preserved as `.before-repair` files and should not be installed.
-
-| Release | versionCode | Highlights |
-|---|---|---|
-| [3.0.3](https://github.com/ovrrup/Hibou/releases/tag/v3.0.3) | 19 | Branding refresh, 4 emblem packs, fixed startup, and tools settings tab |
-| [3.0.4](https://github.com/ovrrup/Hibou/releases/tag/v3.0.4) | 20 | Added provider headers in model selector and consistent backup paths |
-| [3.0.5](https://github.com/ovrrup/Hibou/releases/tag/v3.0.5) | 21 | Added built-in update checking, downloading, and installation while preserving the build variant |
-
-For upgrading over an existing 3.0.3, 3.0.4, or 3.0.5 installation, install the repaired **3.0.5**. Uninstalling the app is not required because the signing certificate matches.
-
-[Repair Report](docs/REPAIRED-RELEASES.md) · [Full Changelog](CHANGELOG.md).
+3. On first run, complete initial permissions and language setup, then sign in or connect your preferred model provider.
 
 ## Important Considerations
 
@@ -98,12 +106,10 @@ For upgrading over an existing 3.0.3, 3.0.4, or 3.0.5 installation, install the 
 |---|---|
 | [Setup & Diagnostics](docs/USAGE.md) | Installation, providers, toolchain, MCP, error logging, and backup management |
 | [Building Hibou](docs/BUILD.md) | APK modification workflow, dependencies, and reproducibility notes |
-| [Changelog](CHANGELOG.md) | Release history and version highlights |
-| [Development Archive](docs/CHANGELOG-ARCHIVE.md) | Complete 65-point development log with technical details |
+| [Changelog](CHANGELOG.md) | Release history starting from 1.0.0-beta.1 and development lineage |
+| [Development Archive](docs/CHANGELOG-ARCHIVE.md) | Technical archive of preceding experimental builds |
 | [Flutter/Dart](docs/flutter-toolchain.md) · [JVM & jadx](docs/jadx-fixes.md) | Specialized setup and troubleshooting guides |
 
-## Credits & License
-
-Built upon [werdio325-png/antigravity-android](https://github.com/werdio325-png/antigravity-android). Previous contributions by [Leostryx (@Leostrange)](https://github.com/Leostrange/Leostryx). Hibou development and maintenance by [@ovrrup](https://github.com/ovrrup).
+## License
 
 Licensed under [Apache 2.0](LICENSE). Third-party dependencies and components are distributed under their respective licenses.
