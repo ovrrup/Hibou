@@ -17,4 +17,7 @@ def patch_bundle(source):
             .replace('quit Antigravity', 'quit Hibou')
             .replace('Jetski Web', 'Hibou')
             .replace('/antigravityCascadeDone.mp3', '/hibouCascadeDone.mp3')
-            .replace('/antigravityActionRequired.mp3', '/hibouActionRequired.mp3'))
+            .replace('/antigravityActionRequired.mp3', '/hibouActionRequired.mp3')
+            .replace('Continue with Google Cloud', '__TEMP_GCP_AUTH__')
+            .replace('Continue with Google', 'Login via Antigravity')
+            .replace('__TEMP_GCP_AUTH__', 'Continue with Google Cloud'))

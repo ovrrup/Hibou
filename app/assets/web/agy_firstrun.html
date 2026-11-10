@@ -6,15 +6,19 @@
 <title>Hibou</title>
 <style>
   :root {
-    --bg: #101010; --fg: #ececec; --muted: #9d9d9d; --card: #191919;
-    --border: #2a2a2a; --hover: #232323; --primary: #3b82f6; --primary-fg: #ffffff;
+    --bg: #000a2b; --fg: #f8fafc; --muted: #94a3b8; --card: rgba(10, 18, 38, 0.75);
+    --border: rgba(255, 255, 255, 0.14); --hover: rgba(255, 255, 255, 0.12); --primary: #38bdf8; --primary-fg: #090e1a;
   }
   html.light {
     --bg: #ffffff; --fg: #101010; --muted: #5f6368; --card: #f6f7f9;
-    --border: #e3e5e8; --hover: #eef0f3; --primary: #1a73e8; --primary-fg: #ffffff;
+    --border: #e3e5e8; --hover: #eef0f3; --primary: #0284c7; --primary-fg: #ffffff;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); }
+  html, body {
+    margin: 0; height: 100%;
+    background: radial-gradient(circle at 75% 65%, #002888 0%, #00185e 45%, #000a2b 100%);
+    color: var(--fg);
+  }
   body {
     font-family: "Google Sans", Roboto, "Segoe UI", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased; overflow: hidden;
@@ -40,15 +44,16 @@
   .actions { width: 100%; max-width: 480px; margin: 24px auto 0; display: grid; gap: 10px; }
   button { font: inherit; cursor: pointer; }
   .primary, .secondary {
-    width: 100%; min-height: 50px; border-radius: 12px; font-size: 15px; font-weight: 600;
+    width: 100%; min-height: 54px; border-radius: 16px; font-size: 16px; font-weight: 600;
   }
-  .primary { border: 1px solid var(--primary); background: var(--primary); color: var(--primary-fg); }
-  .secondary { border: 1px solid var(--border); background: transparent; color: var(--fg); }
+  .primary { border: none; background: var(--primary); color: var(--primary-fg); box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4); }
+  .secondary { border: 1px solid var(--border); background: rgba(255, 255, 255, 0.08); color: var(--fg); }
   .options { display: grid; gap: 12px; margin-top: 26px; }
   .option {
-    display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: 14px;
-    width: 100%; min-height: 72px; padding: 14px 16px; text-align: left; color: inherit;
-    border: 1px solid var(--border); border-radius: 14px; background: var(--card);
+    display: grid; grid-template-columns: 48px 1fr; align-items: center; gap: 16px;
+    width: 100%; min-height: 76px; padding: 16px 18px; text-align: left; color: inherit;
+    border: 1px solid var(--border); border-radius: 18px; background: var(--card);
+    backdrop-filter: blur(16px);
   }
   .option:active, .secondary:active { background: var(--hover); }
   .primary:active { filter: brightness(.92); }
