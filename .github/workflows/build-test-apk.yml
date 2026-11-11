@@ -69,11 +69,15 @@ jobs:
         run: |
           echo "::group::Verify Signed Output"
           ls -lh dist/signed/
-          java -jar tools/uber-apk-signer.jar --verify --apks dist/signed/ --verbose
-          for apk in dist/signed/*.apk; do
-            echo "--- Badging for $apk ---"
-            aapt dump badging "$apk" | head -n 25
-          done
+          java -jar tools/uber-apk-signer.jar -y --apks dist/signed/ --verbose
+          AAPT=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools" -name aapt 2>/dev/null | sort -V | tail -n 1)
+          [ -n "$AAPT" ] || AAPT=$(which aapt 2>/dev/null || true)
+          if [ -n "$AAPT" ] && [ -x "$AAPT" ]; then
+            for apk in dist/signed/*.apk; do
+              echo "--- Badging for $apk ($AAPT) ---"
+              "$AAPT" dump badging "$apk" | head -n 25
+            done
+          fi
           echo "::endgroup::"
 
       - name: Generate Checksums
