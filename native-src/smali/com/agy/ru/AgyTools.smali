@@ -479,7 +479,7 @@
     .annotation runtime Landroid/webkit/JavascriptInterface;
     .end annotation
     iget-object v0, p0, Lcom/agy/ru/AgyTools;->ctx:Landroid/content/Context;
-    invoke-static {v0}, Lcom/agy/ru/LeostryxUpdates;->getAppInfo(Landroid/content/Context;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/agy/ru/HibouBridge;->getAppInfo(Landroid/content/Context;)Ljava/lang/String;
     move-result-object v0
     return-object v0
 .end method
@@ -489,7 +489,28 @@
     .annotation runtime Landroid/webkit/JavascriptInterface;
     .end annotation
     iget-object v0, p0, Lcom/agy/ru/AgyTools;->ctx:Landroid/content/Context;
-    invoke-static {v0}, Lcom/agy/ru/LeostryxUpdates;->installUpdate(Landroid/content/Context;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/agy/ru/HibouBridge;->installUpdate(Landroid/content/Context;)Ljava/lang/String;
     move-result-object v0
     return-object v0
 .end method
+
+.method public checkPermissions()Ljava/lang/String;
+    .locals 1
+    .annotation runtime Landroid/webkit/JavascriptInterface;
+    .end annotation
+    iget-object v0, p0, Lcom/agy/ru/AgyTools;->ctx:Landroid/content/Context;
+    invoke-static {v0}, Lcom/agy/ru/HibouBridge;->checkPermissions(Landroid/content/Context;)Ljava/lang/String;
+    move-result-object v0
+    return-object v0
+.end method
+
+.method public requestPermission(Ljava/lang/String;)Ljava/lang/String;
+    .locals 1
+    .annotation runtime Landroid/webkit/JavascriptInterface;
+    .end annotation
+    iget-object v0, p0, Lcom/agy/ru/AgyTools;->ctx:Landroid/content/Context;
+    invoke-static {v0, p1}, Lcom/agy/ru/HibouBridge;->requestPermission(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
+    move-result-object v0
+    return-object v0
+.end method
+

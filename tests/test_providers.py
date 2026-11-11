@@ -167,5 +167,31 @@ class TestProviderNormalization(unittest.TestCase):
         dex_bytes = dex_path.read_bytes()
         rebuild.validate_dex(dex_bytes, "classes4.dex")
 
+    def test_classes_dex_integrity(self):
+        dex_path = ROOT / "app" / "classes.dex"
+        self.assertTrue(dex_path.is_file())
+        dex_bytes = dex_path.read_bytes()
+        rebuild.validate_dex(dex_bytes, "classes.dex")
+
+    def test_in_app_permissions_and_loading(self):
+        # 1. In-app permissions in hibou_ui.js
+        self.assertIn("checkAndPromptPermissions", self.hibou_ui_js)
+        self.assertIn("hibou-permission-banner", self.hibou_ui_js)
+        self.assertIn("AgyTools.checkPermissions", self.hibou_ui_js)
+        self.assertIn("AgyTools.requestPermission", self.hibou_ui_js)
+
+        # 2. Styles in hibou_mobile.css
+        css = (ROOT / "app" / "assets" / "web" / "hibou_mobile.css").read_text(encoding="utf-8")
+        self.assertIn(".hibou-perm-banner-wrap", css)
+        self.assertIn(".hibou-initial-skeleton", css)
+
+        # 3. Boot skeleton in index.html
+        idx = (ROOT / "app" / "assets" / "web" / "index.html").read_text(encoding="utf-8")
+        self.assertIn('id="hibou-initial-skeleton"', idx)
+
+        # 4. FirstRun bypass in smali
+        firstrun = (ROOT / ".cache" / "test_apk_out" / "smali" / "com" / "agy" / "ru" / "FirstRun.smali").read_text(encoding="utf-8")
+        self.assertIn("const/4 v0, 0x1", firstrun)
+
 if __name__ == "__main__":
     unittest.main()

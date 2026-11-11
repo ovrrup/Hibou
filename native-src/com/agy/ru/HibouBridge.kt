@@ -1,6 +1,14 @@
 package com.agy.ru
 
+import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.Settings
+import org.json.JSONObject
 
 /**
  * Modern native bridge helper for Hibou mobile app in Kotlin.
@@ -17,6 +25,94 @@ object HibouBridge {
 
     @JvmStatic
     fun isSupportedAbi(abi: String): Boolean = abi == "arm64-v8a" || abi == "armeabi-v7a"
+
+    @JvmStatic
+    fun checkPermissions(ctx: Context): String {
+        val root = JSONObject()
+        try {
+            // 1. Storage / All files access
+            val storageGranted = if (Build.VERSION.SDK_INT >= 30) {
+                Environment.isExternalStorageManager()
+            } else {
+                ctx.checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED
+            }
+            root.put("storage", storageGranted)
+
+            // 2. Notifications
+            val notifGranted = if (Build.VERSION.SDK_INT >= 33) {
+                ctx.checkSelfPermission("android.permission.POST_NOTIFICATIONS") == PackageManager.PERMISSION_GRANTED
+            } else {
+                val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+                nm?.areNotificationsEnabled() ?: true
+            }
+            root.put("notifications", notifGranted)
+
+            // 3. Microphone
+            val micGranted = ctx.checkSelfPermission("android.permission.RECORD_AUDIO") == PackageManager.PERMISSION_GRANTED
+            root.put("microphone", micGranted)
+        } catch (e: Exception) {
+            root.put("error", e.message ?: "unknown")
+        }
+        return root.toString()
+    }
+
+    @JvmStatic
+    fun requestPermission(ctx: Context, type: String?): String {
+        try {
+            val t = (type ?: "").lowercase().trim()
+            if (t == "storage" || t == "files") {
+                if (Build.VERSION.SDK_INT >= 30) {
+                    val intent = Intent("android.settings.MANAGE_APP_ALL_FILES_ACCESS_PERMISSION")
+                    intent.setData(Uri.parse("package:" + ctx.packageName))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    try {
+                        ctx.startActivity(intent)
+                        return "opened:manage_app_all_files"
+                    } catch (_: Exception) {
+                        val fallback = Intent("android.settings.MANAGE_ALL_FILES_ACCESS_PERMISSION")
+                        fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        ctx.startActivity(fallback)
+                        return "opened:manage_all_files"
+                    }
+                } else {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    intent.setData(Uri.parse("package:" + ctx.packageName))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    ctx.startActivity(intent)
+                    return "opened:app_details"
+                }
+            } else if (t == "notifications" || t == "notif") {
+                val intent = Intent("android.settings.APP_NOTIFICATION_SETTINGS")
+                intent.putExtra("android.provider.extra.APP_PACKAGE", ctx.packageName)
+                intent.putExtra("app_package", ctx.packageName)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    ctx.startActivity(intent)
+                    return "opened:notification_settings"
+                } catch (_: Exception) {
+                    val fallback = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    fallback.setData(Uri.parse("package:" + ctx.packageName))
+                    fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    ctx.startActivity(fallback)
+                    return "opened:app_details"
+                }
+            } else if (t == "microphone" || t == "mic" || t == "audio") {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                intent.setData(Uri.parse("package:" + ctx.packageName))
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                ctx.startActivity(intent)
+                return "opened:app_details"
+            } else {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                intent.setData(Uri.parse("package:" + ctx.packageName))
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                ctx.startActivity(intent)
+                return "opened:app_details"
+            }
+        } catch (e: Exception) {
+            return "error:" + e.javaClass.simpleName
+        }
+    }
 
     @JvmStatic
     fun normalizeEndpoint(base: String?, type: String?): String {

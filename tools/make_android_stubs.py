@@ -23,6 +23,27 @@ def build_stubs():
         (src / 'org/json').mkdir(parents=True, exist_ok=True)
         (src / 'com/agy/util').mkdir(parents=True, exist_ok=True)
         
+        (src / 'android/app').mkdir(parents=True, exist_ok=True)
+        (src / 'android/provider').mkdir(parents=True, exist_ok=True)
+        
+        (src / 'android/app/NotificationManager.java').write_text(
+            'package android.app;\n'
+            'public class NotificationManager {\n'
+            '    public boolean areNotificationsEnabled() { return true; }\n'
+            '}\n'
+        )
+        (src / 'android/provider/Settings.java').write_text(
+            'package android.provider;\n'
+            'public class Settings {\n'
+            '    public static final String ACTION_APPLICATION_DETAILS_SETTINGS = "android.settings.APPLICATION_DETAILS_SETTINGS";\n'
+            '}\n'
+        )
+        (src / 'android/os/Environment.java').write_text(
+            'package android.os;\n'
+            'public class Environment {\n'
+            '    public static boolean isExternalStorageManager() { return true; }\n'
+            '}\n'
+        )
         (src / 'org/json/JSONObject.java').write_text(
             'package org.json;\n'
             'public class JSONObject {\n'
@@ -30,6 +51,7 @@ def build_stubs():
             '    public JSONObject(String json) throws Exception {}\n'
             '    public JSONObject put(String name, Object val) throws Exception { return this; }\n'
             '    public JSONObject put(String name, int val) throws Exception { return this; }\n'
+            '    public JSONObject put(String name, boolean val) throws Exception { return this; }\n'
             '    public String getString(String name) throws Exception { return ""; }\n'
             '    public String optString(String name, String def) { return def; }\n'
             '    public String optString(String name) { return ""; }\n'
@@ -66,6 +88,8 @@ def build_stubs():
             'package android.content.pm;\n'
             'public abstract class PackageManager {\n'
             '    public static final int GET_SIGNATURES = 64;\n'
+            '    public static final int PERMISSION_GRANTED = 0;\n'
+            '    public static final int PERMISSION_DENIED = -1;\n'
             '    public abstract PackageInfo getPackageInfo(String packageName, int flags) throws Exception;\n'
             '    public abstract PackageInfo getPackageArchiveInfo(String archiveFilePath, int flags);\n'
             '    public abstract int checkPermission(String permName, String pkgName);\n'
@@ -97,6 +121,9 @@ def build_stubs():
             '    public Intent(String action, Uri uri) {}\n'
             '    public Intent addFlags(int flags) { return this; }\n'
             '    public Intent setDataAndType(Uri data, String type) { return this; }\n'
+            '    public Intent setData(Uri data) { return this; }\n'
+            '    public Uri getData() { return null; }\n'
+            '    public Intent putExtra(String name, String value) { return this; }\n'
             '}\n'
         )
         (src / 'android/content/Context.java').write_text(
@@ -105,11 +132,14 @@ def build_stubs():
             'import android.content.pm.PackageManager;\n'
             'import android.content.res.AssetManager;\n'
             'public abstract class Context {\n'
+            '    public static final String NOTIFICATION_SERVICE = "notification";\n'
             '    public abstract String getPackageName();\n'
             '    public abstract PackageManager getPackageManager();\n'
             '    public abstract File getFilesDir();\n'
             '    public abstract AssetManager getAssets();\n'
             '    public abstract void startActivity(Intent intent);\n'
+            '    public abstract int checkSelfPermission(String permission);\n'
+            '    public abstract Object getSystemService(String name);\n'
             '}\n'
         )
         (src / 'com/agy/util/AppFileProvider.java').write_text(

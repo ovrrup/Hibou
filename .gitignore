@@ -17,4 +17,5 @@ signing/
 # Verified rebuild cache and test environments
 .cache/
 .test-env/
+decompiled/
 *.idsig

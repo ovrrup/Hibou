@@ -153,7 +153,8 @@
     folder: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>',
     mention: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="4"></circle><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path></svg>',
     bolt: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
-    globe: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>'
+    globe: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>',
+    bell: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
   };
 
   // ---------------------------------------------------------------------------
@@ -1392,14 +1393,150 @@
       }
     }
 
-    var observer = new MutationObserver(update);
-    observer.observe(document.body, { childList: true, subtree: true });
-    setInterval(update, 1500);
-    update();
+    var updatePending = false;
+    function scheduleUpdate() {
+      if (updatePending) return;
+      updatePending = true;
+      requestAnimationFrame(function () {
+        updatePending = false;
+        update();
+      });
+    }
+
+    var observer = new MutationObserver(scheduleUpdate);
+    var root = document.getElementById("root") || document.body;
+    observer.observe(root, { childList: true, subtree: true });
+    setInterval(scheduleUpdate, 4000);
+    scheduleUpdate();
+
+    // Check permissions 1.5s after entering the app
+    setTimeout(checkAndPromptPermissions, 1500);
   }
 
   // ---------------------------------------------------------------------------
-  // 8. Initialization
+  // 8. In-App Temporary Permission Panels (Non-Blocking Material You)
+  // ---------------------------------------------------------------------------
+  function checkAndPromptPermissions() {
+    if (!window.AgyTools || typeof window.AgyTools.checkPermissions !== "function") return;
+
+    // Only prompt when inside the app (e.g. not on entrance auth screen)
+    var onLogin = !!(
+      document.querySelector(".entrance-auth-panel") ||
+      document.querySelector(".entrance-title")
+    );
+    if (onLogin) return;
+
+    var raw = "";
+    try {
+      raw = window.AgyTools.checkPermissions();
+    } catch (e) {
+      return;
+    }
+    if (!raw) return;
+
+    var perms = {};
+    try {
+      perms = JSON.parse(raw);
+    } catch (e) {
+      return;
+    }
+
+    // Existing banner already shown?
+    if (document.getElementById("hibou-permission-banner")) return;
+
+    var permType = null;
+    var title = "";
+    var desc = "";
+    var icon = "";
+    var grantText = i18n("Grant Access", "Разрешить доступ");
+
+    if (perms.storage === false && sessionStorage.getItem("hibou_dismiss_storage") !== "1") {
+      permType = "storage";
+      title = i18n("Storage Access Needed", "Требуется доступ к файлам");
+      desc = i18n("Allow Hibou to read and edit project files in device storage.", "Разрешите Hibou доступ к файлам для чтения и редактирования проектов.");
+      icon = ICONS.folder;
+    } else if (perms.notifications === false && sessionStorage.getItem("hibou_dismiss_notif") !== "1") {
+      permType = "notifications";
+      title = i18n("Enable Notifications", "Включить уведомления");
+      desc = i18n("Receive status alerts for background builds, daemon tasks, and updates.", "Получайте оповещения о завершении фоновых задач и обновлений.");
+      icon = ICONS.bell;
+      grantText = i18n("Enable", "Включить");
+    }
+
+    if (!permType) return;
+
+    var wrap = document.createElement("div");
+    wrap.id = "hibou-permission-banner";
+    wrap.className = "hibou-perm-banner-wrap";
+
+    wrap.innerHTML = [
+      '<div class="hibou-perm-banner-card" role="alert" tabindex="0">',
+      '  <div class="hibou-perm-main-row">',
+      '    <div class="hibou-perm-icon-box">' + icon + '</div>',
+      '    <div class="hibou-perm-text-box">',
+      '      <div class="hibou-perm-title">' + escapeHtml(title) + '</div>',
+      '      <div class="hibou-perm-desc">' + escapeHtml(desc) + '</div>',
+      '    </div>',
+      '  </div>',
+      '  <div class="hibou-perm-actions-row">',
+      '    <button type="button" class="hibou-perm-btn-dismiss" id="hibou-perm-dismiss">' + i18n("Later", "Позже") + '</button>',
+      '    <button type="button" class="hibou-perm-btn-grant" id="hibou-perm-grant">' + escapeHtml(grantText) + '</button>',
+      '  </div>',
+      '</div>'
+    ].join("\n");
+
+    document.body.appendChild(wrap);
+
+    // Smooth entrance
+    requestAnimationFrame(function () {
+      wrap.classList.add("visible");
+    });
+
+    function dismissBanner() {
+      sessionStorage.setItem(permType === "storage" ? "hibou_dismiss_storage" : "hibou_dismiss_notif", "1");
+      wrap.classList.remove("visible");
+      setTimeout(function () {
+        if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      }, 350);
+    }
+
+    function openPermissionScreen() {
+      try {
+        if (window.AgyTools && typeof window.AgyTools.requestPermission === "function") {
+          window.AgyTools.requestPermission(permType);
+        }
+      } catch (err) {}
+      dismissBanner();
+    }
+
+    var btnDismiss = wrap.querySelector("#hibou-perm-dismiss");
+    var btnGrant = wrap.querySelector("#hibou-perm-grant");
+    var card = wrap.querySelector(".hibou-perm-banner-card");
+
+    if (btnDismiss) {
+      btnDismiss.addEventListener("click", function (e) {
+        e.stopPropagation();
+        dismissBanner();
+      });
+    }
+
+    if (btnGrant) {
+      btnGrant.addEventListener("click", function (e) {
+        e.stopPropagation();
+        openPermissionScreen();
+      });
+    }
+
+    if (card) {
+      card.addEventListener("click", function (e) {
+        if (e.target && (e.target.id === "hibou-perm-dismiss" || e.target.closest("#hibou-perm-dismiss"))) return;
+        openPermissionScreen();
+      });
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // 9. Initialization
   // ---------------------------------------------------------------------------
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", buildMobileShell);

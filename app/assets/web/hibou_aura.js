@@ -246,14 +246,21 @@
   }
 
   function stopAura() {
-    if (!running) return;
+    if (!running && !canvas && !grainEl) return;
     running = false;
     if (animId) {
       cancelAnimationFrame(animId);
       animId = null;
     }
-    if (canvas) canvas.style.display = "none";
-    if (grainEl) grainEl.style.display = "none";
+    if (canvas && canvas.parentNode) {
+      canvas.parentNode.removeChild(canvas);
+      canvas = null;
+      ctx = null;
+    }
+    if (grainEl && grainEl.parentNode) {
+      grainEl.parentNode.removeChild(grainEl);
+      grainEl = null;
+    }
     document.body.classList.remove("hibou-login-active");
   }
 
@@ -262,7 +269,7 @@
     var onLogin = isLoginScreenPresent();
     if (onLogin && !running) {
       startAura();
-    } else if (!onLogin && running) {
+    } else if (!onLogin && (running || canvas || grainEl)) {
       stopAura();
     }
 
@@ -299,12 +306,22 @@
     });
   }
 
-  var observer = new MutationObserver(checkState);
+  var checkPending = false;
+  function debouncedCheck() {
+    if (checkPending) return;
+    checkPending = true;
+    requestAnimationFrame(function () {
+      checkPending = false;
+      checkState();
+    });
+  }
+
+  var observer = new MutationObserver(debouncedCheck);
 
   function init() {
-    createAuraCanvas();
     checkState();
-    observer.observe(document.body, { childList: true, subtree: true });
+    var root = document.getElementById("root") || document.body;
+    observer.observe(root, { childList: true, subtree: true });
     document.addEventListener("visibilitychange", function () {
       if (document.hidden && running) {
         if (animId) cancelAnimationFrame(animId);
