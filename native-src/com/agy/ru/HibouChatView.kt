@@ -2,6 +2,7 @@ package com.agy.ru
 
 import android.content.Context
 import android.graphics.Typeface
+import android.app.Dialog
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -45,6 +46,8 @@ class HibouChatView(context: Context) : FrameLayout(context) {
     private var streamingMessage: HibouChatMessage? = null
     private val liveText = StringBuilder()
     private var coreConversations: List<HibouConversationSummary> = emptyList()
+    private var models: List<HibouModel> = emptyList()
+    private var loadingModels = false
 
     init {
         setBackgroundColor(HibouTheme.color(HibouTheme.BG))

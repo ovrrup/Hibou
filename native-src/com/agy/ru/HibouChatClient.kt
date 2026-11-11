@@ -28,7 +28,8 @@ class HibouModel(
     val id: String,
     val label: String,
     val recommended: Boolean,
-    val supportsThinking: Boolean
+    val supportsThinking: Boolean,
+    val wireName: String
 )
 
 class HibouStreamHandle internal constructor(
@@ -77,12 +78,19 @@ class HibouChatClient(private val ctx: Context) {
 
     // -- conversation lifecycle -----------------------------------------
 
-    fun startCascade(cascadeId: String, workspaceUris: List<String> = emptyList()) {
+    fun startCascade(
+        cascadeId: String,
+        workspaceUris: List<String> = emptyList(),
+        requestedModel: String? = null
+    ) {
         val request = JSONObject()
         request.put("cascadeId", cascadeId)
         request.put("trajectoryType", TYPE_USER_MAINLINE)
         request.put("source", SOURCE_CASCADE_CLIENT)
         request.put("metadata", HibouCore.metadata(ctx))
+        if (!requestedModel.isNullOrBlank()) {
+            request.put("requestedModel", requestedModel)
+        }
         if (workspaceUris.isNotEmpty()) {
             request.put("workspaceUris", JSONArray(workspaceUris))
         }
@@ -199,7 +207,8 @@ class HibouChatClient(private val ctx: Context) {
                 id,
                 details.optString("displayName", id),
                 details.optBoolean("recommended", false),
-                details.optBoolean("supportsThinking", false)
+                details.optBoolean("supportsThinking", false),
+                details.optString("model", id)
             ))
         }
         result.sortWith(compareByDescending<HibouModel> { it.recommended }.thenBy { it.label })

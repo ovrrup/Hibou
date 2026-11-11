@@ -563,6 +563,68 @@ def build_stubs():
             '    public void setTextIsSelectable(boolean selectable) {}\n'
             '}\n'
         )
+        (src / 'android/text/Spanned.java').write_text(
+            'package android.text;\n'
+            'public interface Spanned {\n'
+            '    int SPAN_EXCLUSIVE_EXCLUSIVE = 33;\n'
+            '    int SPAN_INCLUSIVE_EXCLUSIVE = 17;\n'
+            '    int SPAN_EXCLUSIVE_INCLUSIVE = 34;\n'
+            '    int SPAN_INCLUSIVE_INCLUSIVE = 18;\n'
+            '}\n'
+        )
+        (src / 'android/text/SpannableStringBuilder.java').write_text(
+            'package android.text;\n'
+            'public class SpannableStringBuilder implements CharSequence, Spanned {\n'
+            '    public SpannableStringBuilder() {}\n'
+            '    public SpannableStringBuilder(CharSequence text) {}\n'
+            '    public SpannableStringBuilder append(CharSequence text) { return this; }\n'
+            '    public SpannableStringBuilder append(char text) { return this; }\n'
+            '    public SpannableStringBuilder delete(int start, int end) { return this; }\n'
+            '    public SpannableStringBuilder replace(int start, int end, CharSequence text) { return this; }\n'
+            '    public void insert(int where, CharSequence text) {}\n'
+            '    public void setSpan(Object what, int start, int end, int flags) {}\n'
+            '    public int length() { return 0; }\n'
+            '    public char charAt(int index) { return 0; }\n'
+            '    public CharSequence subSequence(int start, int end) { return this; }\n'
+            '    public String toString() { return ""; }\n'
+            '}\n'
+        )
+        (src / 'android/text/style/StyleSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class StyleSpan {\n'
+            '    public StyleSpan(int style) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/TypefaceSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class TypefaceSpan {\n'
+            '    public TypefaceSpan(String family) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/RelativeSizeSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class RelativeSizeSpan {\n'
+            '    public RelativeSizeSpan(float proportion) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/BackgroundColorSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class BackgroundColorSpan {\n'
+            '    public BackgroundColorSpan(int color) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/ForegroundColorSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class ForegroundColorSpan {\n'
+            '    public ForegroundColorSpan(int color) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/UnderlineSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class UnderlineSpan {\n'
+            '    public UnderlineSpan() {}\n'
+            '}\n'
+        )
         (src / 'android/widget/Button.java').write_text(
             'package android.widget;\n'
             'import android.content.Context;\n'
