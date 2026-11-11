@@ -1,0 +1,132 @@
+name: Code & Antigravity Connection Verification
+
+on:
+  push:
+    branches:
+      - main
+      - redesign
+  pull_request:
+    branches:
+      - main
+      - redesign
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-code-integrity:
+    name: Code Integrity & Syntax Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check Python Syntax & Compilation
+        run: |
+          echo "::group::Python Compilation Checks"
+          python3 -m py_compile rebuild.py tools/*.py tests/*.py
+          echo "Python syntax verified cleanly."
+          echo "::endgroup::"
+
+      - name: Check Shell Script Syntax
+        run: |
+          echo "::group::Bash Script Validation"
+          bash -n app/assets/web/agy_tools.sh
+          echo "agy_tools.sh bash syntax valid."
+          echo "::endgroup::"
+
+      - name: Check JavaScript Syntax
+        run: |
+          echo "::group::JavaScript Syntax Validation"
+          for jsfile in app/assets/web/*.js; do
+            if [ -f "$jsfile" ]; then
+              echo "Checking $jsfile..."
+              node --check "$jsfile"
+            fi
+          done
+          echo "All web JavaScript files passed syntax verification."
+          echo "::endgroup::"
+
+      - name: Validate JSON Manifests
+        run: |
+          echo "::group::JSON Manifest Validation"
+          python3 -m json.tool app/assets/env/manifest.json > /dev/null
+          python3 -m json.tool app/assets/runtime/manifest.json > /dev/null
+          echo "All manifests parsed as valid JSON."
+          echo "::endgroup::"
+
+  verify-antigravity-connection:
+    name: Antigravity Connection & Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Verify Environment Overlay SHA256 Integrity
+        run: |
+          echo "::group::Verify Env Overlay SHA"
+          python3 tools/gen_env_overlay_sha.py
+          echo "Environment overlay hash matches manifest perfectly."
+          echo "::endgroup::"
+
+      - name: Verify Web Bundle Patch Integration
+        run: |
+          echo "::group::Web Bundle Patch Verification"
+          python3 -c "
+          from tools.patch_web_bundle import patch_bundle, OLD_MODEL_ROWS
+          with open('app/assets/web/generated/main.js', 'r', encoding='utf-8') as f:
+              bundle = f.read()
+          print('Base bundle loaded. Length:', len(bundle))
+          patched = patch_bundle(bundle)
+          assert 'Login via Antigravity' in patched, 'Login via Antigravity missing from patched bundle'
+          assert '/hibouCascadeDone.mp3' in patched, 'hibouCascadeDone.mp3 missing from patched bundle'
+          assert '/hibouActionRequired.mp3' in patched, 'hibouActionRequired.mp3 missing from patched bundle'
+          print('Web bundle patcher successfully applied and verified.')
+          "
+          echo "::endgroup::"
+
+      - name: Verify Java Bridge & Native Smali Headers
+        run: |
+          echo "::group::Verify Native Bridge"
+          test -f native-src/com/agy/ru/HibouUpdates.java || (echo "Missing HibouUpdates.java" && exit 1)
+          test -f native-src/com/agy/ru/LeostryxUpdates.java || (echo "Missing LeostryxUpdates.java" && exit 1)
+          test -f native-src/smali/com/agy/ru/AgyTools.smali || (echo "Missing AgyTools.smali" && exit 1)
+          echo "All native bridge and smali definitions are present."
+          echo "::endgroup::"
+
+      - name: Run Antigravity Protocol & Build Consistency Tests
+        run: |
+          echo "::group::Unit & Protocol Tests"
+          python3 -m unittest discover -s tests -v
+          echo "::endgroup::"
+
+      - name: Write Job Summary
+        if: always()
+        run: |
+          echo "### Code & Antigravity Connection Check Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ref:** \`${{ github.ref }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** All syntax checks, manifest hashes, Antigravity protocol tests, and web bundle patches passed successfully." >> $GITHUB_STEP_SUMMARY

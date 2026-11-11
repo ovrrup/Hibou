@@ -1,0 +1,111 @@
+name: Compile Hibou Test APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: "APK Variant to compile"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - "both"
+          - "standard"
+          - "bypass"
+  push:
+    branches:
+      - redesign
+    tags:
+      - "v*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-apks:
+    name: Compile & Sign Test APKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Cache Base APKs
+        uses: actions/cache@v4
+        with:
+          path: .cache/rebuild
+          key: base-apks-v3.0.5-${{ hashFiles('rebuild.py') }}
+          restore-keys: |
+            base-apks-v3.0.5-
+
+      - name: Build & Assemble Hibou APK
+        id: build_apk
+        run: |
+          echo "::group::Rebuilding APK"
+          VARIANT="${{ github.event.inputs.variant || 'both' }}"
+          echo "Selected variant: $VARIANT"
+          python3 rebuild.py "$VARIANT" --fetch-base
+          echo "::endgroup::"
+
+      - name: Verify Signed APK Integrity
+        run: |
+          echo "::group::Verify Signed Output"
+          ls -lh dist/signed/
+          java -jar tools/uber-apk-signer.jar --verify --apks dist/signed/ --verbose
+          echo "::endgroup::"
+
+      - name: Generate Checksums
+        run: |
+          echo "::group::Checksums"
+          cd dist/signed
+          sha256sum *.apk > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          echo "::endgroup::"
+
+      - name: Upload Test APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: hibou-test-apks-${{ github.sha }}
+          path: |
+            dist/signed/*.apk
+            dist/signed/SHA256SUMS.txt
+          retention-days: 14
+
+      - name: Build Summary
+        if: always()
+        run: |
+          echo "## Hibou Test APK Compilation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|">> $GITHUB_STEP_SUMMARY
+          echo "| **Application ID** | \`agy.hibou\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version** | \`1.0.0-beta.1\` (versionCode 1) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Git Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch / Ref** | \`${{ github.ref }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Generated Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d "dist/signed" ]; then
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat dist/signed/SHA256SUMS.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No output directory found." >> $GITHUB_STEP_SUMMARY
+          fi

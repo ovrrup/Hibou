@@ -32,8 +32,13 @@ BASE = {
 }
 OVERRIDES = [
     'AndroidManifest.xml', 'classes.dex', 'classes4.dex', 'resources.arsc',
+    'assets/web/index.html',
     'assets/web/agy_tools.js', 'assets/web/agy_tools.sh',
     'assets/web/agy_providers.js',
+    'assets/web/agy_firstrun.html',
+    'assets/web/hibou.css', 'assets/web/hibou.js',
+    'assets/web/hibou_aura.js', 'assets/web/hibou_login_bg.jpg',
+    'assets/web/hibouActionRequired.mp3', 'assets/web/hibouCascadeDone.mp3',
 ]
 
 def sha256(path):
@@ -97,11 +102,12 @@ def pack(source, variant, destination):
         if not path.is_file():
             raise FileNotFoundError(str(path))
     node = shutil.which('node')
-    if not node:
-        raise RuntimeError('Node.js is required for JavaScript syntax checks')
-    for name in OVERRIDES:
-        if name.endswith('.js'):
-            subprocess.run([node, '--check', str(overrides[name])], check=True)
+    if node:
+        for name in OVERRIDES:
+            if name.endswith('.js'):
+                subprocess.run([node, '--check', str(overrides[name])], check=True)
+    else:
+        print('Notice: Node.js is not present in local PATH; skipping JS syntax pre-check')
     subprocess.run(['bash', '-n', str(overrides['assets/web/agy_tools.sh'])], check=True)
     info = {'versionName': VERSION, 'versionCode': VERSION_CODE, 'variant': variant,
             'packageName': 'agy.hibou', 'sourceRelease': 'v3.0.5', 'sourceSha256': BASE[variant][1]}
@@ -111,7 +117,8 @@ def pack(source, variant, destination):
     with tempfile.TemporaryDirectory() as folder:
         check = Path(folder)/'main.js'
         check.write_bytes(bundle)
-        subprocess.run([node, '--check', str(check)], check=True)
+        if node:
+            subprocess.run([node, '--check', str(check)], check=True)
     with zipfile.ZipFile(source) as old, zipfile.ZipFile(destination, 'w') as new:
         seen = set()
         for entry in old.infolist():
