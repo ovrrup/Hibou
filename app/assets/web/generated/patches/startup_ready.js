@@ -91,10 +91,13 @@ function isUiRendered() {
 
     // 2. Has the input area appeared?
     var hasInput = !!root.querySelector('textarea, [contenteditable="true"], [role="textbox"], button[type="submit"]');
+    var isSkeletonOnly = !!root.querySelector('#hibou-initial-skeleton') && !root.querySelector('.entrance-auth-panel, .entrance-title, [data-testid="agent-input-box"], textarea');
+    if (isSkeletonOnly) return false;
+
     var hasContentNow = hasInput || !!root.firstElementChild;
     if (!hasContentNow) { state.inputSeenAt = 0; return false; }
     if (!state.inputSeenAt) state.inputSeenAt = Date.now();
-    if (Date.now() - state.inputSeenAt < 1500) return false;
+    if (Date.now() - state.inputSeenAt < 800) return false;
     if (hasInput) {
       signal('chat-input-ready');
       return true;
@@ -139,16 +142,16 @@ function arm() {
     if (isUiRendered() || state.signalled) {
       global.clearInterval(poller);
     }
-  }, 40);
+  }, 80);
 
-  // Fallback: 5.5 seconds maximum waiting time
+  // Fallback: 2.5 seconds maximum waiting time
   global.setTimeout(function () {
     global.clearInterval(poller);
     if (isUiRendered()) {
       return;
     }
     signal('fallback-timeout');
-  }, 8000);
+  }, 2500);
 }
 
 /**
