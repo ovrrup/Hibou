@@ -336,7 +336,7 @@
       '      </div>',
       '      <div class="hibou-m3-provider-list">',
       '        <!-- 1. OpenCode -->',
-      '        <div class="hibou-m3-provider-card" data-pv="opencode">',
+      '        <div class="hibou-m3-provider-card inactive" data-pv="opencode">',
       '          <div class="hibou-pv-top">',
       '            <div class="hibou-pv-icon opencode">' + ICONS.opencode + '</div>',
       '            <div class="hibou-pv-meta">',
@@ -349,17 +349,38 @@
       '            </label>',
       '          </div>',
       '          <div class="hibou-pv-fields">',
+      '            <div class="hibou-m3-plan-selector" id="hibou-opencode-plan-selector">',
+      '              <button type="button" class="hibou-m3-plan-chip active" data-opencode-plan="free">',
+      '                Free Models <span class="hibou-plan-tag free">NO KEY</span>',
+      '              </button>',
+      '              <button type="button" class="hibou-m3-plan-chip" data-opencode-plan="go">',
+      '                Go ($10/mo) <span class="hibou-plan-tag sub">POOL</span>',
+      '              </button>',
+      '              <button type="button" class="hibou-m3-plan-chip" data-opencode-plan="go_plus">',
+      '                Go Plus ($40/mo) <span class="hibou-plan-tag sub">PRIORITY</span>',
+      '              </button>',
+      '              <button type="button" class="hibou-m3-plan-chip" data-opencode-plan="zen">',
+      '                Zen <span class="hibou-plan-tag sub">PAY-GO</span>',
+      '              </button>',
+      '              <button type="button" class="hibou-m3-plan-chip" data-opencode-plan="local">',
+      '                Local Server <span class="hibou-plan-tag local">PORT 4096</span>',
+      '              </button>',
+      '            </div>',
+      '            <div class="hibou-plan-banner free" id="hibou-opencode-banner">',
+      '              <div class="hibou-plan-banner-title">' + i18n("Community Free Tier: 12 models free, no API key required", "Бесплатный уровень: 12 моделей бесплатно, API-ключ не требуется") + '</div>',
+      '              <div>' + i18n("Nemotron 3.5 Super VL, Nemotron 3.5 Lightning, MiniMax M3.1 Flash, DeepSeek V4.1 Flash, and more.", "Nemotron 3.5 Super VL, Nemotron 3.5 Lightning, MiniMax M3.1 Flash, DeepSeek V4.1 Flash и другие.") + '</div>',
+      '            </div>',
       '            <div class="hibou-pv-field-row">',
       '              <label>Endpoint</label>',
-      '              <input type="text" id="hibou-pv-url-opencode" class="hibou-input-text" value="https://api.opencode.ai/v1" placeholder="https://api.opencode.ai/v1 or http://localhost:4096/v1">',
+      '              <input type="text" id="hibou-pv-url-opencode" class="hibou-input-text" value="https://opencode.ai/zen/v1" placeholder="https://opencode.ai/zen/v1 or http://localhost:4096/v1">',
       '            </div>',
-      '            <div class="hibou-pv-field-row">',
+      '            <div class="hibou-pv-field-row" id="hibou-opencode-key-row" style="display: none;">',
       '              <label>API Key</label>',
-      '              <input type="password" id="hibou-pv-key-opencode" class="hibou-input-text" placeholder="opencode_... (or local token)">',
+      '              <input type="password" id="hibou-pv-key-opencode" class="hibou-input-text" placeholder="opencode_... (API key)">',
       '            </div>',
       '            <div class="hibou-pv-quota-info">',
-      '              <span>' + i18n("Token limit: Unlimited coding pool", "Лимит токенов: Безлимитный кодинг") + '</span>',
-      '              <span>' + i18n("Refresh: Real-time", "Сброс: Непрерывно") + '</span>',
+      '              <span id="hibou-opencode-quota-left">' + i18n("Quota: 12 Free Coding Models", "Квота: 12 бесплатных моделей") + '</span>',
+      '              <span id="hibou-opencode-quota-right">' + i18n("Access: Zero-cost / Public", "Доступ: Без оплаты / Публичный") + '</span>',
       '            </div>',
       '            <div class="hibou-pv-card-actions">',
       '              <button type="button" class="hibou-btn-tonal" data-test-pv="opencode">' + i18n("Test & Connect", "Проверить и подключить") + '</button>',
@@ -659,8 +680,142 @@
     }
   }
 
+  function selectOpenCodePlan(planId) {
+    var chips = document.querySelectorAll("#hibou-opencode-plan-selector [data-opencode-plan]");
+    chips.forEach(function (c) {
+      c.classList.toggle("active", c.getAttribute("data-opencode-plan") === planId);
+    });
+
+    var banner = document.getElementById("hibou-opencode-banner");
+    var keyRow = document.getElementById("hibou-opencode-key-row");
+    var urlInput = document.getElementById("hibou-pv-url-opencode");
+    var quotaLeft = document.getElementById("hibou-opencode-quota-left");
+    var quotaRight = document.getElementById("hibou-opencode-quota-right");
+
+    if (banner) {
+      banner.className = "hibou-plan-banner " + (planId === "free" ? "free" : (planId === "local" ? "local" : "paid"));
+      var title = "";
+      var desc = "";
+      if (planId === "free") {
+        title = i18n("Community Free Tier: 12 models free, no API key required", "Бесплатный уровень: 12 моделей бесплатно, API-ключ не требуется");
+        desc = i18n("Nemotron 3.5 Super VL, Nemotron 3.5 Lightning, MiniMax M3.1 Flash, DeepSeek V4.1 Flash, and more.", "Nemotron 3.5 Super VL, Nemotron 3.5 Lightning, MiniMax M3.1 Flash, DeepSeek V4.1 Flash и другие.");
+      } else if (planId === "go") {
+        title = i18n("OpenCode Go: High-throughput shared coding pool ($10/mo)", "OpenCode Go: Высокопроизводительный пул кодинга ($10/мес)");
+        desc = i18n("Requires OpenCode Go subscription key. Access to Claude 3.5 Sonnet, GPT-4o, and DeepSeek V3/R1.", "Требуется ключ подписки OpenCode Go. Доступ к Claude 3.5 Sonnet, GPT-4o и DeepSeek V3/R1.");
+      } else if (planId === "go_plus") {
+        title = i18n("OpenCode Go Plus: Priority power-user coding pool ($40/mo)", "OpenCode Go Plus: Приоритетный пул для активных разработчиков ($40/мес)");
+        desc = i18n("Requires OpenCode Go Plus subscription key. Dedicated zero-latency priority routing.", "Требуется ключ подписки OpenCode Go Plus. Выделенная приоритетная маршрутизация без задержек.");
+      } else if (planId === "zen") {
+        title = i18n("OpenCode Zen: Pay-as-you-go frontier model routing", "OpenCode Zen: Оплата по факту использования передовых моделей");
+        desc = i18n("Requires OpenCode Zen API key. Pay per token for frontier coding and reasoning models.", "Требуется API-ключ OpenCode Zen. Оплата за токены для передовых моделей кодинга и рассуждений.");
+      } else if (planId === "local") {
+        title = i18n("Local OpenCode Server: Connect to localhost:4096 (Offline)", "Локальный сервер OpenCode: Подключение к localhost:4096 (Офлайн)");
+        desc = i18n("No external API key needed. Runs locally on device or LAN server at port 4096.", "Внешний API-ключ не требуется. Работает локально на устройстве или в локальной сети на порту 4096.");
+      }
+      banner.innerHTML = '<div class="hibou-plan-banner-title">' + title + '</div><div>' + desc + '</div>';
+    }
+
+    if (keyRow) {
+      keyRow.style.display = (planId === "free" || planId === "local") ? "none" : "";
+    }
+
+    if (urlInput) {
+      if (planId === "local") {
+        urlInput.value = "http://localhost:4096/v1";
+      } else if (!urlInput.value || urlInput.value.indexOf("localhost") >= 0 || urlInput.value.indexOf("api.opencode.ai") >= 0) {
+        urlInput.value = "https://opencode.ai/zen/v1";
+      }
+    }
+
+    if (quotaLeft && quotaRight) {
+      if (planId === "free") {
+        quotaLeft.textContent = i18n("Quota: 12 Free Coding Models", "Квота: 12 бесплатных моделей");
+        quotaRight.textContent = i18n("Access: Zero-cost / Public", "Доступ: Без оплаты / Публичный");
+      } else if (planId === "go") {
+        quotaLeft.textContent = i18n("Pool: High-throughput pool", "Пул: Высокая пропускная способность");
+        quotaRight.textContent = i18n("Access: $10/mo subscription", "Доступ: Подписка $10/мес");
+      } else if (planId === "go_plus") {
+        quotaLeft.textContent = i18n("Pool: Priority power-user pool", "Пул: Приоритетный пул");
+        quotaRight.textContent = i18n("Access: $40/mo subscription", "Доступ: Подписка $40/мес");
+      } else if (planId === "zen") {
+        quotaLeft.textContent = i18n("Usage: Dynamic metered balance", "Расход: Динамический баланс");
+        quotaRight.textContent = i18n("Access: Pay-as-you-go billing", "Доступ: Оплата по факту");
+      } else if (planId === "local") {
+        quotaLeft.textContent = i18n("Host: 127.0.0.1:4096", "Хост: 127.0.0.1:4096");
+        quotaRight.textContent = i18n("Access: Local daemon / Offline", "Доступ: Локальный демон / Офлайн");
+      }
+    }
+
+    try {
+      var raw = localStorage.getItem("agyProviders") || '{"connections":[]}';
+      var parsed = JSON.parse(raw);
+      parsed.connections = parsed.connections || [];
+      var oc = parsed.connections.find(function (c) { return c.id === "opencode"; });
+      if (oc) {
+        oc.plan = planId;
+        if (planId === "free") oc.apiKey = "public";
+        else if (planId === "local") oc.apiKey = oc.apiKey || "local";
+        if (urlInput) oc.baseUrl = urlInput.value;
+        var updated = JSON.stringify(parsed);
+        localStorage.setItem("agyProviders", updated);
+        if (window.AgyProviders && typeof window.AgyProviders.save === "function") {
+          window.AgyProviders.save(updated);
+        }
+      }
+    } catch (e) {}
+  }
+  window.__hibouSelectOpenCodePlan = selectOpenCodePlan;
+
+  function syncProviderCardsState() {
+    try {
+      var raw = "";
+      try { raw = window.AgyProviders ? window.AgyProviders.load() : (localStorage.getItem("agyProviders") || ""); } catch (err) {}
+      var parsed = { connections: [] };
+      if (raw) { try { parsed = JSON.parse(raw); } catch (err) {} }
+      var conns = parsed.connections || [];
+
+      var oc = conns.find(function (c) { return c.id === "opencode"; });
+      var ocCard = document.querySelector('.hibou-m3-provider-card[data-pv="opencode"]');
+      var ocToggle = document.getElementById("hibou-pv-toggle-opencode");
+      var ocUrl = document.getElementById("hibou-pv-url-opencode");
+      var ocKey = document.getElementById("hibou-pv-key-opencode");
+      var ocPlan = (oc && oc.plan) ? oc.plan : "free";
+
+      if (oc && oc.disabled === false) {
+        if (ocToggle) ocToggle.checked = true;
+        if (ocCard) ocCard.classList.remove("inactive");
+      } else {
+        if (ocToggle) ocToggle.checked = false;
+        if (ocCard) ocCard.classList.add("inactive");
+      }
+      selectOpenCodePlan(ocPlan);
+      if (oc) {
+        if (ocUrl && oc.baseUrl) ocUrl.value = oc.baseUrl;
+        if (ocKey && oc.apiKey && ocPlan !== "free") ocKey.value = oc.apiKey;
+      }
+
+      ["openrouter", "deepseek", "claude", "openai", "mistral"].forEach(function (id) {
+        var c = conns.find(function (item) { return item.id === id; });
+        var card = document.querySelector('.hibou-m3-provider-card[data-pv="' + id + '"]');
+        var toggle = document.getElementById("hibou-pv-toggle-" + id);
+        var urlInput = document.getElementById("hibou-pv-url-" + id);
+        var keyInput = document.getElementById("hibou-pv-key-" + id);
+        if (c && c.disabled === false) {
+          if (toggle) toggle.checked = true;
+          if (card) card.classList.remove("inactive");
+          if (urlInput && c.baseUrl) urlInput.value = c.baseUrl;
+          if (keyInput && c.apiKey) keyInput.value = c.apiKey;
+        } else {
+          if (toggle) toggle.checked = false;
+        }
+      });
+    } catch (e) {}
+  }
+  window.__hibouSyncProviderCardsState = syncProviderCardsState;
+
   function openControlCenter(tab) {
     state.controlCenterOpen = true;
+    syncProviderCardsState();
     if (tab) switchControlCenterTab(tab);
     var modal = document.getElementById("hibou-control-center-modal");
     if (modal) modal.classList.remove("hibou-hidden");
@@ -950,6 +1105,15 @@
         }
       });
     }
+    // OpenCode Plan Chip clicks
+    document.addEventListener("click", function (e) {
+      var planChip = e.target.closest("[data-opencode-plan]");
+      if (planChip) {
+        var plan = planChip.getAttribute("data-opencode-plan");
+        selectOpenCodePlan(plan);
+      }
+    });
+
     // Provider testing and configuration handlers in Control Center
     document.addEventListener("click", function (e) {
       var testBtn = e.target.closest("[data-test-pv]");
@@ -961,10 +1125,16 @@
         var key = keyInput ? keyInput.value.trim() : "";
         var url = urlInput ? urlInput.value.trim() : "";
 
+        var activePlan = "free";
+        if (pv === "opencode") {
+          var activeChip = document.querySelector("#hibou-opencode-plan-selector [data-opencode-plan].active");
+          if (activeChip) activePlan = activeChip.getAttribute("data-opencode-plan") || "free";
+        }
+
         var defaultUrls = {
           openrouter: "https://openrouter.ai/api/v1",
           deepseek: "https://api.deepseek.com/v1",
-          opencode: "https://api.opencode.ai/v1",
+          opencode: activePlan === "local" ? "http://localhost:4096/v1" : "https://opencode.ai/zen/v1",
           claude: "https://api.anthropic.com",
           anthropic: "https://api.anthropic.com",
           openai: "https://api.openai.com/v1",
@@ -982,9 +1152,17 @@
           url = window.__agyNormBase(url, typeId, pv);
         } else if (pv === "openrouter" || /openrouter\.ai/i.test(url)) {
           url = url.replace(/\/+(api(\/v1)?|v1)?\/?$/i, "") + "/api/v1";
+        } else if (pv === "opencode") {
+          if (/localhost|127\.0\.0\.1|:4096/i.test(url)) {
+            url = url.replace(/\/+v1\/?$/i, "") + "/v1";
+          } else {
+            url = url.replace(/\/+(zen(\/v1)?|api(\/v1)?|v1)?\/?$/i, "") + "/zen/v1";
+          }
         }
 
-        if (!key && pv !== "opencode") {
+        if (pv === "opencode" && (activePlan === "free" || activePlan === "local")) {
+          if (!key) key = activePlan === "free" ? "public" : "local";
+        } else if (!key) {
           if (statusEl) statusEl.textContent = i18n("API key required", "Требуется API-ключ");
           return;
         }
@@ -1004,6 +1182,8 @@
             existing.baseUrl = url;
             existing.type = typeId;
           }
+          if (pv === "opencode") existing.plan = activePlan;
+          existing.disabled = false;
           parsed.useProviders = true;
           var jsonStr = JSON.stringify(parsed);
           localStorage.setItem("agyProviders", jsonStr);
@@ -1017,7 +1197,11 @@
           // Active test & model retrieval
           if (window.AgyProviders && typeof window.AgyProviders.fetchModels === "function") {
             try {
-              var jobId = window.AgyProviders.fetchModels(typeId, url, key, "{}");
+              var headersObj = {};
+              if (pv === "opencode") {
+                headersObj["User-Agent"] = "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 Chrome/130.0.0.0 Mobile Safari/537.36";
+              }
+              var jobId = window.AgyProviders.fetchModels(typeId, url, key, JSON.stringify(headersObj));
               var pollCount = 0;
               var pollTimer = setInterval(function () {
                 pollCount++;
@@ -1030,9 +1214,16 @@
                   if (code >= 200 && code < 300) {
                     try {
                       var parsedModels = JSON.parse(res.body || "{}");
-                      var mList = parsedModels.data || parsedModels.models || [];
+                      var mList = Array.isArray(parsedModels) ? parsedModels : (parsedModels.data || parsedModels.models || []);
                       if (Array.isArray(mList) && mList.length) {
                         existing.models = mList.map(function (m) { return typeof m === "string" ? m : (m.id || m.name); }).filter(Boolean);
+                        if (pv === "opencode" && activePlan === "free") {
+                          existing.models.sort(function (a, b) {
+                            var aFree = /free/i.test(a) ? -1 : 1;
+                            var bFree = /free/i.test(b) ? -1 : 1;
+                            return aFree - bFree;
+                          });
+                        }
                         if ((!existing.selected || !existing.selected.length) && existing.models.length) {
                           existing.selected = [existing.models[0]];
                         }
@@ -1040,7 +1231,9 @@
                         localStorage.setItem("agyProviders", updatedJson);
                         window.AgyProviders.save(updatedJson);
                         if (window.__agyRefreshProviderModels) window.__agyRefreshProviderModels();
-                        if (statusEl) statusEl.textContent = i18n("Connected (" + existing.models.length + " models)", "Подключено (" + existing.models.length + " моделей)");
+                        var freeNotice = (pv === "opencode" && activePlan === "free") ? " free models ready - No key needed" : " models";
+                        var freeNoticeRu = (pv === "opencode" && activePlan === "free") ? " бесплатных моделей - Без ключа" : " моделей";
+                        if (statusEl) statusEl.textContent = i18n("Connected (" + existing.models.length + freeNotice + ")", "Подключено (" + existing.models.length + freeNoticeRu + ")");
                         return;
                       }
                     } catch (e) {}
@@ -1064,14 +1257,61 @@
       if (e.target && e.target.id && e.target.id.startsWith("hibou-pv-toggle-")) {
         var pvId = e.target.id.replace("hibou-pv-toggle-", "");
         var checked = e.target.checked;
+        var card = document.querySelector('.hibou-m3-provider-card[data-pv="' + pvId + '"]');
+        if (card) {
+          card.classList.toggle("inactive", !checked);
+        }
         try {
-          var raw = localStorage.getItem("agyProviders") || '{"connections":[]}';
-          var parsed = JSON.parse(raw);
+          var raw = "";
+          try { raw = window.AgyProviders ? window.AgyProviders.load() : (localStorage.getItem("agyProviders") || ""); } catch (err) {}
+          var parsed = { connections: [] };
+          if (raw) { try { parsed = JSON.parse(raw); } catch (err) {} }
           parsed.connections = parsed.connections || [];
           var existing = parsed.connections.find(function (c) { return c.id === pvId; });
-          if (existing) {
+          if (!existing) {
+            if (pvId === "opencode") {
+              existing = {
+                id: "opencode",
+                name: "OPENCODE",
+                type: "opencode",
+                plan: "free",
+                baseUrl: "https://opencode.ai/zen/v1",
+                apiKey: "public",
+                disabled: !checked,
+                selected: ["nemotron-3.5-super-vl-free"],
+                models: [
+                  "nemotron-3.5-super-vl-free",
+                  "nemotron-3.5-lightning-free",
+                  "minimax-m3.1-flash-free",
+                  "big-pickle",
+                  "deepseek-v4.1-flash-free",
+                  "mimo-v2.6-flash-free",
+                  "kimi-k2.5-free",
+                  "glm-4.7-free",
+                  "doubao-pro-free",
+                  "sensechat-5.5-free",
+                  "hunyuan-turbo-free",
+                  "spark-4.0-ultra-free"
+                ]
+              };
+              parsed.connections.push(existing);
+            } else {
+              existing = { id: pvId, name: pvId.toUpperCase(), type: pvId === "claude" ? "anthropic" : "openai", disabled: !checked };
+              parsed.connections.push(existing);
+            }
+          } else {
             existing.disabled = !checked;
-            localStorage.setItem("agyProviders", JSON.stringify(parsed));
+          }
+          parsed.useProviders = true;
+          var jsonStr = JSON.stringify(parsed);
+          localStorage.setItem("agyProviders", jsonStr);
+          if (window.AgyProviders && typeof window.AgyProviders.save === "function") {
+            window.AgyProviders.save(jsonStr);
+          }
+          if (window.__agyRefreshProviderModels) window.__agyRefreshProviderModels();
+          if (checked && pvId === "opencode") {
+            var quotaSt = document.getElementById("hibou-quota-st-opencode");
+            if (quotaSt) quotaSt.textContent = i18n("Active (Free Tier)", "Активен (Бесплатный)");
           }
         } catch (err) {}
       }

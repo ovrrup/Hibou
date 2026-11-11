@@ -18,14 +18,18 @@ class TestProviderNormalization(unittest.TestCase):
             b = str(base or "").strip().rstrip("/")
             if not b:
                 return b
-            is_or = bool(re.search(r"openrouter\.ai", b, re.I) or (id_val and re.search(r"openrouter", id_val, re.I)))
+            is_or = bool(re.search(r"openrouter\.ai", b, re.I) or (id_val and re.search(r"openrouter", id_val, re.I)) or type_id == "openrouter")
             is_ds = bool(re.search(r"api\.deepseek\.com", b, re.I) or (id_val and re.search(r"deepseek", id_val, re.I)))
-            is_oc = bool(re.search(r"api\.opencode\.ai", b, re.I) or (id_val and re.search(r"opencode", id_val, re.I)))
+            is_oc = bool(re.search(r"opencode\.ai", b, re.I) or (id_val and re.search(r"opencode", id_val, re.I)) or type_id == "opencode")
             is_mis = bool(re.search(r"api\.mistral\.ai", b, re.I) or (id_val and re.search(r"mistral", id_val, re.I)))
 
             if is_or:
                 return re.sub(r"/+(api(/v1)?|v1)?/?$", "", b, flags=re.I) + "/api/v1"
-            if is_ds or is_oc or is_mis:
+            if is_oc:
+                if re.search(r"localhost|127\.0\.0\.1|:4096", b, re.I):
+                    return re.sub(r"/+v1/?$", "", b, flags=re.I) + "/v1"
+                return re.sub(r"/+(zen(/v1)?|api(/v1)?|v1)?/?$", "", b, flags=re.I) + "/zen/v1"
+            if is_ds or is_mis:
                 return re.sub(r"/+v1/?$", "", b, flags=re.I) + "/v1"
             if type_id == "anthropic":
                 return re.sub(r"/v1$", "", b, flags=re.I)
@@ -46,10 +50,14 @@ class TestProviderNormalization(unittest.TestCase):
         self.assertEqual(norm_base("https://api.deepseek.com"), expected_ds)
         self.assertEqual(norm_base("https://api.deepseek.com/v1"), expected_ds)
 
-        # Test OpenCode
-        expected_oc = "https://api.opencode.ai/v1"
-        self.assertEqual(norm_base("https://api.opencode.ai"), expected_oc)
-        self.assertEqual(norm_base("https://api.opencode.ai/v1"), expected_oc)
+        # Test OpenCode Zen & Local
+        expected_oc_zen = "https://opencode.ai/zen/v1"
+        self.assertEqual(norm_base("https://opencode.ai"), expected_oc_zen)
+        self.assertEqual(norm_base("https://opencode.ai/"), expected_oc_zen)
+        self.assertEqual(norm_base("https://opencode.ai/v1"), expected_oc_zen)
+        self.assertEqual(norm_base("https://opencode.ai/zen/v1"), expected_oc_zen)
+        self.assertEqual(norm_base("http://localhost:4096", type_id="opencode"), "http://localhost:4096/v1")
+        self.assertEqual(norm_base("http://localhost:4096/v1", type_id="opencode"), "http://localhost:4096/v1")
 
         # Test Mistral
         expected_mis = "https://api.mistral.ai/v1"
@@ -115,11 +123,48 @@ class TestProviderNormalization(unittest.TestCase):
         self.assertIn('id="hibou-pv-url-openrouter"', self.hibou_ui_js)
         self.assertIn('value="https://openrouter.ai/api/v1"', self.hibou_ui_js)
 
+    def test_opencode_multi_plan_and_off_by_default(self):
+        # Verify OpenCode card has .inactive by default
+        self.assertIn('class="hibou-m3-provider-card inactive" data-pv="opencode"', self.hibou_ui_js)
+        # Verify toggle is unchecked by default (no 'checked' attribute)
+        self.assertIn('<input type="checkbox" id="hibou-pv-toggle-opencode">', self.hibou_ui_js)
+        self.assertNotIn('<input type="checkbox" id="hibou-pv-toggle-opencode" checked', self.hibou_ui_js)
+
+        # Verify all 5 plans exist in the plan selector
+        self.assertIn('data-opencode-plan="free"', self.hibou_ui_js)
+        self.assertIn('data-opencode-plan="go"', self.hibou_ui_js)
+        self.assertIn('data-opencode-plan="go_plus"', self.hibou_ui_js)
+        self.assertIn('data-opencode-plan="zen"', self.hibou_ui_js)
+        self.assertIn('data-opencode-plan="local"', self.hibou_ui_js)
+
+        # Verify free plan is active by default with no key needed
+        self.assertIn('class="hibou-m3-plan-chip active" data-opencode-plan="free"', self.hibou_ui_js)
+        self.assertIn('NO KEY', self.hibou_ui_js)
+
+        # Verify API key row is hidden by default for free plan
+        self.assertIn('id="hibou-opencode-key-row" style="display: none;"', self.hibou_ui_js)
+
+        # Verify default endpoint is live OpenCode Zen
+        self.assertIn('value="https://opencode.ai/zen/v1"', self.hibou_ui_js)
+
+        # Verify plan selection and state sync exports exist
+        self.assertIn("window.__hibouSelectOpenCodePlan", self.hibou_ui_js)
+        self.assertIn("window.__hibouSyncProviderCardsState", self.hibou_ui_js)
+
+    def test_zero_emojis_in_web_assets(self):
+        # Strict zero-emoji check across redesigned web assets
+        emoji_pattern = re.compile(
+            r"[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F900-\U0001F9FF\U0001FA70-\U0001FAFF\U00002600-\U000026FF\U00002700-\U000027BF]+"
+        )
+        for name in ["hibou_ui.js", "agy_providers.js", "hibou_mobile.css"]:
+            content = (ROOT / "app" / "assets" / "web" / name).read_text(encoding="utf-8")
+            matches = emoji_pattern.findall(content)
+            self.assertEqual(matches, [], f"Found emojis {matches} in {name}")
+
     def test_classes4_dex_integrity(self):
         dex_path = ROOT / "app" / "classes4.dex"
         self.assertTrue(dex_path.is_file())
         dex_bytes = dex_path.read_bytes()
-        # Ensure it passes DEX spec validation
         rebuild.validate_dex(dex_bytes, "classes4.dex")
 
 if __name__ == "__main__":

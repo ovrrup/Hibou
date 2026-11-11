@@ -21,7 +21,7 @@
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
   var TYPES = [
-    { id: "opencode", ru: "OpenCode (AI кодинг)", en: "OpenCode AI Coding", base: "https://api.opencode.ai/v1", hint: T("OpenCode API и локальные серверы OpenCode (порт 4096 / v1).", "OpenCode API and local OpenCode servers (port 4096 / v1).") },
+    { id: "opencode", ru: "OpenCode (AI кодинг)", en: "OpenCode AI Coding", base: "https://opencode.ai/zen/v1", hint: T("OpenCode Zen API и локальные серверы OpenCode (порт 4096 / v1). Бесплатные модели не требуют ключа.", "OpenCode Zen API and local OpenCode servers (port 4096 / v1). Free models require no key.") },
     { id: "openai", ru: "OpenAI-совместимый", en: "OpenAI-compatible", base: "https://api.openai.com/v1", hint: T("OpenAI, DeepSeek, Groq, xAI, Mistral, OpenRouter, локальные серверы.", "OpenAI, DeepSeek, Groq, xAI, Mistral, OpenRouter, local servers.") },
     { id: "anthropic", ru: "Claude-совместимый (Anthropic)", en: "Claude-compatible (Anthropic)", base: "https://api.anthropic.com", hint: T("Anthropic и прокси с форматом Messages API.", "Anthropic and proxies speaking the Messages API.") },
     { id: "gemini", ru: "Gemini-совместимый", en: "Gemini-compatible", base: "https://generativelanguage.googleapis.com/v1beta", hint: T("Google AI Studio и прокси с generateContent.", "Google AI Studio and generateContent proxies.") }
@@ -234,17 +234,22 @@
           put(m.id, m.context_window || 0, true, true, true);
         });
       } else {
-        (o.data || o.models || []).forEach(function (m) {
+        var list = Array.isArray(o) ? o : (o.data || o.models || []);
+        list.forEach(function (m) {
           if (typeof m === "string") { put(m, 0, true, true, true); return; }
           var arch = m.architecture || {};
-          var inMod = arch.input_modalities || arch.modality || [];
-          var images = Array.isArray(inMod) ? inMod.indexOf("image") >= 0 : /image/.test(String(inMod));
+          var inMod = arch.input_modalities || arch.modality || (m.modalities && m.modalities.input) || [];
+          var images = Array.isArray(inMod) ? (inMod.indexOf("image") >= 0 || inMod.some(function (x) { return /image/i.test(x); })) : /image/.test(String(inMod));
           var sp = m.supported_parameters;
-          var tools = Array.isArray(sp) ? arrHas(sp, "tools") : true;
-          var thinking = Array.isArray(sp) ? (arrHas(sp, "reasoning") || arrHas(sp, "include_reasoning")) : true;
-          var ctx = m.context_length || m.context_window || (m.top_provider && m.top_provider.context_length) || 0;
-          // When the provider gives no modality/param hints, default permissive.
-          put(m.id, ctx, Array.isArray(inMod) && inMod.length ? images : true, tools, thinking, Array.isArray(inMod) ? inMod : null, Array.isArray(sp) ? thinking : null, Array.isArray(sp) ? tools : null);
+          var tools = (m.capabilities && m.capabilities.tools) ? m.capabilities.tools.supported !== false : (Array.isArray(sp) ? arrHas(sp, "tools") : true);
+          var reasonObj = m.capabilities && m.capabilities.reasoning;
+          var thinking = reasonObj ? reasonObj.supported !== false : (Array.isArray(sp) ? (arrHas(sp, "reasoning") || arrHas(sp, "include_reasoning")) : true);
+          var ctx = m.context_length || m.context_window || (m.limit && (m.limit.context || m.limit.input)) || (m.top_provider && m.top_provider.context_length) || 0;
+          var knownEffort = reasonObj && Array.isArray(reasonObj.effort) ? reasonObj.effort : (Array.isArray(sp) ? thinking : null);
+          put(m.id, ctx, Array.isArray(inMod) && inMod.length ? images : true, tools, thinking, Array.isArray(inMod) ? inMod : null, knownEffort, Array.isArray(sp) ? tools : null);
+          if (reasonObj && Array.isArray(reasonObj.effort) && meta[m.id]) {
+            meta[m.id].efforts = reasonObj.effort.slice();
+          }
         });
       }
       return { ids: ids, meta: meta };
@@ -255,7 +260,7 @@
     var nameOrId = ((conn.name || "") + " " + (conn.id || "")).toLowerCase();
     if (nameOrId.indexOf("openrouter") >= 0) return "https://openrouter.ai/api/v1";
     if (nameOrId.indexOf("deepseek") >= 0) return "https://api.deepseek.com/v1";
-    if (nameOrId.indexOf("opencode") >= 0) return "https://api.opencode.ai/v1";
+    if (nameOrId.indexOf("opencode") >= 0) return "https://opencode.ai/zen/v1";
     if (nameOrId.indexOf("mistral") >= 0) return "https://api.mistral.ai/v1";
     if (nameOrId.indexOf("claude") >= 0 || nameOrId.indexOf("anthropic") >= 0) return "https://api.anthropic.com";
     return (typeOf(conn.type) || {}).base || "https://api.openai.com/v1";
@@ -265,16 +270,24 @@
     base = String(base || "").trim().replace(/\/+$/, "");
     if (!base) return base;
 
-    var isOR = /openrouter\.ai/i.test(base) || (id && /openrouter/i.test(id));
+    var isOR = /openrouter\.ai/i.test(base) || (id && /openrouter/i.test(id)) || type === "openrouter";
     var isDS = /api\.deepseek\.com/i.test(base) || (id && /deepseek/i.test(id));
-    var isOC = /api\.opencode\.ai/i.test(base) || (id && /opencode/i.test(id));
+    var isOC = /opencode\.ai/i.test(base) || (id && /opencode/i.test(id)) || type === "opencode";
     var isMistral = /api\.mistral\.ai/i.test(base) || (id && /mistral/i.test(id));
 
     if (isOR) {
       base = base.replace(/\/+(api(\/v1)?|v1)?\/?$/i, "") + "/api/v1";
       return base;
     }
-    if (isDS || isOC || isMistral) {
+    if (isOC) {
+      if (/localhost|127\.0\.0\.1|:4096/i.test(base)) {
+        base = base.replace(/\/+v1\/?$/i, "") + "/v1";
+      } else {
+        base = base.replace(/\/+(zen(\/v1)?|api(\/v1)?|v1)?\/?$/i, "") + "/zen/v1";
+      }
+      return base;
+    }
+    if (isDS || isMistral) {
       base = base.replace(/\/+v1\/?$/i, "") + "/v1";
       return base;
     }
@@ -362,9 +375,17 @@
   }
   function startFetch(conn, listType, base) {
     fetchListType = listType;
+    var key = conn.apiKey || "";
+    if ((listType === "opencode" || /opencode/i.test(conn.id || conn.name || "")) && (!key || conn.plan === "free")) {
+      key = "public";
+    }
+    var headers = Object.assign({}, conn.headers || {});
+    if (!headers["User-Agent"]) {
+      headers["User-Agent"] = "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 Chrome/130.0.0.0 Mobile Safari/537.36";
+    }
     if (bridge && typeof bridge.fetchModels === "function") {
       var id;
-      try { id = bridge.fetchModels(listType, base, conn.apiKey || "", JSON.stringify(conn.headers || {})); } catch (e) { fetchMsg = "ERR:" + e; render(); return; }
+      try { id = bridge.fetchModels(listType, base, key, JSON.stringify(headers)); } catch (e) { fetchMsg = "ERR:" + e; render(); return; }
       fetchJob = id;
       pollFetch(conn);
     } else {
@@ -382,10 +403,14 @@
     applyModels(conn, parseInt(r.status, 10) || 0, r.body || "");
   }
   function directFetch(conn, listType, base) {
-    var url, headers = { "Accept": "application/json" };
-    if (listType === "gemini") url = base + "/models?key=" + encodeURIComponent(conn.apiKey || "");
-    else if (listType === "anthropic") { url = base + "/v1/models"; headers["x-api-key"] = conn.apiKey || ""; headers["anthropic-version"] = "2023-06-01"; headers["anthropic-dangerous-direct-browser-access"] = "true"; }
-    else { url = base + "/models"; headers["Authorization"] = "Bearer " + (conn.apiKey || ""); }
+    var url, headers = { "Accept": "application/json", "User-Agent": "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 Chrome/130.0.0.0 Mobile Safari/537.36" };
+    var key = conn.apiKey || "";
+    if ((listType === "opencode" || /opencode/i.test(conn.id || conn.name || "")) && (!key || conn.plan === "free")) {
+      key = "public";
+    }
+    if (listType === "gemini") url = base + "/models?key=" + encodeURIComponent(key);
+    else if (listType === "anthropic") { url = base + "/v1/models"; headers["x-api-key"] = key; headers["anthropic-version"] = "2023-06-01"; headers["anthropic-dangerous-direct-browser-access"] = "true"; }
+    else { url = base + "/models"; headers["Authorization"] = "Bearer " + key; }
     Object.keys(conn.headers || {}).forEach(function (k) { headers[k] = conn.headers[k]; });
     fetch(url, { headers: headers }).then(function (res) {
       return res.text().then(function (b) { applyModels(conn, res.status, b); });
@@ -406,6 +431,13 @@
     if (!parsed || !parsed.ids.length) {
       if (tryFallback(conn)) return;
       fetchMsg = T("Список моделей пуст или не распознан.", "No models returned or response not recognized."); render(); return;
+    }
+    if ((conn.type === "opencode" || /opencode/i.test(conn.id || conn.name || "")) && (!conn.plan || conn.plan === "free")) {
+      parsed.ids.sort(function (a, b) {
+        var aFree = /free/i.test(a) ? -1 : 1;
+        var bFree = /free/i.test(b) ? -1 : 1;
+        return aFree - bFree;
+      });
     }
     conn.models = parsed.ids;
     // Keep explicit user overrides when the provider catalog is refreshed.
@@ -499,7 +531,7 @@
       '<label class="agy-pv-field"><span>' + esc(T("Тип API", "API type")) + "</span>" +
       '<div class="agy-pv-dd' + (typeOpen ? " open" : "") + '">' +
         '<button type="button" class="agy-pv-ddbtn" data-typetoggle="1">' +
-          '<span>' + esc(T(ty.ru, ty.en)) + '</span><span class="agy-pv-ddcar">▾</span></button>' +
+          '<span>' + esc(T(ty.ru, ty.en)) + '</span><span class="agy-pv-ddcar"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle"><path d="M7 10l5 5 5-5z"/></svg></span></button>' +
         (typeOpen ? '<div class="agy-pv-ddlist">' + opts + "</div>" : "") +
       "</div></label>" +
       '<div class="agy-pv-hint">' + esc(ty.hint) + "</div>" +

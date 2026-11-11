@@ -26,8 +26,15 @@ object HibouBridge {
             b = b.replace(Regex("/+(api(/v1)?|v1)?/?$", RegexOption.IGNORE_CASE), "") + "/api/v1"
             return b
         }
+        if (b.contains("opencode.ai", ignoreCase = true) || type.equals("opencode", ignoreCase = true)) {
+            b = if (b.contains("localhost") || b.contains("127.0.0.1") || b.contains(":4096")) {
+                b.replace(Regex("/+v1/?$", RegexOption.IGNORE_CASE), "") + "/v1"
+            } else {
+                b.replace(Regex("/+(zen(/v1)?|api(/v1)?|v1)?/?$", RegexOption.IGNORE_CASE), "") + "/zen/v1"
+            }
+            return b
+        }
         if (b.contains("api.deepseek.com", ignoreCase = true) ||
-            b.contains("api.opencode.ai", ignoreCase = true) ||
             b.contains("api.mistral.ai", ignoreCase = true)) {
             b = b.replace(Regex("/+v1/?$", RegexOption.IGNORE_CASE), "") + "/v1"
             return b
