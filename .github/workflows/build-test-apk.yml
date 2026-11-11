@@ -49,9 +49,9 @@ jobs:
           java-version: "17"
 
       - name: Setup Kotlin
-        uses: fwal/setup-kotlinc@v1
-        with:
-          version: "2.0.21"
+        continue-on-error: true
+        run: |
+          sudo snap install --classic kotlin || sudo apt-get update && sudo apt-get install -y kotlin || echo "Pre-compiled Kotlin classes4.dex will be used"
 
       - name: Cache Base APKs
         uses: actions/cache@v4
