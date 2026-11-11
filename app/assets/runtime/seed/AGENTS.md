@@ -114,7 +114,7 @@ The agent has native access to Shizuku's elevated ADB shell (`uid=2000(shell)`):
 ## 5. Development & Server Guidelines
 
 - **Port Binding:** Local development servers (Vite, Next.js, Express, FastAPI) MUST bind to `localhost` or `127.0.0.1`.
-- **Reserved Ports:** Ports `48155` (core) and `48158` (gateway) are reserved for Antigravity core webview/API. Never bind dev servers to these ports.
+- **Reserved Ports:** Ports `48155` / `48255` (core) and `48158` / `48258` (gateway) are reserved for Antigravity / Hibou core webview/API. Never bind dev servers to these ports.
 - **Safe Dev Ports:** `3000`, `5173`, `8000`, `8080`.
 - **Native Compilation:** When compiling native C/C++/Rust code, target `-march=armv8-a` baseline (ARMv8.0-A minimum, with runtime LSE emulation or native atomics).
 

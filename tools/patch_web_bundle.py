@@ -20,4 +20,5 @@ def patch_bundle(source):
             .replace('/antigravityActionRequired.mp3', '/hibouActionRequired.mp3')
             .replace('Continue with Google Cloud', '__TEMP_GCP_AUTH__')
             .replace('Continue with Google', 'Login via Antigravity')
-            .replace('__TEMP_GCP_AUTH__', 'Continue with Google Cloud'))
+            .replace('__TEMP_GCP_AUTH__', 'Continue with Google Cloud')
+            .replace('|| 48155', '|| 48255'))
