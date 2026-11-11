@@ -50,13 +50,32 @@ must be shippable as an APK overlay without a full application source tree.
 
 ### M2 - Core protocol client
 
-- [ ] `HibouProto` - protobuf wire reader/writer.
-- [ ] `HibouConnectClient` - ConnectRPC unary and server-streaming transport
-      against `https://127.0.0.1:<port>` with CSRF header/query handling.
-- [ ] Endpoint discovery and retry/backoff matching `bridge.core.js`.
-- [ ] Contract tests using recorded fixtures for `GetAvailableModels`,
-      `GetAllCascadeTrajectories`, `GetCascadeTrajectorySteps`,
-      `SendUserCascadeMessage` and `StreamAgentStateUpdates`.
+- [x] `HibouConnect` - ConnectRPC unary and server-streaming transport against
+      `https://127.0.0.1:<port>` with the `x-codeium-csrf-token` header.
+- [x] `HibouCore` - reflective access to the private `androidBridge` field of
+      `MainActivity` for the engine port, CSRF token, readiness and metadata.
+- [x] `HibouChatClient` - cascade lifecycle (`StartCascade`,
+      `SendUserCascadeMessage`, `CancelCascadeInvocation`,
+      `DeleteCascadeTrajectory`), streaming (`StreamAgentStateUpdates`), history
+      (`GetAllCascadeTrajectories`, `GetCascadeTrajectory`) and models
+      (`GetAvailableModels`).
+- [x] Streamed `AgentStateUpdate` steps rendered into the transcript, with
+      tool chips, stop/cancel and the local conversation cache.
+- [x] Contract tests (`tests/test_native_connect.py`) for the service path,
+      headers, envelope framing, descriptor field names and DEX reflection.
+- [ ] Device verification against a running core (needs a base APK and device).
+
+#### Codec decision
+
+The shipped web bundle constructs its client with `useBinaryFormat:false`, so
+the core is spoken to with the Connect **JSON** codec: unary calls use
+`application/json`, streaming calls use `application/connect+json` and 5-byte
+envelopes. `HibouProto` is therefore not needed for M2; a protobuf wire
+reader/writer is deferred until a call requires binary-only fields.
+
+Cascade ids are generated client-side with `UUID.randomUUID()`, matching
+`crypto.randomUUID()` in the web client, so `StartCascade` does not need a
+round-trip to obtain an id.
 
 ### M3 - Chat transcript and composer
 
@@ -64,7 +83,7 @@ must be shippable as an APK overlay without a full application source tree.
 - [ ] Markdown/GFM renderer, code blocks, diffs and copy actions.
 - [ ] Attachment picker (images, PDFs, text) and previews.
 - [ ] Model selector with provider groups, quotas and reasoning effort.
-- [ ] Stop, retry, edit and regenerate.
+- [ ] Retry, edit and regenerate (stop/cancel shipped with M2).
 
 ### M4 - Sessions, projects and history
 
@@ -113,7 +132,8 @@ HibouChatActivity (classes4.dex)
       HibouTranscriptView
       HibouComposerView
     HibouChatStore (JSON in filesDir)
-    HibouConnectClient (M2) -> https://127.0.0.1:<enginePort>
+    HibouChatClient (M2) -> HibouConnect -> https://127.0.0.1:<enginePort>
+      HibouCore (reflection: androidBridge -> port, CSRF, metadata)
 ```
 
 ### Why subclass `MainActivity`
@@ -135,7 +155,7 @@ idempotent and is applied by `rebuild.py` at package time.
 ## Build
 
 ```bash
-pkg install kotlin d8 openjdk-17
+pkg install kotlin d8 openjdk-21
 python3 tools/make_android_stubs.py
 python3 tools/bundle_kotlin_stdlib.py
 python3 tools/compile_kotlin.py
@@ -154,3 +174,8 @@ python3 -m unittest discover -s tests -v
 
 `tests/test_native_chat.py` covers the manifest patch, the launcher DEX
 contract, the descriptor index and the native shell sources.
+`tests/test_native_connect.py` pins the M2 protocol contract: Connect service
+path and headers, JSON codec choice, envelope framing
+(`tools/connect_frames.py`), every JSON key used by the client against
+`native-src/proto/descriptors.json`, the `androidBridge` reflection targets read
+with `tools/dex_inspect.py`, and the loopback-only guard.

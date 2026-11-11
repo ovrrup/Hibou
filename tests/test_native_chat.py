@@ -108,7 +108,11 @@ class TestBuildContract(unittest.TestCase):
     def test_dex_class_lookup(self):
         classes = (ROOT / 'app' / 'classes4.dex').read_bytes()
         self.assertTrue(rebuild.dex_defines_class(classes, 'Lcom/agy/ru/HibouBridge;'))
-        self.assertFalse(rebuild.dex_defines_class(classes, 'Lcom/agy/ru/HibouChatActivity;'))
+        # classes4.dex is the committed output of tools/compile_kotlin.py, so a
+        # toolchain-less build can still ship the native launcher.
+        self.assertTrue(rebuild.dex_defines_class(classes, rebuild.NATIVE_LAUNCHER))
+        stdlib = (ROOT / 'app' / 'classes5.dex').read_bytes()
+        self.assertFalse(rebuild.dex_defines_class(stdlib, rebuild.NATIVE_LAUNCHER))
 
     def test_build_fails_closed_when_toolchain_is_missing(self):
         source = (ROOT / 'rebuild.py').read_text()

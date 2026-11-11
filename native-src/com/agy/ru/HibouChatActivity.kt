@@ -60,4 +60,13 @@ class HibouChatActivity : com.agy.ui.MainActivity() {
         if (view != null && view.handleBack()) return
         super.onBackPressed()
     }
+
+    override fun onDestroy() {
+        try {
+            chatView?.onDestroy()
+        } catch (_: Throwable) {
+        }
+        chatView = null
+        super.onDestroy()
+    }
 }

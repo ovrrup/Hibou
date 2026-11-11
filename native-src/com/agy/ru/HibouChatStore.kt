@@ -10,22 +10,25 @@ class HibouChatMessage(
     val id: String,
     val role: String,
     var text: String,
-    val at: Long
+    val at: Long,
+    val tools: MutableList<String> = mutableListOf()
 )
 
 class HibouConversation(
     val id: String,
     var title: String,
     var updatedAt: Long,
-    val messages: MutableList<HibouChatMessage>
+    val messages: MutableList<HibouChatMessage>,
+    var cascadeId: String? = null
 )
 
 /**
- * Local conversation store for the native shell.
+ * Local conversation cache for the native shell.
  *
- * The format is intentionally small and versioned so it can be migrated to the
- * core trajectory store in M2 without losing local drafts.  The web layer keeps
- * its own history until the protocol client takes over.
+ * The core stays authoritative: [cascadeId] points at the trajectory that
+ * `GetCascadeTrajectory` and `StreamAgentStateUpdates` read.  This file only
+ * keeps drafts, titles and the last rendered transcript so a cold start shows
+ * something before the core answers.
  */
 class HibouChatStore(ctx: Context) {
     private val file = File(ctx.filesDir ?: File("/data/data/agy.hibou/files"), "hibou_native_chat.json")
@@ -66,6 +69,10 @@ class HibouChatStore(ctx: Context) {
         return conversation
     }
 
+    fun findByCascade(cascadeId: String): HibouConversation? {
+        return conversations.firstOrNull { it.cascadeId == cascadeId }
+    }
+
     fun append(role: String, text: String): HibouChatMessage {
         val conversation = active()
         val message = HibouChatMessage(
@@ -83,10 +90,23 @@ class HibouChatStore(ctx: Context) {
         return message
     }
 
+    fun update(message: HibouChatMessage, text: String) {
+        message.text = text
+        val conversation = active()
+        conversation.updatedAt = System.currentTimeMillis()
+        save()
+    }
+
+    fun addTool(message: HibouChatMessage, tool: String) {
+        if (message.tools.contains(tool)) return
+        message.tools.add(tool)
+        save()
+    }
+
     fun save() {
         try {
             val root = JSONObject()
-            root.put("version", 1)
+            root.put("version", 2)
             root.put("activeId", activeId ?: "")
             val array = JSONArray()
             for (conversation in conversations) {
@@ -94,6 +114,7 @@ class HibouChatStore(ctx: Context) {
                 item.put("id", conversation.id)
                 item.put("title", conversation.title)
                 item.put("updatedAt", conversation.updatedAt)
+                item.put("cascadeId", conversation.cascadeId ?: "")
                 val messages = JSONArray()
                 for (message in conversation.messages) {
                     val record = JSONObject()
@@ -101,6 +122,9 @@ class HibouChatStore(ctx: Context) {
                     record.put("role", message.role)
                     record.put("text", message.text)
                     record.put("at", message.at)
+                    val tools = JSONArray()
+                    for (tool in message.tools) tools.put(tool)
+                    record.put("tools", tools)
                     messages.put(record)
                 }
                 item.put("messages", messages)
@@ -124,19 +148,30 @@ class HibouChatStore(ctx: Context) {
                 if (records != null) {
                     for (messageIndex in 0 until records.length()) {
                         val record = records.optJSONObject(messageIndex) ?: continue
+                        val tools = mutableListOf<String>()
+                        val toolRecords = record.optJSONArray("tools")
+                        if (toolRecords != null) {
+                            for (toolIndex in 0 until toolRecords.length()) {
+                                val tool = toolRecords.optString(toolIndex, "")
+                                if (tool.isNotBlank()) tools.add(tool)
+                            }
+                        }
                         messages.add(HibouChatMessage(
                             record.optString("id", UUID.randomUUID().toString()),
                             record.optString("role", "assistant"),
                             record.optString("text", ""),
-                            record.optLong("at", 0L)
+                            record.optLong("at", 0L),
+                            tools
                         ))
                     }
                 }
+                val cascade = item.optString("cascadeId", "")
                 conversations.add(HibouConversation(
                     item.optString("id", UUID.randomUUID().toString()),
                     item.optString("title", "New chat"),
                     item.optLong("updatedAt", 0L),
-                    messages
+                    messages,
+                    cascade.ifBlank { null }
                 ))
             }
             val saved = root.optString("activeId", "")

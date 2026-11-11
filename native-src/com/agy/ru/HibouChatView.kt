@@ -12,14 +12,16 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import org.json.JSONObject
 
 /**
  * Native chat shell.
  *
- * M1 renders the real navigation, transcript, empty state and composer while
- * the core protocol client (M2) is still under construction.  Every surface is
- * built from platform widgets, so no AndroidX, Material or layout resources are
- * required by the patcher build.
+ * M1 renders navigation, transcript and composer from platform widgets.  M2
+ * added [HibouChatClient]; the composer now drives real cascades on the local
+ * core and renders the streamed `AgentStateUpdate` steps.  When the core is not
+ * reachable yet the view degrades to a local echo plus the WebView fallback in
+ * the drawer, so the migration never blocks the app.
  */
 class HibouChatView(context: Context) : FrameLayout(context) {
 
@@ -27,6 +29,7 @@ class HibouChatView(context: Context) : FrameLayout(context) {
     var onNewConversation: (() -> Unit)? = null
 
     private val store = HibouChatStore(context)
+    private val client = HibouChatClient(context)
     private val root = LinearLayout(context)
     private val transcript = LinearLayout(context)
     private val scroll = ScrollView(context)
@@ -35,14 +38,20 @@ class HibouChatView(context: Context) : FrameLayout(context) {
     private val drawerPanel = LinearLayout(context)
     private val modelPill = TextView(context)
     private val statusLabel = TextView(context)
+    private val sendButton = Button(context)
 
     private var drawerOpen = false
+    @Volatile private var stream: HibouStreamHandle? = null
+    private var streamingMessage: HibouChatMessage? = null
+    private val liveText = StringBuilder()
+    private var coreConversations: List<HibouConversationSummary> = emptyList()
 
     init {
         setBackgroundColor(HibouTheme.color(HibouTheme.BG))
         buildRoot()
         buildDrawer()
         render()
+        refreshStatus()
     }
 
     // ---------------------------------------------------------------------
@@ -63,9 +72,8 @@ class HibouChatView(context: Context) : FrameLayout(context) {
             ViewGroup.LayoutParams.WRAP_CONTENT
         ))
         root.addView(scroll, LinearLayout.LayoutParams(
-            0, 0, 1f
-        ).also { it.width = ViewGroup.LayoutParams.MATCH_PARENT
-                 it.height = 0 })
+            ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f
+        ))
 
         root.addView(buildComposer())
     }
@@ -93,8 +101,7 @@ class HibouChatView(context: Context) : FrameLayout(context) {
 
         val title = label("Hibou", 18f, HibouTheme.TEXT, true)
         titleBlock.addView(title)
-        statusLabel.text = "Native shell"
-        statusLabel.setTextColor(HibouTheme.color(HibouTheme.ACCENT))
+        statusLabel.setTextColor(HibouTheme.color(HibouTheme.TEXT_MUTED))
         statusLabel.textSize = 11f
         titleBlock.addView(statusLabel)
         bar.addView(titleBlock)
@@ -102,6 +109,7 @@ class HibouChatView(context: Context) : FrameLayout(context) {
         val newChat = iconButton("+")
         newChat.contentDescription = "New chat"
         newChat.setOnClickListener {
+            stopStreaming()
             store.newConversation()
             render()
             onNewConversation?.invoke()
@@ -131,12 +139,11 @@ class HibouChatView(context: Context) : FrameLayout(context) {
         modelPill.setPadding(dp(12), dp(6), dp(12), dp(6))
         modelPill.background = HibouTheme.pill(HibouTheme.SURFACE_HIGH, context, HibouTheme.ACCENT_DARK)
         modelPill.setOnClickListener {
-            Toast.makeText(context, "Model picker arrives with the core client (M3)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Model picker arrives with M3", Toast.LENGTH_SHORT).show()
         }
         metaRow.addView(modelPill)
 
-        val spacer = View(context)
-        metaRow.addView(spacer, LinearLayout.LayoutParams(0, 1, 1f))
+        metaRow.addView(View(context), LinearLayout.LayoutParams(0, 1, 1f))
 
         val providerButton = label("Providers", 12f, HibouTheme.TEXT_MUTED, false)
         providerButton.setPadding(dp(8), dp(6), dp(8), dp(6))
@@ -164,20 +171,19 @@ class HibouChatView(context: Context) : FrameLayout(context) {
         input.layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
         inputRow.addView(input)
 
-        val send = Button(context)
-        send.text = "Send"
-        send.setAllCaps(false)
-        send.setTextColor(HibouTheme.color(HibouTheme.ACCENT_INK))
-        send.textSize = 14f
-        send.setTypeface(HibouTheme.bold())
-        send.background = HibouTheme.rounded(HibouTheme.ACCENT, 16, context)
-        send.setPadding(dp(16), dp(10), dp(16), dp(10))
-        send.layoutParams = LinearLayout.LayoutParams(
+        sendButton.text = "Send"
+        sendButton.setAllCaps(false)
+        sendButton.setTextColor(HibouTheme.color(HibouTheme.ACCENT_INK))
+        sendButton.textSize = 14f
+        sendButton.setTypeface(HibouTheme.bold())
+        sendButton.background = HibouTheme.rounded(HibouTheme.ACCENT, 16, context)
+        sendButton.setPadding(dp(16), dp(10), dp(16), dp(10))
+        sendButton.layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         ).also { it.leftMargin = dp(8) }
-        send.setOnClickListener { submit() }
-        inputRow.addView(send)
+        sendButton.setOnClickListener { submit() }
+        inputRow.addView(sendButton)
 
         wrap.addView(inputRow)
         return wrap
@@ -218,7 +224,10 @@ class HibouChatView(context: Context) : FrameLayout(context) {
         wrap.addView(headline)
 
         val sub = label(
-            "This shell is running entirely in Kotlin. The core protocol client is the next milestone.",
+            if (client.isReady())
+                "Connected to the local core. Messages stream straight from the agent."
+            else
+                "The core is still starting. You can draft a message now; the drawer keeps the web UI one tap away.",
             14f, HibouTheme.TEXT_MUTED, false
         )
         sub.setLineSpacing(dp(2).toFloat(), 1.15f)
@@ -257,10 +266,13 @@ class HibouChatView(context: Context) : FrameLayout(context) {
         wrap.addView(meta)
 
         val bubble = TextView(context)
-        bubble.text = message.text
-        bubble.setTextColor(HibouTheme.color(HibouTheme.TEXT))
+        val text = message.text
+        bubble.text = if (!user && text.isBlank()) "Thinking\u2026" else text
+        bubble.setTextColor(HibouTheme.color(
+            if (!user && text.isBlank()) HibouTheme.TEXT_DIM else HibouTheme.TEXT))
         bubble.textSize = 15f
         bubble.setLineSpacing(dp(2).toFloat(), 1.15f)
+        bubble.setTextIsSelectable(true)
         bubble.setPadding(dp(14), dp(12), dp(14), dp(12))
         bubble.background = HibouTheme.rounded(
             if (user) HibouTheme.SURFACE_HIGH else HibouTheme.SURFACE,
@@ -271,23 +283,158 @@ class HibouChatView(context: Context) : FrameLayout(context) {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         ))
+
+        for (tool in message.tools) {
+            val chip = label(tool, 11f, HibouTheme.TEXT_MUTED, false)
+            chip.setPadding(dp(10), dp(6), dp(10), dp(6))
+            chip.background = HibouTheme.rounded(HibouTheme.BG, 10, context, 1, HibouTheme.BORDER)
+            wrap.addView(chip, LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).also { it.topMargin = dp(6) })
+        }
         return wrap
     }
 
+    // ---------------------------------------------------------------------
+    // Sending
+    // ---------------------------------------------------------------------
+
     private fun submit() {
+        if (streamingMessage != null) {
+            stopStreaming()
+            return
+        }
         val text = input.text.toString().trim()
         if (text.isEmpty()) return
         input.setText("")
+
+        val conversation = store.active()
         store.append("user", text)
+        val assistant = store.append("assistant", "")
+        streamingMessage = assistant
+        liveText.setLength(0)
         render()
-        postDelayed({
-            store.append(
-                "assistant",
-                "Native shell received your message. Streaming responses, tools and " +
-                    "attachments land in milestone M2/M3; use the drawer to open the web UI meanwhile."
-            )
+
+        if (!client.isReady()) {
+            postDelayed({
+                store.update(assistant,
+                    "The core is not reachable yet. Wait for the status to show \"Core ready\", " +
+                        "or open the web UI from the drawer.")
+                streamingMessage = null
+                render()
+                refreshStatus()
+            }, 400)
+            return
+        }
+
+        setStreaming(true)
+        val existing = conversation.cascadeId
+        Thread({
+            val cascade = existing ?: client.newCascadeId()
+            try {
+                if (existing == null) {
+                    client.startCascade(cascade)
+                    post {
+                        conversation.cascadeId = cascade
+                        store.save()
+                    }
+                }
+                client.sendMessage(cascade, text)
+                stream = client.streamUpdates(
+                    cascade,
+                    onUpdate = { update -> applyUpdate(update) },
+                    onDone = { error -> finishStreaming(error) }
+                )
+            } catch (error: Throwable) {
+                finishStreaming(error)
+            }
+        }, "hibou-send").start()
+    }
+
+    private fun applyUpdate(update: JSONObject) {
+        val steps = client.stepsFromUpdate(update)
+        if (steps.isEmpty() && !update.optBoolean("fullyIdle", false)) return
+        post {
+            val message = streamingMessage ?: return@post
+            for (step in steps) {
+                if (step.text.isNotBlank()) {
+                    liveText.setLength(0)
+                    liveText.append(step.text)
+                }
+                val tool = step.tool
+                if (tool != null && !message.tools.contains(tool)) {
+                    message.tools.add(tool)
+                }
+            }
+            if (liveText.isNotEmpty()) {
+                message.text = liveText.toString()
+            }
+            if (update.optBoolean("fullyIdle", false)) {
+                statusLabel.text = "Core ready \u00b7 idle"
+            } else {
+                statusLabel.text = "Core ready \u00b7 streaming"
+            }
             render()
-        }, 320)
+        }
+    }
+
+    private fun finishStreaming(error: Throwable?) {
+        post {
+            val message = streamingMessage
+            if (message != null) {
+                if (error != null && message.text.isBlank()) {
+                    message.text = "Stream ended: " +
+                        (error.message ?: error.javaClass.simpleName)
+                } else if (message.text.isBlank()) {
+                    message.text = "No response was produced. Check the core log or open the web UI."
+                }
+                store.save()
+            }
+            streamingMessage = null
+            stream = null
+            setStreaming(false)
+            render()
+            refreshStatus()
+        }
+    }
+
+    private fun stopStreaming() {
+        val handle = stream
+        stream = null
+        handle?.cancel()
+        post {
+            val message = streamingMessage
+            if (message != null && message.text.isBlank()) {
+                message.text = "Stopped."
+                store.save()
+            }
+            streamingMessage = null
+            setStreaming(false)
+            render()
+            refreshStatus()
+        }
+    }
+
+    private fun setStreaming(active: Boolean) {
+        sendButton.text = if (active) "Stop" else "Send"
+        sendButton.background = HibouTheme.rounded(
+            if (active) HibouTheme.DANGER else HibouTheme.ACCENT, 16, context)
+        sendButton.setTextColor(HibouTheme.color(
+            if (active) HibouTheme.TEXT else HibouTheme.ACCENT_INK))
+    }
+
+    private fun refreshStatus() {
+        if (stream != null) {
+            statusLabel.text = "Core ready \u00b7 streaming"
+            statusLabel.setTextColor(HibouTheme.color(HibouTheme.SUCCESS))
+        } else if (client.isReady()) {
+            statusLabel.text = "Core ready \u00b7 local"
+            statusLabel.setTextColor(HibouTheme.color(HibouTheme.SUCCESS))
+        } else {
+            statusLabel.text = "Core starting \u00b7 web fallback available"
+            statusLabel.setTextColor(HibouTheme.color(HibouTheme.TEXT_MUTED))
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -322,13 +469,12 @@ class HibouChatView(context: Context) : FrameLayout(context) {
         drawerPanel.addView(tagline)
 
         drawerItem("New chat", true) {
+            stopStreaming()
             store.newConversation()
             render()
             closeDrawer()
         }
-        drawerItem("Conversations", false) {
-            Toast.makeText(context, "Session history lands in M4", Toast.LENGTH_SHORT).show()
-        }
+        drawerItem("Refresh from core", false) { refreshCoreConversations() }
         drawerItem("Providers", false) {
             closeDrawer()
             HibouControlCenterDialog.show(activity())
@@ -344,8 +490,24 @@ class HibouChatView(context: Context) : FrameLayout(context) {
             ViewGroup.LayoutParams.MATCH_PARENT, dp(1)
         ).also { it.topMargin = dp(12); it.bottomMargin = dp(12) })
 
-        val recentTitle = label("RECENT", 10f, HibouTheme.TEXT_DIM, true)
-        recentTitle.setPadding(0, 0, 0, dp(6))
+        val coreTitle = label("FROM CORE", 10f, HibouTheme.TEXT_DIM, true)
+        coreTitle.setPadding(0, 0, 0, dp(6))
+        drawerPanel.addView(coreTitle)
+        if (coreConversations.isEmpty()) {
+            drawerPanel.addView(label(
+                if (client.isReady()) "No trajectories yet" else "Core offline",
+                13f, HibouTheme.TEXT_DIM, false))
+        } else {
+            for (conversation in coreConversations.take(5)) {
+                val item = label(conversation.title, 13f, HibouTheme.TEXT_MUTED, false)
+                item.setPadding(dp(2), dp(8), dp(2), dp(8))
+                item.setOnClickListener { openCascade(conversation.id) }
+                drawerPanel.addView(item)
+            }
+        }
+
+        val recentTitle = label("LOCAL DRAFTS", 10f, HibouTheme.TEXT_DIM, true)
+        recentTitle.setPadding(0, dp(12), 0, dp(6))
         drawerPanel.addView(recentTitle)
         val recent = store.conversations.take(4)
         if (recent.isEmpty()) {
@@ -363,16 +525,67 @@ class HibouChatView(context: Context) : FrameLayout(context) {
             }
         }
 
-        val spacer = View(context)
-        drawerPanel.addView(spacer, LinearLayout.LayoutParams(1, 0, 1f))
+        drawerPanel.addView(View(context), LinearLayout.LayoutParams(1, 0, 1f))
 
         drawerItem("Open web UI (fallback)", false) {
             closeDrawer()
             onOpenWeb?.invoke()
         }
-        val footer = label("M1 \u00b7 native shell", 11f, HibouTheme.TEXT_DIM, false)
+        val footer = label("M2 \u00b7 core client", 11f, HibouTheme.TEXT_DIM, false)
         footer.setPadding(dp(2), dp(10), 0, 0)
         drawerPanel.addView(footer)
+    }
+
+    private fun refreshCoreConversations() {
+        if (!client.isReady()) {
+            Toast.makeText(context, "Core is still starting", Toast.LENGTH_SHORT).show()
+            return
+        }
+        Thread({
+            val conversations = try {
+                client.conversations()
+            } catch (_: Throwable) {
+                emptyList()
+            }
+            post {
+                coreConversations = conversations
+                refreshDrawer()
+                Toast.makeText(context, conversations.size.toString() + " trajectories", Toast.LENGTH_SHORT).show()
+            }
+        }, "hibou-history").start()
+    }
+
+    private fun openCascade(cascadeId: String) {
+        closeDrawer()
+        Thread({
+            val steps = try {
+                client.steps(cascadeId)
+            } catch (_: Throwable) {
+                emptyList()
+            }
+            post {
+                val conversation = store.findByCascade(cascadeId)
+                    ?: store.newConversation().also { it.cascadeId = cascadeId }
+                conversation.messages.clear()
+                for (step in steps) {
+                    val text = step.text
+                    val role = when {
+                        step.type.endsWith("USER_INPUT") -> "user"
+                        text.isNotBlank() -> "assistant"
+                        else -> continue
+                    }
+                    val message = HibouChatMessage(
+                        java.util.UUID.randomUUID().toString(), role, text,
+                        System.currentTimeMillis())
+                    step.tool?.let { message.tools.add(it) }
+                    conversation.messages.add(message)
+                }
+                conversation.updatedAt = System.currentTimeMillis()
+                store.save()
+                store.select(conversation.id)
+                render()
+            }
+        }, "hibou-load").start()
     }
 
     private fun drawerItem(text: String, accent: Boolean, action: () -> Unit) {
@@ -385,7 +598,8 @@ class HibouChatView(context: Context) : FrameLayout(context) {
 
     private fun openWeb(feature: String) {
         closeDrawer()
-        Toast.makeText(context, "$feature is available in the web fallback until M5", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, feature + " is available in the web fallback until M5",
+            Toast.LENGTH_SHORT).show()
     }
 
     fun toggleDrawer() {
@@ -393,12 +607,14 @@ class HibouChatView(context: Context) : FrameLayout(context) {
     }
 
     fun openDrawer() {
+        refreshStatus()
         refreshDrawer()
         drawerOpen = true
         drawer.visibility = View.VISIBLE
         drawerPanel.translationX = -dp(40).toFloat()
         drawerPanel.alpha = 0f
         drawerPanel.animate().translationX(0f).alpha(1f).setDuration(180).start()
+        refreshCoreConversations()
     }
 
     fun closeDrawer() {
@@ -415,7 +631,15 @@ class HibouChatView(context: Context) : FrameLayout(context) {
             closeDrawer()
             return true
         }
+        if (stream != null) {
+            stopStreaming()
+            return true
+        }
         return false
+    }
+
+    fun onDestroy() {
+        stopStreaming()
     }
 
     // ---------------------------------------------------------------------
