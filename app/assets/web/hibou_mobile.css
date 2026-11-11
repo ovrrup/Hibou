@@ -1,0 +1,645 @@
+/* ==========================================================================
+   Hibou — Dedicated Mobile Phone UI & UX Stylesheet Override
+   Optimized for native phone touch ergonomics, high-contrast typography,
+   spaced matte conversation cards, and Hibou owl cobalt/amber accents.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. Design Tokens & Theme Variables
+   -------------------------------------------------------------------------- */
+:root {
+  /* Hibou Owl Brand Color Accents */
+  --hibou-cobalt-blue: #38bdf8;
+  --hibou-cobalt-deep: #2563eb;
+  --hibou-cobalt-glow: rgba(56, 189, 248, 0.28);
+  --hibou-cobalt-subtle: rgba(56, 189, 248, 0.12);
+  --hibou-cobalt-border: rgba(56, 189, 248, 0.32);
+
+  --hibou-warm-amber: #f59e0b;
+  --hibou-amber-light: #fbbf24;
+  --hibou-amber-glow: rgba(245, 158, 11, 0.28);
+  --hibou-amber-subtle: rgba(245, 158, 11, 0.12);
+  --hibou-amber-border: rgba(245, 158, 11, 0.3);
+
+  /* Matte Dark Surfaces */
+  --hibou-matte-bg: #0b0e17;
+  --hibou-matte-surface: rgba(14, 20, 36, 0.92);
+  --hibou-matte-card: rgba(255, 255, 255, 0.04);
+  --hibou-matte-card-border: rgba(255, 255, 255, 0.08);
+
+  /* Typography */
+  --hibou-text-title: #f4f4f5;
+  --hibou-text-body: #e4e4e7;
+  --hibou-text-muted: #94a3b8;
+  --hibou-branch-pill-color: #93c5fd;
+  --hibou-branch-pill-bg: rgba(56, 189, 248, 0.1);
+  --hibou-branch-pill-border: rgba(147, 197, 253, 0.22);
+
+  /* Touch Targets */
+  --hibou-touch-target-min: 42px;
+}
+
+/* --------------------------------------------------------------------------
+   1. Top Header Bar & Action Icon Touch Targets (>= 42px)
+   -------------------------------------------------------------------------- */
+
+/* Top header container & safe areas */
+[data-testid="page-container"] > div.absolute.left-0.top-0,
+[data-testid="page-container"] > div.absolute.right-0.top-0,
+header,
+nav,
+[data-testid="app-header"] {
+  padding-top: max(4px, env(safe-area-inset-top)) !important;
+  min-height: 48px !important;
+  z-index: 50 !important;
+}
+
+/* General Header Buttons (Ensure comfortable touch target while allowing text labels to expand) */
+[data-testid="page-container"] > div.absolute.top-0 button,
+header button,
+nav button {
+  min-width: var(--hibou-touch-target-min) !important;
+  min-height: var(--hibou-touch-target-min) !important;
+  width: auto !important;
+  height: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Explicitly Targeted Icon-Only Header Buttons: Fixed 42px x 42px Square Touch Targets */
+button[data-testid="sidebar-toggle"],
+button[data-testid="sidebar-search-button"],
+button[data-testid="app-icon-new-conversation-button"],
+button[data-testid="toggle-maximize-pane"],
+button[data-testid="toggle-aux-sidebar"],
+button[data-testid="sidebar-add-project-button"] {
+  min-width: var(--hibou-touch-target-min) !important;
+  min-height: var(--hibou-touch-target-min) !important;
+  width: var(--hibou-touch-target-min) !important;
+  height: var(--hibou-touch-target-min) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+  transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Sidebar Text Action Buttons */
+button[data-testid="new-conversation-button"],
+button[data-testid="history-button"],
+button[data-testid="settings-button"] {
+  min-height: var(--hibou-touch-target-min) !important;
+  width: 100% !important;
+  border-radius: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+button[data-testid="sidebar-toggle"]:active,
+button[data-testid="sidebar-search-button"]:active,
+button[data-testid="app-icon-new-conversation-button"]:active,
+button[data-testid="toggle-maximize-pane"]:active,
+button[data-testid="toggle-aux-sidebar"]:active {
+  transform: scale(0.92) !important;
+  background-color: var(--hibou-cobalt-subtle) !important;
+  color: var(--hibou-cobalt-blue) !important;
+}
+
+/* Sidebar header logo */
+[data-testid="sidebar-header-logo"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: var(--hibou-touch-target-min) !important;
+  color: var(--hibou-cobalt-blue) !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. Projects List, Folder Header, + Button, Conversation Cards & Branch Pills
+   -------------------------------------------------------------------------- */
+
+/* Folder Header */
+div.group\/header {
+  margin-top: 4px !important;
+  margin-bottom: 6px !important;
+}
+
+button[data-testid="project-header"],
+button[data-project-card] {
+  min-height: 44px !important;
+  height: auto !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  color: var(--hibou-text-title) !important;
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease !important;
+}
+
+button[data-testid="project-header"]:active,
+button[data-project-card]:active {
+  background: var(--hibou-cobalt-subtle) !important;
+  border-color: var(--hibou-cobalt-border) !important;
+}
+
+/* Folder Action Container: Always visible on mobile (no hover requirement) */
+div.group\/header .absolute.right-1.top-0,
+.group\/header [class*="opacity-0"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: 100% !important;
+}
+
+/* Folder + Button (New Conversation in Project) & Folder Menu */
+div.group\/header .absolute.right-1.top-0 button,
+div.group\/header button[aria-label*="New Conversation"],
+div.group\/header button[aria-label*="Новый диалог"] {
+  min-width: 38px !important;
+  min-height: 38px !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 9px !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--hibou-cobalt-blue) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  transition: transform 0.12s ease, background 0.15s ease !important;
+}
+
+div.group\/header .absolute.right-1.top-0 button:active {
+  transform: scale(0.92) !important;
+  background: var(--hibou-cobalt-subtle) !important;
+}
+
+/* Virtual list row item wrapper: cleanly provides vertical & horizontal spacing inside measured bounds */
+div[data-sidebar-row-id],
+div[data-index]:has(> * > [data-testid^="conversation-row-"]),
+div[data-testid^="conversation-list-"] > div > div:has([data-testid^="conversation-row-"]) {
+  padding: 3px 8px !important;
+  box-sizing: border-box !important;
+}
+
+/* Project Conversation Items: Spaced Touch-Friendly Matte Cards Cleanly Sized Inside Virtual Row Bounds */
+div[data-testid^="conversation-row-"],
+div[data-testid="conversation-row-sidebar"],
+div[data-testid="conversation-row-history"] {
+  background: var(--hibou-matte-card) !important; /* rgba(255,255,255,0.04) */
+  border: 1px solid var(--hibou-matte-card-border) !important; /* 1px solid rgba(255,255,255,0.08) */
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 100% !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22) !important;
+  transition: transform 0.12s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+div[data-testid^="conversation-row-"]:active {
+  transform: scale(0.985) !important;
+  background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Selected Conversation Matte Card with Hibou Cobalt Glow */
+div[data-testid^="conversation-row-"][data-selected="true"] {
+  background: var(--hibou-cobalt-subtle) !important;
+  border-color: var(--hibou-cobalt-border) !important;
+  box-shadow: 0 4px 16px var(--hibou-cobalt-glow), inset 0 0 0 1px rgba(56, 189, 248, 0.2) !important;
+}
+
+/* High-Contrast Readable Conversation Title (#f4f4f5) */
+div[data-testid^="conversation-row-"] span.truncate.text-left.w-full.text-sm,
+div[data-testid^="conversation-row-"] span.truncate.text-left,
+div[data-testid^="conversation-row-"] .text-secondary-foreground span {
+  color: var(--hibou-text-title) !important; /* #f4f4f5 */
+  font-size: 14.5px !important;
+  font-weight: 550 !important;
+  line-height: 1.4 !important;
+  letter-spacing: -0.01em !important;
+}
+
+div[data-testid^="conversation-row-"][data-selected="true"] span.truncate.text-left.w-full.text-sm {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Subtitle Container Spacing */
+div[data-testid^="conversation-row-"] span.flex.items-center.gap-1.w-full.min-w-0.text-xs.text-left.text-muted-foreground {
+  margin-top: 6px !important;
+  gap: 6px !important;
+  color: var(--hibou-text-muted) !important;
+}
+
+/* High-Contrast Monospace Git Branch Subtitle Pill (#93c5fd) */
+div[data-testid^="conversation-row-"] span:has(> svg[data-icon="call_split"]),
+div[data-testid^="conversation-row-"] span.flex.items-center:has(svg):not(:first-child),
+div[data-testid^="conversation-row-"] span[class*="worktree"] {
+  color: var(--hibou-branch-pill-color) !important; /* #93c5fd */
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+  background: var(--hibou-branch-pill-bg) !important; /* rgba(56, 189, 248, 0.1) */
+  border: 1px solid var(--hibou-branch-pill-border) !important; /* rgba(147, 197, 253, 0.22) */
+  border-radius: 6px !important;
+  padding: 2px 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+}
+
+/* Warm Amber Accent for Project Subtitle Pill */
+div[data-testid^="conversation-row-"] span[class*="project"] {
+  color: var(--hibou-warm-amber) !important;
+  background: var(--hibou-amber-subtle) !important;
+  border: 1px solid var(--hibou-amber-border) !important;
+  border-radius: 6px !important;
+  padding: 2px 7px !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+}
+
+/* Conversation Row Action Buttons (Delete, Restore, Menu) */
+div[data-testid^="conversation-row-"] button[data-testid="conversation-delete-button"],
+div[data-testid^="conversation-row-"] button[data-testid="conversation-restore-button"] {
+  min-width: 36px !important;
+  min-height: 36px !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. Agent Chat Message Bubble, Collapsible Step Stream & File Diff Badges
+   -------------------------------------------------------------------------- */
+
+/* User Message Bubble: Matte Dark Card with Subtle Cobalt Border */
+div[role="article"][aria-label="User message"] div.rounded-\[calc\(theme\(borderRadius\.xl\)-1px\)\],
+div[role="article"][aria-label="User message"] .bg-card,
+div[data-testid="user-input-step"] div.bg-card {
+  background: rgba(18, 25, 44, 0.88) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid var(--hibou-cobalt-border) !important;
+  border-radius: 20px 20px 6px 20px !important;
+  padding: 12px 18px !important;
+  color: #f8fafc !important;
+  font-size: 15.5px !important;
+  line-height: 1.55 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 16px rgba(56, 189, 248, 0.09) !important;
+}
+
+/* Agent Response Typography & Line-Height */
+div[role="article"][aria-label="Agent response"],
+div[data-testid="planner-response-text"] {
+  font-size: 15px !important;
+  line-height: 1.65 !important;
+  color: var(--hibou-text-body) !important;
+}
+
+/* Collapsible Step Stream Triggers (Analyzed, Edited, Thought) */
+button[data-testid="thinking-collapsible-trigger"],
+button[data-testid="tool-group-collapsible"],
+button[data-testid="worked-for-collapsible"],
+div:has(> button[data-testid*="collapsible"]) {
+  min-height: 38px !important;
+  padding: 7px 12px !important;
+  font-size: 13.5px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  margin: 3px 0 !important;
+  color: var(--hibou-text-body) !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease !important;
+}
+
+button[data-testid="thinking-collapsible-trigger"]:active,
+button[data-testid="tool-group-collapsible"]:active {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Thinking Stream: Subtle Warm Amber Accent Left Bar */
+button[data-testid="thinking-collapsible-trigger"] {
+  border-left: 3px solid var(--hibou-warm-amber) !important;
+  background: rgba(245, 158, 11, 0.04) !important;
+}
+
+/* Step-by-Step Tool Row Items (JZ Component) */
+div.group.flex.w-full.min-w-0.items-center.min-h-8.py-1.px-2,
+div.flex.min-w-0.items-center.gap-x-1.text-sm {
+  font-size: 13.5px !important;
+  line-height: 1.5 !important;
+  color: var(--hibou-text-body) !important;
+}
+
+/* Remove Harsh Top/Bottom Fade Clipping on Tool Stream & Collapsibles */
+div[style*="maskImage"],
+div[style*="mask-image"],
+div[style*="linear-gradient(to bottom, transparent"],
+div.overflow-y-auto[style*="maskImage"],
+button[data-testid*="collapsible"] + div.overflow-y-auto,
+div.relative > div.overflow-y-auto[style*="maxHeight"] {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+  max-height: 420px !important;
+  overscroll-behavior: contain !important;
+}
+
+/* File Diff Changed Files Header Card */
+.files-changed-header,
+div[data-testid="turn-cards-container"] .files-changed-header {
+  background: rgba(255, 255, 255, 0.045) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  font-size: 13.5px !important;
+  color: var(--hibou-text-title) !important;
+  gap: 8px !important;
+}
+
+/* High-Contrast File Diff Counters */
+.files-changed-header .text-green-500,
+span.text-green-500 {
+  color: #34d399 !important; /* Vivid Emerald */
+  background: rgba(52, 211, 153, 0.12) !important;
+  border: 1px solid rgba(52, 211, 153, 0.25) !important;
+  border-radius: 6px !important;
+  padding: 2px 6px !important;
+  font-family: ui-monospace, monospace !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  letter-spacing: -0.01em !important;
+}
+
+.files-changed-header .text-red-500,
+span.text-red-500 {
+  color: #f87171 !important; /* Vivid Coral Red */
+  background: rgba(248, 113, 113, 0.12) !important;
+  border: 1px solid rgba(248, 113, 113, 0.25) !important;
+  border-radius: 6px !important;
+  padding: 2px 6px !important;
+  font-family: ui-monospace, monospace !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Diff Review Button: Touch-Friendly Pill with Cobalt Accent */
+button.review-button,
+.files-changed-header button.review-button {
+  min-height: 36px !important;
+  padding: 6px 14px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  background: var(--hibou-cobalt-subtle) !important;
+  border: 1px solid var(--hibou-cobalt-border) !important;
+  color: var(--hibou-cobalt-blue) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: transform 0.12s ease, background 0.15s ease !important;
+}
+
+button.review-button:active {
+  transform: scale(0.94) !important;
+  background: rgba(56, 189, 248, 0.24) !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. Bottom Prompt Dock, Textarea, Model Selector Pill & Action Buttons (>= 42px)
+   -------------------------------------------------------------------------- */
+
+/* Bottom Prompt Dock Container */
+[data-testid="agent-input-box"] {
+  border-radius: 22px !important;
+  margin: 6px 10px max(10px, env(safe-area-inset-bottom)) 10px !important;
+  background: var(--hibou-matte-surface) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 20px rgba(56, 189, 248, 0.1) !important;
+  padding: 8px 10px !important;
+  gap: 4px !important;
+}
+
+/* Textarea / Lexical Input Box */
+[data-testid="agent-input-box"] textarea,
+[data-testid="agent-input-box"] [contenteditable="true"] {
+  font-size: 16px !important; /* Prevents mobile webview viewport zooming */
+  line-height: 1.5 !important;
+  min-height: 48px !important;
+  padding: 8px 10px !important;
+  color: #f8fafc !important;
+}
+
+/* Model Selector Dropdown Pill */
+button[data-testid="model-selector-trigger"] {
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 0 14px 0 12px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(8px) !important;
+  color: var(--hibou-text-title) !important;
+  font-size: 13px !important;
+  font-weight: 550 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.15s ease !important;
+}
+
+button[data-testid="model-selector-trigger"]:active,
+button[data-testid="model-selector-trigger"][aria-expanded="true"] {
+  background: var(--hibou-cobalt-subtle) !important;
+  border-color: var(--hibou-cobalt-border) !important;
+  box-shadow: 0 0 12px var(--hibou-cobalt-glow) !important;
+}
+
+/* Prompt Bar Action Buttons (Enforcing Minimum 42px Touch Target) */
+[data-testid="agent-input-box"] button[aria-label="Add context"],
+[data-testid="agent-input-box"] button[aria-label="Добавить контекст"],
+button.agy-shield-btn,
+[data-testid="agent-input-box"] button[data-tooltip-id="input-send-button-record-tooltip"],
+[data-testid="agent-input-box"] button[aria-label*="Record Audio"],
+[data-testid="agent-input-box"] button[aria-label*="Запись"] {
+  min-width: var(--hibou-touch-target-min) !important;
+  min-height: var(--hibou-touch-target-min) !important;
+  width: var(--hibou-touch-target-min) !important;
+  height: var(--hibou-touch-target-min) !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--hibou-text-title) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.12s ease, background 0.15s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+[data-testid="agent-input-box"] button[aria-label="Add context"]:active,
+[data-testid="agent-input-box"] button[aria-label="Добавить контекст"]:active {
+  transform: scale(0.92) !important;
+  background: var(--hibou-cobalt-subtle) !important;
+  color: var(--hibou-cobalt-blue) !important;
+}
+
+/* Security Shield Button: Hibou Warm Amber Accent */
+button.agy-shield-btn {
+  color: var(--hibou-warm-amber) !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+  background: rgba(245, 158, 11, 0.06) !important;
+}
+
+button.agy-shield-btn:active,
+button.agy-shield-btn[aria-expanded="true"] {
+  transform: scale(0.92) !important;
+  background: var(--hibou-amber-subtle) !important;
+  box-shadow: 0 0 12px var(--hibou-amber-glow) !important;
+}
+
+/* Mic Dictation Button Active State */
+[data-testid="agent-input-box"] button[data-tooltip-id="input-send-button-record-tooltip"]:active {
+  transform: scale(0.92) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Send Button: Enlarged Circular Phone Trigger with Hibou Cobalt Gradient */
+button[data-testid="send-button"],
+div[data-testid="send-button-pending"] {
+  min-width: 44px !important;
+  min-height: 44px !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, var(--hibou-cobalt-blue) 0%, var(--hibou-cobalt-deep) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px var(--hibou-cobalt-glow) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.12s ease, opacity 0.15s ease, filter 0.15s ease !important;
+  cursor: pointer !important;
+}
+
+button[data-testid="send-button"]:active {
+  transform: scale(0.92) !important;
+  filter: brightness(0.9) !important;
+}
+
+/* Disabled Send Button (Empty Input) */
+button[data-testid="send-button"]:disabled {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* Stop / Cancel Button: Touch-Friendly Crimson Circle */
+button[data-tooltip-id="input-send-button-cancel-tooltip"],
+button[aria-label^="Cancel"] {
+  min-width: 44px !important;
+  min-height: 44px !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: rgba(239, 68, 68, 0.18) !important;
+  border: 1.5px solid rgba(239, 68, 68, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.12s ease !important;
+  cursor: pointer !important;
+}
+
+button[data-tooltip-id="input-send-button-cancel-tooltip"]:active,
+button[aria-label^="Cancel"]:active {
+  transform: scale(0.92) !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. Phone Bottom Sheets, Menus & Code Blocks
+   -------------------------------------------------------------------------- */
+
+/* Code Blocks: Smooth touch scrolling & comfortable monospace font */
+pre, code {
+  font-size: 14px !important;
+  line-height: 1.52 !important;
+}
+
+pre {
+  border-radius: 16px !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: 14px !important;
+}
+
+/* Phone Bottom Sheets & Action Menus */
+[data-testid="bottom-sheet"] {
+  border-radius: 26px 26px 0 0 !important;
+  padding-bottom: max(22px, env(safe-area-inset-bottom)) !important;
+  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-testid="bottom-sheet"] :is(button, [role="menuitem"], [role="option"]) {
+  min-height: 52px !important;
+  padding: 12px 16px !important;
+  font-size: 15.5px !important;
+  border-radius: 12px !important;
+  gap: 14px !important;
+}
+
+[data-testid="bottom-sheet"] svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+@media (max-width: 640px) {
+  [data-testid="bottom-sheet"].agy-compact-sheet {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    bottom: max(12px, env(safe-area-inset-bottom)) !important;
+    top: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    border-radius: 20px !important;
+    padding: 8px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+  }
+  [data-testid="bottom-sheet"].agy-compact-sheet :is(button, [role="menuitem"], [role="option"]) {
+    min-height: 48px !important;
+    font-size: 15px !important;
+    padding: 10px 14px !important;
+  }
+}
+

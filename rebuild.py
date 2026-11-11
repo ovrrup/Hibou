@@ -42,7 +42,7 @@ OVERRIDES = [
     'assets/web/agy_tools.js', 'assets/web/agy_tools.sh',
     'assets/web/agy_providers.js',
     'assets/web/agy_firstrun.html',
-    'assets/web/hibou.css', 'assets/web/hibou.js',
+    'assets/web/hibou.css', 'assets/web/hibou_mobile.css', 'assets/web/hibou.js',
     'assets/web/hibou_aura.js', 'assets/web/hibou_login_bg.jpg',
     'assets/web/hibouActionRequired.mp3', 'assets/web/hibouCascadeDone.mp3',
 ]
