@@ -643,3 +643,807 @@ pre {
   }
 }
 
+
+/* --------------------------------------------------------------------------
+   6. Hibou Mobile Redesign Shell (Header, Drawer, Control Center & Dock)
+   -------------------------------------------------------------------------- */
+
+/* Animated Electric Blue Top Glow & Ambient Gradient */
+.hibou-ambient-glow {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 220px !important;
+  pointer-events: none !important;
+  z-index: 15 !important;
+  background: radial-gradient(ellipse 80% 100% at 50% 0%, rgba(56, 189, 248, 0.28) 0%, rgba(37, 99, 235, 0.14) 45%, transparent 100%) !important;
+  animation: hibouGlowBreath 6s ease-in-out infinite alternate !important;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.hibou-ambient-glow.hibou-glow-dimmed {
+  opacity: 0 !important;
+}
+
+@keyframes hibouGlowBreath {
+  0% { opacity: 0.65; transform: scaleY(0.9); }
+  100% { opacity: 1.0; transform: scaleY(1.1); }
+}
+
+/* Dynamic Home Screen Greeting Hero */
+.hibou-greeting-hero {
+  position: fixed !important;
+  top: 90px !important;
+  left: 16px !important;
+  right: 16px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 20 !important;
+  pointer-events: none !important;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.hibou-greeting-hero.hibou-fade-out {
+  opacity: 0 !important;
+  transform: translateY(-20px) !important;
+}
+
+.hibou-greeting-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 18px !important;
+  border-radius: 9999px !important;
+  background: rgba(14, 20, 38, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(56, 189, 248, 0.22) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(56, 189, 248, 0.15) !important;
+  color: #f4f4f5 !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  text-align: center !important;
+}
+
+.hibou-sparkle-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #38bdf8 !important;
+  box-shadow: 0 0 10px #38bdf8 !important;
+  animation: hibouPulseDot 2s infinite ease-in-out !important;
+}
+
+@keyframes hibouPulseDot {
+  0%, 100% { transform: scale(0.85); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   Top Navigation Bar (#hibou-top-header)
+   -------------------------------------------------------------------------- */
+.hibou-top-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 58px !important;
+  padding: 0 12px !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: rgba(11, 14, 23, 0.88) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  z-index: 100 !important;
+}
+
+.hibou-header-btn {
+  min-width: 42px !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f4f4f5 !important;
+  cursor: pointer !important;
+  transition: transform 0.12s ease, background 0.15s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.hibou-header-btn:active {
+  transform: scale(0.92) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 1. Menu Button (Top Left) */
+.hibou-btn-menu {
+  width: 42px !important;
+  padding: 0 !important;
+  color: #38bdf8 !important;
+}
+
+/* 3. Model Selector & Quota Pill (Top Center-Left) */
+.hibou-model-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  height: 38px !important;
+  padding: 0 12px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f4f4f5 !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  max-width: 175px !important;
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.hibou-model-pill:active {
+  transform: scale(0.94) !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+.hibou-model-icon {
+  color: #f59e0b !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.hibou-model-title {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-weight: 500 !important;
+}
+
+.hibou-pill-divider {
+  width: 1px !important;
+  height: 14px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.hibou-model-quota-badge {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.14) !important;
+  padding: 2px 6px !important;
+  border-radius: 6px !important;
+}
+
+.hibou-chevron-down {
+  color: #94a3b8 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* 5. Multi-Purpose Button (Top Center-Right) */
+.hibou-btn-multipurpose {
+  gap: 6px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.hibou-multipurpose-label {
+  display: inline-block !important;
+}
+
+@media (max-width: 400px) {
+  .hibou-multipurpose-label {
+    display: none !important;
+  }
+}
+
+/* 4. Profile Avatar Button (Top Right) */
+.hibou-profile-avatar-btn {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.hibou-avatar-circle {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+  border: 1.5px solid #38bdf8 !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: #f4f4f5 !important;
+  transition: transform 0.12s ease !important;
+}
+
+.hibou-profile-avatar-btn:active .hibou-avatar-circle {
+  transform: scale(0.9) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Left Slide Drawer Menu (#hibou-slide-drawer)
+   -------------------------------------------------------------------------- */
+.hibou-drawer-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 9998 !important;
+  display: none !important;
+  opacity: 0 !important;
+  transition: opacity 0.25s ease !important;
+}
+
+.hibou-drawer-backdrop.visible {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+.hibou-slide-drawer {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 290px !important;
+  max-width: 85vw !important;
+  background: rgba(14, 18, 32, 0.96) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 10px 0 35px rgba(0, 0, 0, 0.6) !important;
+  z-index: 9999 !important;
+  transform: translateX(-100%) !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+}
+
+.hibou-slide-drawer.open {
+  transform: translateX(0) !important;
+}
+
+.hibou-drawer-header {
+  padding: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.hibou-drawer-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.hibou-drawer-logo {
+  font-size: 24px !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.hibou-drawer-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #f4f4f5 !important;
+}
+
+.hibou-drawer-version {
+  font-size: 11.5px !important;
+  color: #94a3b8 !important;
+}
+
+.hibou-drawer-close-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #94a3b8 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.hibou-drawer-body {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 16px !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.hibou-drawer-primary-action {
+  width: 100% !important;
+  min-height: 46px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3) !important;
+  cursor: pointer !important;
+}
+
+.hibou-drawer-section-title {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  margin: 16px 0 8px 6px !important;
+}
+
+.hibou-drawer-nav-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.hibou-drawer-nav-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  color: #e4e4e7 !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease !important;
+}
+
+.hibou-drawer-nav-item:active {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Two-Tier Bottom Chat Dock (#hibou-dock-upper-tier & Lower Input Dock)
+   -------------------------------------------------------------------------- */
+.hibou-mobile-bottom-dock {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 50 !important;
+  pointer-events: none !important;
+}
+
+/* Floating Upper Tier: Stage Mode & Branch Selector */
+.hibou-dock-upper-tier {
+  pointer-events: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin: 0 12px 6px 12px !important;
+  gap: 8px !important;
+}
+
+.hibou-stage-selector {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: rgba(14, 20, 38, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 9999px !important;
+  padding: 3px !important;
+  gap: 2px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.hibou-stage-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  background: transparent !important;
+  color: #94a3b8 !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.hibou-stage-btn.active {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  font-weight: 600 !important;
+}
+
+.hibou-branch-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 38px !important;
+  padding: 0 14px !important;
+  border-radius: 9999px !important;
+  background: rgba(14, 20, 38, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(147, 197, 253, 0.25) !important;
+  color: #93c5fd !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25) !important;
+  transition: transform 0.12s ease !important;
+}
+
+.hibou-branch-pill:active {
+  transform: scale(0.94) !important;
+}
+
+.hibou-branch-name {
+  max-width: 130px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* --------------------------------------------------------------------------
+   Full-Screen Control Center Modal (#hibou-control-center-modal)
+   -------------------------------------------------------------------------- */
+.hibou-control-center-sheet {
+  position: fixed !important;
+  inset: 0 !important;
+  background: #0b0e17 !important;
+  z-index: 10005 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+}
+
+.hibou-hidden {
+  display: none !important;
+}
+
+.hibou-cc-header {
+  padding: 18px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.hibou-cc-badge {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #38bdf8 !important;
+  letter-spacing: 0.08em !important;
+}
+
+.hibou-cc-title {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #f4f4f5 !important;
+  margin-top: 2px !important;
+}
+
+.hibou-cc-close-btn {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #f4f4f5 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.hibou-cc-tabs {
+  display: flex !important;
+  background: rgba(14, 20, 38, 0.6) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding: 0 16px !important;
+  gap: 8px !important;
+}
+
+.hibou-cc-tab-btn {
+  padding: 14px 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #94a3b8 !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  cursor: pointer !important;
+}
+
+.hibou-cc-tab-btn.active {
+  color: #38bdf8 !important;
+  font-weight: 600 !important;
+  border-bottom-color: #38bdf8 !important;
+}
+
+.hibou-cc-body {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 20px !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.hibou-cctab-content {
+  display: none !important;
+}
+
+.hibou-cctab-content.active {
+  display: block !important;
+}
+
+/* Account Cards */
+.hibou-account-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 18px !important;
+  padding: 18px !important;
+  margin-bottom: 16px !important;
+}
+
+.hibou-acc-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+
+.hibou-acc-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+}
+
+.hibou-acc-icon.google {
+  background: rgba(234, 67, 53, 0.15) !important;
+  color: #ea4335 !important;
+  border: 1px solid rgba(234, 67, 53, 0.3) !important;
+}
+
+.hibou-acc-icon.github {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.hibou-acc-name {
+  font-size: 15.5px !important;
+  font-weight: 600 !important;
+  color: #f4f4f5 !important;
+}
+
+.hibou-acc-email, .hibou-acc-desc {
+  font-size: 13px !important;
+  color: #94a3b8 !important;
+  margin-top: 2px !important;
+}
+
+.hibou-status-pill {
+  margin-left: auto !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+  border-radius: 9999px !important;
+}
+
+.hibou-status-pill.online {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #22c55e !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+}
+
+.hibou-acc-actions {
+  margin-top: 14px !important;
+  display: flex !important;
+  gap: 10px !important;
+}
+
+.hibou-acc-token-form {
+  margin-top: 14px !important;
+  display: flex !important;
+  gap: 10px !important;
+}
+
+.hibou-input-text {
+  flex: 1 !important;
+  height: 42px !important;
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  padding: 0 14px !important;
+  color: #f4f4f5 !important;
+  font-size: 14px !important;
+}
+
+.hibou-btn-primary {
+  height: 42px !important;
+  padding: 0 16px !important;
+  border-radius: 12px !important;
+  background: #38bdf8 !important;
+  color: #0b0e17 !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+.hibou-btn-secondary {
+  height: 38px !important;
+  padding: 0 14px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f4f4f5 !important;
+  font-size: 13.5px !important;
+  cursor: pointer !important;
+}
+
+/* Quota Overview Cards */
+.hibou-quota-stat-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 18px !important;
+  padding: 20px !important;
+  margin-bottom: 16px !important;
+}
+
+.hibou-quota-title {
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: #94a3b8 !important;
+}
+
+.hibou-quota-val {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #f4f4f5 !important;
+  margin: 8px 0 12px 0 !important;
+}
+
+.hibou-quota-bar {
+  width: 100% !important;
+  height: 8px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 9999px !important;
+  overflow: hidden !important;
+}
+
+.hibou-quota-bar-fill {
+  height: 100% !important;
+  background: linear-gradient(90deg, #38bdf8 0%, #2563eb 100%) !important;
+  border-radius: 9999px !important;
+}
+
+.hibou-quota-reset {
+  font-size: 12px !important;
+  color: #64748b !important;
+  margin-top: 10px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Multi-Purpose Dropdown Menu (#hibou-multipurpose-menu)
+   -------------------------------------------------------------------------- */
+.hibou-dropdown-panel {
+  position: fixed !important;
+  top: 64px !important;
+  right: 14px !important;
+  width: 250px !important;
+  background: rgba(15, 20, 36, 0.95) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+  z-index: 10001 !important;
+  overflow: hidden !important;
+  animation: hibouDropdownPop 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes hibouDropdownPop {
+  0% { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.hibou-dropdown-header {
+  padding: 12px 16px 8px 16px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.hibou-dropdown-list {
+  padding: 6px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.hibou-dropdown-item {
+  width: 100% !important;
+  min-height: 42px !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  background: transparent !important;
+  color: #e4e4e7 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: background 0.12s ease !important;
+}
+
+.hibou-dropdown-item:active {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.hibou-dropdown-item.active {
+  color: #38bdf8 !important;
+}
+
+.hibou-dropdown-item.text-danger {
+  color: #ef4444 !important;
+}
+
+.hibou-item-active-dot {
+  margin-left: auto !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #38bdf8 !important;
+}
