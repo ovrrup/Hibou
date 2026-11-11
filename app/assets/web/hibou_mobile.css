@@ -1683,3 +1683,111 @@ pre {
   color: #f1f5f9 !important;
 }
 
+/* OpenCode Plan Selector & Inactive Card State (Material You) */
+.hibou-m3-provider-card.inactive {
+  opacity: 0.65 !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.hibou-m3-provider-card.inactive .hibou-pv-fields {
+  display: none !important;
+}
+
+.hibou-m3-plan-selector {
+  display: flex !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  padding: 4px 0 !important;
+  scrollbar-width: none !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.hibou-m3-plan-selector::-webkit-scrollbar {
+  display: none !important;
+}
+
+.hibou-m3-plan-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 12px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1) !important;
+  flex-shrink: 0 !important;
+}
+
+.hibou-m3-plan-chip:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important;
+}
+
+.hibou-m3-plan-chip.active {
+  background: rgba(56, 189, 248, 0.16) !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  color: #38bdf8 !important;
+  font-weight: 600 !important;
+}
+
+.hibou-plan-tag {
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  padding: 1px 5px !important;
+  border-radius: 9999px !important;
+  letter-spacing: 0.04em !important;
+}
+
+.hibou-plan-tag.free {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
+}
+
+.hibou-plan-tag.sub {
+  background: rgba(168, 85, 247, 0.2) !important;
+  color: #c084fc !important;
+}
+
+.hibou-plan-tag.local {
+  background: rgba(148, 163, 184, 0.2) !important;
+  color: #cbd5e1 !important;
+}
+
+.hibou-plan-banner {
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  font-size: 11.5px !important;
+  line-height: 1.45 !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  color: #94a3b8 !important;
+}
+
+.hibou-plan-banner.free {
+  background: rgba(34, 197, 94, 0.08) !important;
+  border-color: rgba(34, 197, 94, 0.25) !important;
+  color: #86efac !important;
+}
+
+.hibou-plan-banner.paid {
+  background: rgba(168, 85, 247, 0.08) !important;
+  border-color: rgba(168, 85, 247, 0.25) !important;
+  color: #d8b4fe !important;
+}
+
+.hibou-plan-banner.local {
+  background: rgba(14, 165, 233, 0.08) !important;
+  border-color: rgba(14, 165, 233, 0.25) !important;
+  color: #7dd3fc !important;
+}
+
+.hibou-plan-banner-title {
+  font-weight: 600 !important;
+  margin-bottom: 2px !important;
+}
+
