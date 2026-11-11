@@ -174,5 +174,5 @@ Before feeding HTML to WebView, `AppHtmlInjector` injects into `<head>`:
 
 ### 6.3. Settings Overlay Scripts
 - **`agy_tools.sh`**: Backend for Settings → Tools (invoked via `AgyTools` native bridge). Manages package installation, verification, and updates with built-in download retries.
-- **`agy_providers.js`**: Manages custom model providers (OpenAI, Claude, and Gemini API formats) with model discovery and capability overrides.
+- **`agy_providers.js`**: Manages custom model providers (OpenAI, OpenRouter, Claude, DeepSeek, OpenCode, Mistral, and Gemini API formats) with automated endpoint normalization (e.g. `/api/v1` resolution for OpenRouter), model catalog discovery, capability overrides, and resilient HTML error sanitization.
 - **`agy_shield.js`**: Manages agent security policies and global permission grants.
