@@ -192,7 +192,7 @@
   }
   function effectiveInfo(connection, id, stored) {
     var md = Object.assign({}, stored || {});
-    var official = officialModelInfo(connection.baseUrl || typeOf(connection.type).base, id);
+    var official = officialModelInfo(resolveBaseUrl(connection), id);
     if (!official) return md;
     // Upgrade old saved entries in memory without overwriting the user's choices.
     if (!Array.isArray(md.inputModes)) md.inputModes = official.inputModes.slice();
@@ -250,16 +250,85 @@
       return { ids: ids, meta: meta };
     } catch (e) { return null; }
   }
-  function normBase(base, type) {
+  function defaultBaseFor(conn) {
+    if (!conn) return "https://api.openai.com/v1";
+    var nameOrId = ((conn.name || "") + " " + (conn.id || "")).toLowerCase();
+    if (nameOrId.indexOf("openrouter") >= 0) return "https://openrouter.ai/api/v1";
+    if (nameOrId.indexOf("deepseek") >= 0) return "https://api.deepseek.com/v1";
+    if (nameOrId.indexOf("opencode") >= 0) return "https://api.opencode.ai/v1";
+    if (nameOrId.indexOf("mistral") >= 0) return "https://api.mistral.ai/v1";
+    if (nameOrId.indexOf("claude") >= 0 || nameOrId.indexOf("anthropic") >= 0) return "https://api.anthropic.com";
+    return (typeOf(conn.type) || {}).base || "https://api.openai.com/v1";
+  }
+
+  function normBase(base, type, id) {
     base = String(base || "").trim().replace(/\/+$/, "");
+    if (!base) return base;
+
+    var isOR = /openrouter\.ai/i.test(base) || (id && /openrouter/i.test(id));
+    var isDS = /api\.deepseek\.com/i.test(base) || (id && /deepseek/i.test(id));
+    var isOC = /api\.opencode\.ai/i.test(base) || (id && /opencode/i.test(id));
+    var isMistral = /api\.mistral\.ai/i.test(base) || (id && /mistral/i.test(id));
+
+    if (isOR) {
+      base = base.replace(/\/+(api(\/v1)?|v1)?\/?$/i, "") + "/api/v1";
+      return base;
+    }
+    if (isDS || isOC || isMistral) {
+      base = base.replace(/\/+v1\/?$/i, "") + "/v1";
+      return base;
+    }
     // Anthropic-style bases are the API root (native/direct code appends /v1/…),
     // so a pasted trailing "/v1" would double up — strip it.
     if (type === "anthropic") base = base.replace(/\/v1$/, "");
     return base;
   }
-  function cleanBody(b) {
-    return String(b || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
+
+  function resolveBaseUrl(conn) {
+    var raw = conn && conn.baseUrl && conn.baseUrl.trim() ? conn.baseUrl.trim() : defaultBaseFor(conn);
+    return normBase(raw, conn ? conn.type : "openai", conn ? (conn.id || conn.name) : "");
   }
+  window.__agyNormBase = normBase;
+  window.__agyResolveBaseUrl = resolveBaseUrl;
+
+  function cleanBody(b) {
+    if (!b) return "";
+    var str = String(b).trim();
+    // 1. Try JSON parsing
+    try {
+      var j = JSON.parse(str);
+      if (j) {
+        if (typeof j.error === "string") return j.error.slice(0, 200);
+        if (j.error && typeof j.error.message === "string") return j.error.message.slice(0, 200);
+        if (typeof j.message === "string") return j.message.slice(0, 200);
+        if (typeof j.detail === "string") return j.detail.slice(0, 200);
+      }
+    } catch (e) {}
+
+    // 2. Strip scripts and styles completely
+    var noScripts = str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ")
+                       .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, " ");
+
+    // 3. Extract title if HTML
+    var titleMatch = str.match(/<title[^>]*>([^<]+)<\/title>/i);
+    var title = titleMatch ? titleMatch[1].replace(/\s+/g, " ").trim() : "";
+
+    // 4. Strip tags
+    var text = noScripts.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+
+    if (/function\s*\(|sendBeacon|var\s+|let\s+|const\s+/i.test(text) || !text) {
+      if (title) return title.slice(0, 150);
+      return T("Сервер вернул HTML-страницу ошибки вместо JSON", "Server returned HTML error page instead of JSON");
+    }
+
+    if (text.length > 200) {
+      if (title && title.length < text.length) return title.slice(0, 150);
+      return text.slice(0, 200);
+    }
+    return text || title || T("Неизвестный ответ", "Unknown response");
+  }
+  window.__agyCleanBody = cleanBody;
+
   // Fallback for providers that implement the chat API but no model list
   // (e.g. MiMo's Anthropic-compatible endpoint returns 404 for /v1/models).
   // Try the OpenAI-style catalog on the same host (/v1/models), which such
@@ -267,9 +336,14 @@
   function tryFallback(conn) {
     if (fetchFallbackTried) return false;
     fetchFallbackTried = true;
-    var base = normBase(conn.baseUrl || "", conn.type), fb;
+    var base = resolveBaseUrl(conn), fb;
     try {
       var u = new URL(base);
+      var host = u.hostname.toLowerCase();
+      if (host.indexOf("openrouter.ai") >= 0 || host.indexOf("deepseek.com") >= 0 ||
+          host.indexOf("opencode.ai") >= 0 || host.indexOf("mistral.ai") >= 0) {
+        return false;
+      }
       if (!u.pathname || u.pathname === "/") return false;
       fb = u.origin + "/v1";
     } catch (e) { return false; }
@@ -284,7 +358,7 @@
     fetchMsg = T("Загрузка списка моделей…", "Loading models…");
     render();
     fetchFallbackTried = false;
-    startFetch(conn, conn.type, normBase(conn.baseUrl || typeOf(conn.type).base, conn.type));
+    startFetch(conn, conn.type, resolveBaseUrl(conn));
   }
   function startFetch(conn, listType, base) {
     fetchListType = listType;
@@ -328,7 +402,7 @@
           ". If the model list is unavailable, add models manually below.");
       render(); return;
     }
-    var parsed = parseModels(fetchListType || conn.type, body, conn.baseUrl || typeOf(conn.type).base);
+    var parsed = parseModels(fetchListType || conn.type, body, resolveBaseUrl(conn));
     if (!parsed || !parsed.ids.length) {
       if (tryFallback(conn)) return;
       fetchMsg = T("Список моделей пуст или не распознан.", "No models returned or response not recognized."); render(); return;
@@ -583,7 +657,7 @@
       render();
     }
     else if (act === "save") {
-      editing.baseUrl = normBase(editing.baseUrl, editing.type);
+      editing.baseUrl = resolveBaseUrl(editing);
       delete editing.__new;
       var i = state.connections.map(function (c) { return c.id; }).indexOf(editing.id);
       if (i >= 0) state.connections[i] = editing; else state.connections.push(editing);

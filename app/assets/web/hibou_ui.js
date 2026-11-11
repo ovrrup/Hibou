@@ -383,6 +383,10 @@
       '          </div>',
       '          <div class="hibou-pv-fields">',
       '            <div class="hibou-pv-field-row">',
+      '              <label>Endpoint</label>',
+      '              <input type="text" id="hibou-pv-url-openrouter" class="hibou-input-text" value="https://openrouter.ai/api/v1" placeholder="https://openrouter.ai/api/v1">',
+      '            </div>',
+      '            <div class="hibou-pv-field-row">',
       '              <label>API Key</label>',
       '              <input type="password" id="hibou-pv-key-openrouter" class="hibou-input-text" placeholder="sk-or-v1-...">',
       '            </div>',
@@ -411,6 +415,10 @@
       '            </label>',
       '          </div>',
       '          <div class="hibou-pv-fields">',
+      '            <div class="hibou-pv-field-row">',
+      '              <label>Endpoint</label>',
+      '              <input type="text" id="hibou-pv-url-deepseek" class="hibou-input-text" value="https://api.deepseek.com/v1" placeholder="https://api.deepseek.com/v1">',
+      '            </div>',
       '            <div class="hibou-pv-field-row">',
       '              <label>API Key</label>',
       '              <input type="password" id="hibou-pv-key-deepseek" class="hibou-input-text" placeholder="sk-...">',
@@ -441,6 +449,10 @@
       '          </div>',
       '          <div class="hibou-pv-fields">',
       '            <div class="hibou-pv-field-row">',
+      '              <label>Endpoint</label>',
+      '              <input type="text" id="hibou-pv-url-anthropic" class="hibou-input-text" value="https://api.anthropic.com" placeholder="https://api.anthropic.com">',
+      '            </div>',
+      '            <div class="hibou-pv-field-row">',
       '              <label>API Key</label>',
       '              <input type="password" id="hibou-pv-key-anthropic" class="hibou-input-text" placeholder="sk-ant-...">',
       '            </div>',
@@ -470,6 +482,10 @@
       '          </div>',
       '          <div class="hibou-pv-fields">',
       '            <div class="hibou-pv-field-row">',
+      '              <label>Endpoint</label>',
+      '              <input type="text" id="hibou-pv-url-openai" class="hibou-input-text" value="https://api.openai.com/v1" placeholder="https://api.openai.com/v1">',
+      '            </div>',
+      '            <div class="hibou-pv-field-row">',
       '              <label>API Key</label>',
       '              <input type="password" id="hibou-pv-key-openai" class="hibou-input-text" placeholder="sk-proj-...">',
       '            </div>',
@@ -498,6 +514,10 @@
       '            </label>',
       '          </div>',
       '          <div class="hibou-pv-fields">',
+      '            <div class="hibou-pv-field-row">',
+      '              <label>Endpoint</label>',
+      '              <input type="text" id="hibou-pv-url-mistral" class="hibou-input-text" value="https://api.mistral.ai/v1" placeholder="https://api.mistral.ai/v1">',
+      '            </div>',
       '            <div class="hibou-pv-field-row">',
       '              <label>API Key</label>',
       '              <input type="password" id="hibou-pv-key-mistral" class="hibou-input-text" placeholder="mis_...">',
@@ -940,26 +960,48 @@
         var statusEl = document.getElementById("hibou-pv-status-" + pv);
         var key = keyInput ? keyInput.value.trim() : "";
         var url = urlInput ? urlInput.value.trim() : "";
+
+        var defaultUrls = {
+          openrouter: "https://openrouter.ai/api/v1",
+          deepseek: "https://api.deepseek.com/v1",
+          opencode: "https://api.opencode.ai/v1",
+          claude: "https://api.anthropic.com",
+          anthropic: "https://api.anthropic.com",
+          openai: "https://api.openai.com/v1",
+          mistral: "https://api.mistral.ai/v1"
+        };
+        if (!url && defaultUrls[pv]) {
+          url = defaultUrls[pv];
+          if (urlInput) urlInput.value = url;
+        }
+
+        var typeMapping = { claude: "anthropic", anthropic: "anthropic", opencode: "opencode" };
+        var typeId = typeMapping[pv] || "openai";
+
+        if (window.__agyNormBase) {
+          url = window.__agyNormBase(url, typeId, pv);
+        } else if (pv === "openrouter" || /openrouter\.ai/i.test(url)) {
+          url = url.replace(/\/+(api(\/v1)?|v1)?\/?$/i, "") + "/api/v1";
+        }
+
         if (!key && pv !== "opencode") {
           if (statusEl) statusEl.textContent = i18n("API key required", "Требуется API-ключ");
           return;
         }
-        if (statusEl) statusEl.textContent = i18n("Saving...", "Сохранение...");
+        if (statusEl) statusEl.textContent = i18n("Testing & saving...", "Проверка и сохранение...");
         try {
           var raw = "";
           try { raw = window.AgyProviders ? window.AgyProviders.load() : (localStorage.getItem("agyProviders") || ""); } catch (err) {}
           var parsed = { connections: [] };
           if (raw) { try { parsed = JSON.parse(raw); } catch (err) {} }
           parsed.connections = parsed.connections || [];
-          var typeMapping = { claude: "anthropic", opencode: "opencode" };
-          var typeId = typeMapping[pv] || "openai";
           var existing = parsed.connections.find(function (c) { return c.id === pv; });
           if (!existing) {
             existing = { id: pv, name: pv.toUpperCase(), type: typeId, baseUrl: url, apiKey: key, selected: [] };
             parsed.connections.push(existing);
           } else {
             existing.apiKey = key;
-            if (url) existing.baseUrl = url;
+            existing.baseUrl = url;
             existing.type = typeId;
           }
           parsed.useProviders = true;
@@ -971,6 +1013,46 @@
           if (statusEl) statusEl.textContent = i18n("Connected & Ready", "Подключено и готово");
           var quotaSt = document.getElementById("hibou-quota-st-" + pv);
           if (quotaSt) quotaSt.textContent = i18n("Connected", "Подключено");
+
+          // Active test & model retrieval
+          if (window.AgyProviders && typeof window.AgyProviders.fetchModels === "function") {
+            try {
+              var jobId = window.AgyProviders.fetchModels(typeId, url, key, "{}");
+              var pollCount = 0;
+              var pollTimer = setInterval(function () {
+                pollCount++;
+                var resRaw = window.AgyProviders.readFetch(jobId);
+                var res = {};
+                try { res = JSON.parse(resRaw || "{}"); } catch (e) {}
+                if (res.done || pollCount > 12) {
+                  clearInterval(pollTimer);
+                  var code = parseInt(res.status, 10) || 0;
+                  if (code >= 200 && code < 300) {
+                    try {
+                      var parsedModels = JSON.parse(res.body || "{}");
+                      var mList = parsedModels.data || parsedModels.models || [];
+                      if (Array.isArray(mList) && mList.length) {
+                        existing.models = mList.map(function (m) { return typeof m === "string" ? m : (m.id || m.name); }).filter(Boolean);
+                        if ((!existing.selected || !existing.selected.length) && existing.models.length) {
+                          existing.selected = [existing.models[0]];
+                        }
+                        var updatedJson = JSON.stringify(parsed);
+                        localStorage.setItem("agyProviders", updatedJson);
+                        window.AgyProviders.save(updatedJson);
+                        if (window.__agyRefreshProviderModels) window.__agyRefreshProviderModels();
+                        if (statusEl) statusEl.textContent = i18n("Connected (" + existing.models.length + " models)", "Подключено (" + existing.models.length + " моделей)");
+                        return;
+                      }
+                    } catch (e) {}
+                    if (statusEl) statusEl.textContent = i18n("Connected & Ready", "Подключено и готово");
+                  } else if (code >= 400) {
+                    var cleanErr = window.__agyCleanBody ? window.__agyCleanBody(res.body) : ("Error " + code);
+                    if (statusEl) statusEl.textContent = i18n("Error " + code + ": " + cleanErr, "Ошибка " + code + ": " + cleanErr);
+                  }
+                }
+              }, 400);
+            } catch (err) {}
+          }
         } catch (err) {
           if (statusEl) statusEl.textContent = i18n("Saved locally", "Сохранено");
         }

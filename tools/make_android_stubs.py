@@ -31,6 +31,11 @@ def build_stubs():
             '    public JSONObject put(String name, Object val) throws Exception { return this; }\n'
             '    public JSONObject put(String name, int val) throws Exception { return this; }\n'
             '    public String getString(String name) throws Exception { return ""; }\n'
+            '    public String optString(String name, String def) { return def; }\n'
+            '    public String optString(String name) { return ""; }\n'
+            '    public Object get(String name) throws Exception { return null; }\n'
+            '    public Object opt(String name) { return null; }\n'
+            '    public boolean has(String name) { return false; }\n'
             '    public String toString() { return "{}"; }\n'
             '}\n'
         )
