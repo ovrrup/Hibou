@@ -27,7 +27,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -38,6 +37,7 @@ jobs:
         run: |
           echo "::group::Python Compilation Checks"
           python3 -m py_compile rebuild.py tools/*.py tests/*.py
+          find . -name "*.py" -not -path "*/.*" -exec python3 -m py_compile {} +
           echo "Python syntax verified cleanly."
           echo "::endgroup::"
 
@@ -45,7 +45,8 @@ jobs:
         run: |
           echo "::group::Bash Script Validation"
           bash -n app/assets/web/agy_tools.sh
-          echo "agy_tools.sh bash syntax valid."
+          find . -name "*.sh" -not -path "*/.*" -print0 | xargs -0 -n 1 bash -n
+          echo "All shell scripts passed bash syntax validation."
           echo "::endgroup::"
 
       - name: Check JavaScript Syntax
@@ -65,6 +66,7 @@ jobs:
           echo "::group::JSON Manifest Validation"
           python3 -m json.tool app/assets/env/manifest.json > /dev/null
           python3 -m json.tool app/assets/runtime/manifest.json > /dev/null
+          find . -name "*.json" -not -path "*/.*" -exec python3 -m json.tool {} > /dev/null \;
           echo "All manifests parsed as valid JSON."
           echo "::endgroup::"
 

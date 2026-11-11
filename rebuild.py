@@ -27,8 +27,14 @@ from patch_web_bundle import patch_bundle
 VERSION = '1.0.0-beta.1'
 VERSION_CODE = 1
 BASE = {
-    'standard': ('Leostryx-3.0.5-standard.apk', 'c7a4ee1d85edbdb2fd05b6bb5cf54b4e3867527ea6c1c192d0219efab9d1f5d1'),
-    'bypass': ('Leostryx-3.0.5-bypass.apk', 'd612eaeb2b592c37d2f5636be363669ff351ed431769ce55990bebe5723f7546'),
+    'standard': ('Leostryx-3.0.5-standard.apk', (
+        '3311cb0bae7e3d7c0f9370d04d08c7db44c9dec5e6ebfb38555a4877ddc5dc4b',
+        'c7a4ee1d85edbdb2fd05b6bb5cf54b4e3867527ea6c1c192d0219efab9d1f5d1',
+    )),
+    'bypass': ('Leostryx-3.0.5-bypass.apk', (
+        'f3cc34860963cc6902ed8393301eef2b8f13fabd39c872e8aa554efa5a7539ae',
+        'd612eaeb2b592c37d2f5636be363669ff351ed431769ce55990bebe5723f7546',
+    )),
 }
 OVERRIDES = [
     'AndroidManifest.xml', 'classes.dex', 'classes4.dex', 'resources.arsc',
@@ -84,14 +90,16 @@ def base_apk(variant, supplied, fetch):
             url = 'https://github.com/Leostrange/Leostryx/releases/download/v3.0.5/'+filename
             with urllib.request.urlopen(url, timeout=120) as response, partial.open('wb') as output:
                 shutil.copyfileobj(response, output, 1024*1024)
-            if sha256(partial) != expected:
+            valid = sha256(partial) in expected if isinstance(expected, (tuple, set, list)) else sha256(partial) == expected
+            if not valid:
                 raise ValueError('Downloaded base APK checksum mismatch')
             partial.replace(path)
         finally:
             partial.unlink(missing_ok=True)
     if not path.is_file():
         raise FileNotFoundError('Provide --'+variant+'-apk or use --fetch-base: '+str(path))
-    if sha256(path) != expected:
+    valid = sha256(path) in expected if isinstance(expected, (tuple, set, list)) else sha256(path) == expected
+    if not valid:
         raise ValueError('Unexpected base APK: '+str(path))
     return path
 
@@ -110,7 +118,7 @@ def pack(source, variant, destination):
         print('Notice: Node.js is not present in local PATH; skipping JS syntax pre-check')
     subprocess.run(['bash', '-n', str(overrides['assets/web/agy_tools.sh'])], check=True)
     info = {'versionName': VERSION, 'versionCode': VERSION_CODE, 'variant': variant,
-            'packageName': 'agy.hibou', 'sourceRelease': 'v3.0.5', 'sourceSha256': BASE[variant][1]}
+            'packageName': 'agy.hibou', 'sourceRelease': 'v3.0.5', 'sourceSha256': sha256(source)}
     metadata_path = 'assets/web/build-info.json'
     with zipfile.ZipFile(source) as base:
         bundle = patch_bundle(base.read('assets/web/generated/main.js').decode('utf-8')).encode('utf-8')
