@@ -811,7 +811,7 @@
     toolBtn("⧉  " + T("Копировать", "Copy"), T("Копировать вывод", "Copy output")).onclick=function(){ copyText(transcript); };
     toolBtn("⌫  " + T("Очистить", "Clear"), T("Очистить экран", "Clear screen")).onclick=function(){ transcript=""; paint(""); };
     toolBtn("logcat", "logcat -d -t 80").onclick=function(){ input.value="logcat -d -t 80 *:W"; send(); };
-    if (!bridge()) { out.textContent=T("Мост недоступен.","Bridge unavailable."); return; }
+    if (!bridge()) { out.textContent=T("Мост недоступен. Нативный мост AgyTools не подключён.","Bridge unavailable: native AgyTools bridge is not connected."); return; }
     function send(){
       var v=(input.value||"").replace(/\r/g,"");
       if (!v.trim()) return;
@@ -821,12 +821,25 @@
       var raw=""; encoded.forEach(function(x){ raw+=String.fromCharCode(x); });
       transcript += "\n$ " + v + "\n";
       paint("");
-      var id=bridge().start("termrun", btoa(raw));
-      if (!id || /^ERR/.test(id)) { paint(String(id||"ERR")+"\n"); return; }
-      pollAux(id, function(r){
-        var log=String(r.log||"");
-        paint(log.replace(/@@[A-Z0-9_]+[^\n]*\n?/g,"") + (log && !/\n$/.test(log) ? "\n" : ""));
-      }, 0);
+      var b=bridge();
+      if (!b) { paint(T("[Ошибка] Мост недоступен.\n","[Error] Bridge unavailable.\n")); return; }
+      var id=b.start("termrun", btoa(raw));
+      if (!id || /^ERR/.test(id)) { paint("[Error] start() failed: " + String(id||"(no id)") + "\n"); return; }
+      function termPoll(jobId, tries) {
+        if (modal!==m) return;
+        var rb=bridge(), rr={};
+        try { rr=JSON.parse(rb.read(jobId)||"{}"); } catch(_) {}
+        if (rr.rc!==undefined && rr.rc!=="") {
+          // Job finished — strip @@ control lines then render; always show exit line.
+          var log=String(rr.log||"");
+          paint(log.replace(/@@[A-Z0-9_]+[^\n]*\n?/g,"") + (log && !/\n$/.test(log) ? "\n" : ""));
+          if (String(rr.rc)!=="0") paint("[exit " + rr.rc + "]\n");
+          return;
+        }
+        if (tries>600) { paint(T("[Ошибка] Таймаут ожидания ответа (90 с).\n","[Error] Timed out waiting for response (90 s).\n")); return; }
+        setTimeout(function(){termPoll(jobId,tries+1);},150);
+      }
+      termPoll(id, 0);
     }
     m.querySelector('[data-send]').onclick=send;
     input.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); send(); } };
