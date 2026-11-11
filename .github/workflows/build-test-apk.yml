@@ -70,6 +70,10 @@ jobs:
           echo "::group::Verify Signed Output"
           ls -lh dist/signed/
           java -jar tools/uber-apk-signer.jar --verify --apks dist/signed/ --verbose
+          for apk in dist/signed/*.apk; do
+            echo "--- Badging for $apk ---"
+            aapt dump badging "$apk" | head -n 25
+          done
           echo "::endgroup::"
 
       - name: Generate Checksums

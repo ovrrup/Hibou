@@ -63,6 +63,36 @@ def validate_dex(data, name):
         raise ValueError('Invalid DEX SHA-1: '+name)
     if zlib.adler32(data[12:]) & 0xffffffff != struct.unpack_from('<I', data, 8)[0]:
         raise ValueError('Invalid DEX Adler-32: '+name)
+    string_ids_size = struct.unpack_from('<I', data, 56)[0]
+    string_ids_off = struct.unpack_from('<I', data, 60)[0]
+    prev = None
+    for i in range(string_ids_size):
+        soff = struct.unpack_from('<I', data, string_ids_off + i * 4)[0]
+        pos = soff
+        while data[pos] & 0x80:
+            pos += 1
+        pos += 1
+        s = data[pos:data.find(b'\x00', pos)]
+        if prev is not None and prev > s:
+            raise ValueError(f'Out-of-order DEX string_ids in {name} at index {i}: {prev!r} > {s!r}')
+        prev = s
+
+def validate_arsc(data, name='resources.arsc'):
+    if len(data) < 12 or struct.unpack_from('<H', data, 0)[0] != 0x0002:
+        raise ValueError('Invalid ARSC header: '+name)
+    sp_size = struct.unpack_from('<I', data, 16)[0]
+    pkg_off = 12 + sp_size
+    if pkg_off + 288 > len(data):
+        raise ValueError('Truncated ARSC package chunk: '+name)
+    ctype = struct.unpack_from('<H', data, pkg_off)[0]
+    if ctype != 0x0200:
+        raise ValueError(f'Invalid ARSC package chunk type in {name}: {ctype:#06x}')
+    pkg_id = struct.unpack_from('<I', data, pkg_off + 8)[0]
+    if pkg_id != 0x7f:
+        raise ValueError(f'Invalid ARSC package ID in {name}: {pkg_id:#010x} (must be 0x0000007f)')
+    pkg_name = data[pkg_off+12:pkg_off+12+256].decode('utf-16le', errors='ignore').split('\x00')[0]
+    if pkg_name != 'agy.hibou':
+        raise ValueError(f'Unexpected ARSC package name in {name}: {pkg_name!r}')
 
 def validate_apk(path):
     with zipfile.ZipFile(path) as apk:
@@ -74,10 +104,18 @@ def validate_apk(path):
         for name in names:
             if name.endswith('.dex'):
                 validate_dex(apk.read(name), name)
+            elif name == 'resources.arsc':
+                validate_arsc(apk.read(name), name)
         manifest = json.loads(apk.read('assets/runtime/manifest.json'))
         for name, expected in manifest['files'].items():
             if hashlib.sha256(apk.read('assets/runtime/'+name)).hexdigest() != expected:
                 raise ValueError('Runtime checksum mismatch: '+name)
+    aapt = shutil.which('aapt')
+    if aapt:
+        res = subprocess.run([aapt, 'dump', 'badging', str(path)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+        if res.returncode != 0:
+            raise ValueError(f'aapt dump badging failed on {path} (exit code {res.returncode}): {res.stderr}')
+
 
 
 def base_apk(variant, supplied, fetch):
