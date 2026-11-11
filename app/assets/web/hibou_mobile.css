@@ -1447,3 +1447,239 @@ pre {
   border-radius: 50% !important;
   background: #38bdf8 !important;
 }
+
+/* --------------------------------------------------------------------------
+   Material You (M3) Provider Cards, Switches & Quota Meters
+   -------------------------------------------------------------------------- */
+.hibou-m3-provider-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  margin-top: 14px !important;
+}
+
+.hibou-m3-provider-card {
+  background: rgba(255, 255, 255, 0.035) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  padding: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  transition: border-color 0.15s ease, background 0.15s ease !important;
+}
+
+.hibou-m3-provider-card:focus-within {
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.hibou-pv-top {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.hibou-pv-icon {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.hibou-pv-icon.opencode { background: rgba(56, 189, 248, 0.14) !important; color: #38bdf8 !important; }
+.hibou-pv-icon.openrouter { background: rgba(168, 85, 247, 0.14) !important; color: #c084fc !important; }
+.hibou-pv-icon.deepseek { background: rgba(14, 165, 233, 0.14) !important; color: #38bdf8 !important; }
+.hibou-pv-icon.claude { background: rgba(217, 119, 6, 0.14) !important; color: #fbbf24 !important; }
+.hibou-pv-icon.chatgpt { background: rgba(16, 185, 129, 0.14) !important; color: #34d399 !important; }
+.hibou-pv-icon.mistral { background: rgba(249, 115, 22, 0.14) !important; color: #fb923c !important; }
+
+.hibou-pv-meta {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.hibou-pv-name {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #f8fafc !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.hibou-pv-desc {
+  font-size: 12px !important;
+  color: #94a3b8 !important;
+  margin-top: 2px !important;
+}
+
+.hibou-m3-badge {
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  padding: 2px 6px !important;
+  border-radius: 9999px !important;
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Material 3 Switch */
+.hibou-m3-switch {
+  position: relative !important;
+  display: inline-block !important;
+  width: 44px !important;
+  height: 26px !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+}
+
+.hibou-m3-switch input {
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+}
+
+.hibou-m3-switch-track {
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-radius: 9999px !important;
+  transition: background 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+.hibou-m3-switch-thumb {
+  position: absolute !important;
+  height: 18px !important;
+  width: 18px !important;
+  left: 4px !important;
+  bottom: 4px !important;
+  background: #cbd5e1 !important;
+  border-radius: 50% !important;
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s ease !important;
+}
+
+.hibou-m3-switch input:checked + .hibou-m3-switch-track {
+  background: #38bdf8 !important;
+}
+
+.hibou-m3-switch input:checked + .hibou-m3-switch-track .hibou-m3-switch-thumb {
+  transform: translateX(18px) !important;
+  background: #082f49 !important;
+}
+
+.hibou-pv-fields {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding-top: 12px !important;
+}
+
+.hibou-pv-field-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.hibou-pv-field-row label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.hibou-pv-quota-info {
+  display: flex !important;
+  justify-content: space-between !important;
+  font-size: 11.5px !important;
+  color: #64748b !important;
+  margin-top: 2px !important;
+}
+
+.hibou-pv-card-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 4px !important;
+}
+
+.hibou-btn-tonal {
+  height: 36px !important;
+  padding: 0 16px !important;
+  border-radius: 9999px !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  color: #38bdf8 !important;
+  font-size: 12.5px !important;
+  font-weight: 550 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.hibou-btn-tonal:active {
+  transform: scale(0.96) !important;
+  background: rgba(56, 189, 248, 0.2) !important;
+}
+
+.hibou-pv-card-status {
+  font-size: 12px !important;
+  color: #34d399 !important;
+  font-weight: 500 !important;
+}
+
+.hibou-pv-advanced-title {
+  margin-top: 24px !important;
+  margin-bottom: 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.hibou-m3-chip {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+  border-radius: 9999px !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  color: #7dd3fc !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+}
+
+.hibou-quota-top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 8px !important;
+}
+
+.hibou-quota-provider-rows {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+.hibou-quota-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  font-size: 13px !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  padding-bottom: 6px !important;
+}
+
+.hibou-quota-row strong {
+  color: #f1f5f9 !important;
+}
+

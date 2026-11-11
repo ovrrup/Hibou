@@ -21,6 +21,7 @@
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
   var TYPES = [
+    { id: "opencode", ru: "OpenCode (AI кодинг)", en: "OpenCode AI Coding", base: "https://api.opencode.ai/v1", hint: T("OpenCode API и локальные серверы OpenCode (порт 4096 / v1).", "OpenCode API and local OpenCode servers (port 4096 / v1).") },
     { id: "openai", ru: "OpenAI-совместимый", en: "OpenAI-compatible", base: "https://api.openai.com/v1", hint: T("OpenAI, DeepSeek, Groq, xAI, Mistral, OpenRouter, локальные серверы.", "OpenAI, DeepSeek, Groq, xAI, Mistral, OpenRouter, local servers.") },
     { id: "anthropic", ru: "Claude-совместимый (Anthropic)", en: "Claude-compatible (Anthropic)", base: "https://api.anthropic.com", hint: T("Anthropic и прокси с форматом Messages API.", "Anthropic and proxies speaking the Messages API.") },
     { id: "gemini", ru: "Gemini-совместимый", en: "Gemini-compatible", base: "https://generativelanguage.googleapis.com/v1beta", hint: T("Google AI Studio и прокси с generateContent.", "Google AI Studio and generateContent proxies.") }
@@ -82,7 +83,7 @@
           // the exclusive AGY_LLM_GATEWAY to the provider, which expects the raw
           // model id (e.g. "mimo-v2.6-pro").
           label: m, modelName: m,
-          providerName: c.name || ({openai:"OpenAI",anthropic:"Anthropic",gemini:"Gemini"}[c.type] || c.type || "Provider"),
+          providerName: c.name || ({openai:"OpenAI",anthropic:"Anthropic",gemini:"Gemini",opencode:"OpenCode"}[c.type] || c.type || "Provider"),
           providerId: c.id || c.type || "provider",
           maxTokens: md.ctx && md.ctx > 0 ? md.ctx : 200000,
           images: md.images !== false, tools: md.tools !== false, thinking: md.thinking !== false,
@@ -418,7 +419,7 @@
     // as an unstyled black system menu on this WebView).
     var opts = TYPES.map(function (t) {
       return '<div class="agy-pv-opt' + (c.type === t.id ? " sel" : "") + '" data-typepick="' + t.id + '">' +
-        esc(T(t.ru, t.en)) + (c.type === t.id ? '<span class="agy-pv-ok">✓</span>' : "") + "</div>";
+        esc(T(t.ru, t.en)) + (c.type === t.id ? '<span class="agy-pv-ok"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" style="vertical-align:middle;margin-left:4px"><polyline points="20 6 9 17 4 12"></polyline></svg></span>' : "") + "</div>";
     }).join("");
     var h = '<div class="agy-pv-form">' +
       '<label class="agy-pv-field"><span>' + esc(T("Тип API", "API type")) + "</span>" +
@@ -447,7 +448,7 @@
         h += '<div class="agy-pv-model">' +
              '<label class="agy-pv-sel"><input type="checkbox" data-model="' + esc(m) + '"' + (on ? " checked" : "") + "> <span>" + esc(m) + "</span></label>" +
              (ctxLbl ? '<span class="agy-pv-badge" title="' + esc(T("Контекст (из /models провайдера)", "Context (from provider /models)")) + '">' + esc(ctxLbl) + "</span>" : "") +
-             '<button type="button" class="agy-pv-btn sec" data-delmodel="' + esc(m) + '" title="' + esc(T("Убрать модель", "Remove model")) + '">✕</button>' +
+             '<button type="button" class="agy-pv-btn sec" data-delmodel="' + esc(m) + '" title="' + esc(T("Убрать модель", "Remove model")) + '"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align:middle"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>' +
              "</div>";
         // Per-model capability toggles (detected from /models, overridable by hand).
         if (on) {

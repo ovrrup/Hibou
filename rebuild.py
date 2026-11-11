@@ -73,9 +73,10 @@ def validate_dex(data, name):
             pos += 1
         pos += 1
         s = data[pos:data.find(b'\x00', pos)]
-        if prev is not None and prev > s:
-            raise ValueError(f'Out-of-order DEX string_ids in {name} at index {i}: {prev!r} > {s!r}')
-        prev = s
+        curr = tuple(s.replace(b'\xc0\x80', b'\x00').decode('utf-8', errors='surrogatepass'))
+        if prev is not None and prev > curr:
+            raise ValueError(f'Out-of-order DEX string_ids in {name} at index {i}: {prev!r} > {curr!r}')
+        prev = curr
 
 def validate_arsc(data, name='resources.arsc'):
     if len(data) < 12 or struct.unpack_from('<H', data, 0)[0] != 0x0002:
@@ -143,6 +144,12 @@ def base_apk(variant, supplied, fetch):
 
 
 def pack(source, variant, destination):
+    compile_kt = ROOT / 'tools' / 'compile_kotlin.py'
+    if compile_kt.is_file() and shutil.which('kotlinc') and shutil.which('d8'):
+        try:
+            subprocess.run([sys.executable, str(compile_kt)], check=True)
+        except Exception as e:
+            print('Notice: Kotlin compilation skipped:', e)
     overrides = {name: ROOT/'app'/name for name in OVERRIDES}
     for name, path in overrides.items():
         if not path.is_file():
