@@ -335,14 +335,14 @@
     if (!root || !root.isConnected) return;
     var busy = !!job || queue.length > 0;
     var nsel = Object.keys(selected).filter(function (k) { return selected[k]; }).length;
-    var h = '<div class="agy-t-head"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div class="agy-t-title">' + esc(T("Инструменты", "Tools")) + '</div><button type="button" class="agy-t-btn sec" data-act="tools-menu" aria-label="' + esc(T("Меню инструментов", "Tools menu")) + '">☰</button></div>' +
+    var h = '<div class="agy-t-head"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div class="agy-t-title">' + esc(T("Инструменты", "Tools")) + '</div><button type="button" class="agy-t-btn sec" data-act="tools-menu" aria-label="' + esc(T("Меню инструментов", "Tools menu")) + '"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align:middle"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button></div>' +
       '<div class="agy-t-sub">' + esc(T("Компоненты для разработки прямо в приложении: Node.js для плагинов, Java, Android SDK/NDK, компиляторы. Устанавливаются в окружение агента и сразу доступны ему.", "Development components inside the app: Node.js for plugins, Java, Android SDK/NDK, compilers. Installed into the agent environment and available to it right away.")) + "</div>" +
       '<div class="agy-t-actions"><button type="button" data-act="refresh"' + (busy ? " disabled" : "") + ">" + esc(T("Проверить", "Check")) + "</button>" +
       '<button type="button" data-act="upgrade"' + (busy ? " disabled" : "") + ">" + esc(T("Обновить всё", "Upgrade all")) + "</button>" +
       '<button type="button" data-act="selftest-save"' + (busy ? " disabled" : "") + ">" + esc(T("Тест сохранения", "Save test")) + "</button></div></div>"; /* AGY-P1-5-SELFTEST */
 
     h += '<div class="agy-t-job" hidden>' +
-      '<div class="agy-t-jtop"><span class="agy-t-jicon"></span><span class="agy-t-jlabel"></span><span class="agy-t-jpct"></span><button type="button" class="agy-t-jcancel" data-act="cancel-job" title="' + esc(T("Закрыть окно", "Close panel")) + '">✕</button></div>' +
+      '<div class="agy-t-jtop"><span class="agy-t-jicon"></span><span class="agy-t-jlabel"></span><span class="agy-t-jpct"></span><button type="button" class="agy-t-jcancel" data-act="cancel-job" title="' + esc(T("Закрыть окно", "Close panel")) + '"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align:middle"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>' +
       '<div class="agy-t-pbar"><div class="agy-t-pfill"></div></div>' +
       '<div class="agy-t-jrow"><span class="agy-t-jphase"></span><span class="agy-t-jtime"></span></div>' +
       '<div class="agy-t-jfacts"></div>' +
@@ -477,7 +477,7 @@
     panel.className = "agy-t-job" + (running ? " run" : ok ? " ok" : " bad");
     var pr = running ? progress(j) : { pct: ok ? 100 : -1, phase: "", facts: [] };
     tick = (tick + 1) % 4;
-    panel.querySelector(".agy-t-jicon").textContent = running ? ["◐", "◓", "◑", "◒"][tick] : ok ? "✓" : "✗";
+    panel.querySelector(".agy-t-jicon").textContent = running ? ["◐", "◓", "◑", "◒"][tick] : ok ? "[OK]" : "[ERR]";
     panel.querySelector(".agy-t-jlabel").textContent = j.label;
     panel.querySelector(".agy-t-jpct").textContent = running && pr.pct >= 0 ? pr.pct + "%" : "";
     panel.querySelector(".agy-t-jphase").textContent = checking ? T("Проверка компонентов…", "Checking components…") : running ? (pr.phase || T("Выполняется…", "Running…"))
@@ -618,7 +618,7 @@
     closeToolsModal();
     modal = document.createElement("div");
     modal.style.cssText = "position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px";
-    modal.innerHTML = '<div data-card style="box-sizing:border-box;background:#1c1c1e;color:#eee;border:1px solid #555;border-radius:16px;padding:16px;width:min(100%,680px);max-height:88vh;overflow:hidden;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>' + esc(title) + '</strong><button type="button" data-modal="close">✕</button></div>' + body + '</div>';
+    modal.innerHTML = '<div data-card style="box-sizing:border-box;background:#1c1c1e;color:#eee;border:1px solid #555;border-radius:16px;padding:16px;width:min(100%,680px);max-height:88vh;overflow:hidden;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>' + esc(title) + '</strong><button type="button" data-modal="close" style="background:none;border:none;color:#aaa;cursor:pointer;padding:4px"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>' + body + '</div>';
     document.body.appendChild(modal);
     modal.addEventListener("click", function(e) { if (e.target===modal || e.target.getAttribute("data-modal")==="close") closeToolsModal(); });
     /* AGY-P2-22: пока окно открыто, чат позади не листается вообще */
@@ -745,7 +745,7 @@
     var output=m.querySelector('[data-history]'), decoder=new TextDecoder(), bytes=[]; historyText="";
     var syncH=attachScroll21(m.querySelector('[data-pane]'), output);
     output.textContent=T("Загрузка истории…", "Loading history…");
-    btnCopy.onclick=function(){ copyText(historyText); btnCopy.textContent="✓  " + T("Скопировано", "Copied"); setTimeout(function(){ btnCopy.textContent="⧉  " + T("Копировать всё", "Copy all"); }, 1200); };
+    btnCopy.onclick=function(){ copyText(historyText); btnCopy.textContent=T("Скопировано", "Copied"); setTimeout(function(){ btnCopy.textContent=T("Копировать всё", "Copy all"); }, 1200); };
     btnClear.onclick=function(){
       if (!confirm(T("Очистить журнал ошибок?", "Clear the error log?"))) return;
       var id=bridge().start("histclear","");
@@ -1468,9 +1468,9 @@
     var catRow = document.createElement("div");
     catRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px";
     var categories = [
-      { id: "bug", label: T("Ошибка", "Bug report"), icon: "🐛" },
-      { id: "idea", label: T("Предложение", "Suggestion"), icon: "💡" },
-      { id: "other", label: T("Другое", "Other"), icon: "✉️" }
+      { id: "bug", label: T("Ошибка", "Bug report"), icon: '<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align:middle"><rect x="8" y="9" width="8" height="10" rx="4"></rect><line x1="12" y1="5" x2="12" y2="9"></line><line x1="6" y1="13" x2="3" y2="13"></line><line x1="21" y1="13" x2="18" y2="13"></line></svg>' },
+      { id: "idea", label: T("Предложение", "Suggestion"), icon: '<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align:middle"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"></path></svg>' },
+      { id: "other", label: T("Другое", "Other"), icon: '<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align:middle"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polyline points="22 6 12 13 2 6"></polyline></svg>' }
     ];
     var selectedCat = "idea";
     categories.forEach(function (cat) {

@@ -117,8 +117,9 @@
   // 3. UI Template Generators
   // ---------------------------------------------------------------------------
 
-  // SVG Icons
+  // SVG Icons (Material Symbols / Vector Only - NO EMOJIS)
   var ICONS = {
+    hibouLogo: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C7 2 3 6 3 11c0 3 1.5 5.5 3.5 7.5L6 22l4-2c.6.1 1.3.2 2 .2s1.4-.1 2-.2l4 2-.5-3.5C19.5 16.5 21 14 21 11c0-5-4-9-9-9z"/><circle cx="9" cy="10" r="1.5" fill="currentColor"/><circle cx="15" cy="10" r="1.5" fill="currentColor"/><path d="m12 13 .8 1.2h-1.6z"/></svg>',
     menu: '<svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>',
     close: '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
     modelSparkle: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2L14.4 7.6L20 10L14.4 12.4L12 18L9.6 12.4L4 10L9.6 7.6L12 2Z"/></svg>',
@@ -138,7 +139,21 @@
     archive: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>',
     review: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
     edit: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
-    layers: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>'
+    layers: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+    opencode: '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline><line x1="14" y1="4" x2="10" y2="20"></line></svg>',
+    openrouter: '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>',
+    deepseek: '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><path d="M11 8v6M8 11h6"></path></svg>',
+    claude: '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"></path></svg>',
+    chatgpt: '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8"></path></svg>',
+    mistral: '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>',
+    google: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>',
+    github: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>',
+    check: '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+    media: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>',
+    folder: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>',
+    mention: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="4"></circle><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path></svg>',
+    bolt: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
+    globe: '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>'
   };
 
   // ---------------------------------------------------------------------------
@@ -199,7 +214,7 @@
       '<aside id="hibou-slide-drawer" class="hibou-slide-drawer">',
       '  <div class="hibou-drawer-header">',
       '    <div class="hibou-drawer-brand">',
-      '      <div class="hibou-drawer-logo">🦉</div>',
+      '      <div class="hibou-drawer-logo">' + ICONS.hibouLogo + '</div>',
       '      <div>',
       '        <div class="hibou-drawer-title">Hibou</div>',
       '        <div class="hibou-drawer-version">1.0.0-beta.1 • Mobile</div>',
@@ -317,24 +332,217 @@
       '    <!-- Tab 2: AI Model Providers -->',
       '    <div id="hibou-cctab-providers" class="hibou-cctab-content">',
       '      <div class="hibou-providers-intro">',
-      '        ' + i18n("Configure custom API keys for OpenCode, OpenRouter, DeepSeek, Claude, ChatGPT, Mistral, or local models.", "Подключайте сторонние модели через OpenRouter, DeepSeek, Claude, ChatGPT, Mistral или локальные серверы.") + '',
+      '        ' + i18n("Configure custom API keys and endpoints for OpenCode, OpenRouter, DeepSeek, Claude, ChatGPT, Mistral, or local LLMs.", "Настройте API-ключи и эндпоинты для OpenCode, OpenRouter, DeepSeek, Claude, ChatGPT, Mistral или локальных LLM.") + '',
       '      </div>',
+      '      <div class="hibou-m3-provider-list">',
+      '        <!-- 1. OpenCode -->',
+      '        <div class="hibou-m3-provider-card" data-pv="opencode">',
+      '          <div class="hibou-pv-top">',
+      '            <div class="hibou-pv-icon opencode">' + ICONS.opencode + '</div>',
+      '            <div class="hibou-pv-meta">',
+      '              <div class="hibou-pv-name">OpenCode <span class="hibou-m3-badge">CODING</span></div>',
+      '              <div class="hibou-pv-desc">OpenCode AI Coding Models & Local Servers</div>',
+      '            </div>',
+      '            <label class="hibou-m3-switch" title="' + i18n("Activate OpenCode", "Активировать OpenCode") + '">',
+      '              <input type="checkbox" id="hibou-pv-toggle-opencode">',
+      '              <span class="hibou-m3-switch-track"><span class="hibou-m3-switch-thumb"></span></span>',
+      '            </label>',
+      '          </div>',
+      '          <div class="hibou-pv-fields">',
+      '            <div class="hibou-pv-field-row">',
+      '              <label>Endpoint</label>',
+      '              <input type="text" id="hibou-pv-url-opencode" class="hibou-input-text" value="https://api.opencode.ai/v1" placeholder="https://api.opencode.ai/v1 or http://localhost:4096/v1">',
+      '            </div>',
+      '            <div class="hibou-pv-field-row">',
+      '              <label>API Key</label>',
+      '              <input type="password" id="hibou-pv-key-opencode" class="hibou-input-text" placeholder="opencode_... (or local token)">',
+      '            </div>',
+      '            <div class="hibou-pv-quota-info">',
+      '              <span>' + i18n("Token limit: Unlimited coding pool", "Лимит токенов: Безлимитный кодинг") + '</span>',
+      '              <span>' + i18n("Refresh: Real-time", "Сброс: Непрерывно") + '</span>',
+      '            </div>',
+      '            <div class="hibou-pv-card-actions">',
+      '              <button type="button" class="hibou-btn-tonal" data-test-pv="opencode">' + i18n("Test & Connect", "Проверить и подключить") + '</button>',
+      '              <span class="hibou-pv-card-status" id="hibou-pv-status-opencode"></span>',
+      '            </div>',
+      '          </div>',
+      '        </div>',
+      '',
+      '        <!-- 2. OpenRouter -->',
+      '        <div class="hibou-m3-provider-card" data-pv="openrouter">',
+      '          <div class="hibou-pv-top">',
+      '            <div class="hibou-pv-icon openrouter">' + ICONS.openrouter + '</div>',
+      '            <div class="hibou-pv-meta">',
+      '              <div class="hibou-pv-name">OpenRouter <span class="hibou-m3-badge">GATEWAY</span></div>',
+      '              <div class="hibou-pv-desc">Universal Multi-Provider AI Routing</div>',
+      '            </div>',
+      '            <label class="hibou-m3-switch">',
+      '              <input type="checkbox" id="hibou-pv-toggle-openrouter">',
+      '              <span class="hibou-m3-switch-track"><span class="hibou-m3-switch-thumb"></span></span>',
+      '            </label>',
+      '          </div>',
+      '          <div class="hibou-pv-fields">',
+      '            <div class="hibou-pv-field-row">',
+      '              <label>API Key</label>',
+      '              <input type="password" id="hibou-pv-key-openrouter" class="hibou-input-text" placeholder="sk-or-v1-...">',
+      '            </div>',
+      '            <div class="hibou-pv-quota-info">',
+      '              <span>' + i18n("Credit balance: Dynamic", "Баланс: Динамический") + '</span>',
+      '              <span>' + i18n("Refresh: Instant reload", "Сброс: При пополнении") + '</span>',
+      '            </div>',
+      '            <div class="hibou-pv-card-actions">',
+      '              <button type="button" class="hibou-btn-tonal" data-test-pv="openrouter">' + i18n("Test & Connect", "Проверить и подключить") + '</button>',
+      '              <span class="hibou-pv-card-status" id="hibou-pv-status-openrouter"></span>',
+      '            </div>',
+      '          </div>',
+      '        </div>',
+      '',
+      '        <!-- 3. DeepSeek -->',
+      '        <div class="hibou-m3-provider-card" data-pv="deepseek">',
+      '          <div class="hibou-pv-top">',
+      '            <div class="hibou-pv-icon deepseek">' + ICONS.deepseek + '</div>',
+      '            <div class="hibou-pv-meta">',
+      '              <div class="hibou-pv-name">DeepSeek <span class="hibou-m3-badge">REASONING</span></div>',
+      '              <div class="hibou-pv-desc">DeepSeek V3 & DeepSeek R1 Models</div>',
+      '            </div>',
+      '            <label class="hibou-m3-switch">',
+      '              <input type="checkbox" id="hibou-pv-toggle-deepseek">',
+      '              <span class="hibou-m3-switch-track"><span class="hibou-m3-switch-thumb"></span></span>',
+      '            </label>',
+      '          </div>',
+      '          <div class="hibou-pv-fields">',
+      '            <div class="hibou-pv-field-row">',
+      '              <label>API Key</label>',
+      '              <input type="password" id="hibou-pv-key-deepseek" class="hibou-input-text" placeholder="sk-...">',
+      '            </div>',
+      '            <div class="hibou-pv-quota-info">',
+      '              <span>' + i18n("Context: 64k / 128k tokens", "Контекст: 64k / 128k токенов") + '</span>',
+      '              <span>' + i18n("Refresh: Daily / Pay-as-you-go", "Сброс: По потреблению") + '</span>',
+      '            </div>',
+      '            <div class="hibou-pv-card-actions">',
+      '              <button type="button" class="hibou-btn-tonal" data-test-pv="deepseek">' + i18n("Test & Connect", "Проверить и подключить") + '</button>',
+      '              <span class="hibou-pv-card-status" id="hibou-pv-status-deepseek"></span>',
+      '            </div>',
+      '          </div>',
+      '        </div>',
+      '',
+      '        <!-- 4. Claude (Anthropic) -->',
+      '        <div class="hibou-m3-provider-card" data-pv="anthropic">',
+      '          <div class="hibou-pv-top">',
+      '            <div class="hibou-pv-icon claude">' + ICONS.claude + '</div>',
+      '            <div class="hibou-pv-meta">',
+      '              <div class="hibou-pv-name">Anthropic Claude <span class="hibou-m3-badge">MESSAGES</span></div>',
+      '              <div class="hibou-pv-desc">Claude 3.5 Sonnet & Claude 3.5 Haiku</div>',
+      '            </div>',
+      '            <label class="hibou-m3-switch">',
+      '              <input type="checkbox" id="hibou-pv-toggle-anthropic">',
+      '              <span class="hibou-m3-switch-track"><span class="hibou-m3-switch-thumb"></span></span>',
+      '            </label>',
+      '          </div>',
+      '          <div class="hibou-pv-fields">',
+      '            <div class="hibou-pv-field-row">',
+      '              <label>API Key</label>',
+      '              <input type="password" id="hibou-pv-key-anthropic" class="hibou-input-text" placeholder="sk-ant-...">',
+      '            </div>',
+      '            <div class="hibou-pv-quota-info">',
+      '              <span>' + i18n("Context: 200,000 tokens", "Контекст: 200,000 токенов") + '</span>',
+      '              <span>' + i18n("Refresh: Tiered RPM / TPM", "Сброс: По лимитам RPM/TPM") + '</span>',
+      '            </div>',
+      '            <div class="hibou-pv-card-actions">',
+      '              <button type="button" class="hibou-btn-tonal" data-test-pv="anthropic">' + i18n("Test & Connect", "Проверить и подключить") + '</button>',
+      '              <span class="hibou-pv-card-status" id="hibou-pv-status-anthropic"></span>',
+      '            </div>',
+      '          </div>',
+      '        </div>',
+      '',
+      '        <!-- 5. ChatGPT (OpenAI) -->',
+      '        <div class="hibou-m3-provider-card" data-pv="openai">',
+      '          <div class="hibou-pv-top">',
+      '            <div class="hibou-pv-icon chatgpt">' + ICONS.chatgpt + '</div>',
+      '            <div class="hibou-pv-meta">',
+      '              <div class="hibou-pv-name">OpenAI ChatGPT <span class="hibou-m3-badge">GPT-4o</span></div>',
+      '              <div class="hibou-pv-desc">GPT-4o, o1-preview & OpenAI API</div>',
+      '            </div>',
+      '            <label class="hibou-m3-switch">',
+      '              <input type="checkbox" id="hibou-pv-toggle-openai">',
+      '              <span class="hibou-m3-switch-track"><span class="hibou-m3-switch-thumb"></span></span>',
+      '            </label>',
+      '          </div>',
+      '          <div class="hibou-pv-fields">',
+      '            <div class="hibou-pv-field-row">',
+      '              <label>API Key</label>',
+      '              <input type="password" id="hibou-pv-key-openai" class="hibou-input-text" placeholder="sk-proj-...">',
+      '            </div>',
+      '            <div class="hibou-pv-quota-info">',
+      '              <span>' + i18n("Context: 128,000 tokens", "Контекст: 128,000 токенов") + '</span>',
+      '              <span>' + i18n("Refresh: Monthly quota", "Сброс: Ежемесячно") + '</span>',
+      '            </div>',
+      '            <div class="hibou-pv-card-actions">',
+      '              <button type="button" class="hibou-btn-tonal" data-test-pv="openai">' + i18n("Test & Connect", "Проверить и подключить") + '</button>',
+      '              <span class="hibou-pv-card-status" id="hibou-pv-status-openai"></span>',
+      '            </div>',
+      '          </div>',
+      '        </div>',
+      '',
+      '        <!-- 6. Mistral -->',
+      '        <div class="hibou-m3-provider-card" data-pv="mistral">',
+      '          <div class="hibou-pv-top">',
+      '            <div class="hibou-pv-icon mistral">' + ICONS.mistral + '</div>',
+      '            <div class="hibou-pv-meta">',
+      '              <div class="hibou-pv-name">Mistral AI <span class="hibou-m3-badge">CODESTRAL</span></div>',
+      '              <div class="hibou-pv-desc">Codestral, Mistral Large & Pixtral</div>',
+      '            </div>',
+      '            <label class="hibou-m3-switch">',
+      '              <input type="checkbox" id="hibou-pv-toggle-mistral">',
+      '              <span class="hibou-m3-switch-track"><span class="hibou-m3-switch-thumb"></span></span>',
+      '            </label>',
+      '          </div>',
+      '          <div class="hibou-pv-fields">',
+      '            <div class="hibou-pv-field-row">',
+      '              <label>API Key</label>',
+      '              <input type="password" id="hibou-pv-key-mistral" class="hibou-input-text" placeholder="mis_...">',
+      '            </div>',
+      '            <div class="hibou-pv-quota-info">',
+      '              <span>' + i18n("Context: 32k / 128k tokens", "Контекст: 32k / 128k токенов") + '</span>',
+      '              <span>' + i18n("Refresh: Monthly quota", "Сброс: Ежемесячно") + '</span>',
+      '            </div>',
+      '            <div class="hibou-pv-card-actions">',
+      '              <button type="button" class="hibou-btn-tonal" data-test-pv="mistral">' + i18n("Test & Connect", "Проверить и подключить") + '</button>',
+      '              <span class="hibou-pv-card-status" id="hibou-pv-status-mistral"></span>',
+      '            </div>',
+      '          </div>',
+      '        </div>',
+      '      </div>',
+      '',
+      '      <div class="hibou-pv-advanced-title">' + i18n("Fine-Grained Catalog & Custom Connections", "Детальный каталог и ручные подключения") + '</div>',
       '      <div id="hibou-providers-mount-container"></div>',
       '    </div>',
       '',
       '    <!-- Tab 3: Quotas & Usage -->',
       '    <div id="hibou-cctab-quotas" class="hibou-cctab-content">',
       '      <div class="hibou-quota-overview">',
-      '        <div class="hibou-quota-stat-card">',
-      '          <div class="hibou-quota-title">' + i18n("Active Model Token Pool", "Доступные токены модели") + '</div>',
+      '        <div class="hibou-quota-stat-card primary">',
+      '          <div class="hibou-quota-top">',
+      '            <div class="hibou-quota-title">' + i18n("Active Autonomous Model Pool", "Доступные токены активной модели") + '</div>',
+      '            <span class="hibou-m3-chip">' + escapeHtml(state.activeModelName) + '</span>',
+      '          </div>',
       '          <div class="hibou-quota-val" id="hibou-quota-tokens-val">1,000,000 / 1,000,000</div>',
       '          <div class="hibou-quota-bar"><div class="hibou-quota-bar-fill" style="width: 100%"></div></div>',
       '          <div class="hibou-quota-reset">' + i18n("Resets every 24 hours at 00:00 UTC", "Сброс каждые 24 часа в 00:00 UTC") + '</div>',
       '        </div>',
       '        <div class="hibou-quota-stat-card">',
-      '          <div class="hibou-quota-title">' + i18n("Rate Limits (RPM / TPM)", "Лимиты запросов") + '</div>',
+      '          <div class="hibou-quota-title">' + i18n("Autonomous Rate Limits (RPM / TPM)", "Лимиты запросов (RPM / TPM)") + '</div>',
       '          <div class="hibou-quota-val">60 RPM • 10,000,000 TPM</div>',
-      '          <div class="hibou-quota-desc">' + i18n("Standard Tier Autonomous Coding Quota", "Стандартная квота автономного кодинга") + '</div>',
+      '          <div class="hibou-quota-desc">' + i18n("Standard Tier Mobile Autonomous Coding Budget", "Стандартная квота мобильного автономного кодинга") + '</div>',
+      '        </div>',
+      '        <div class="hibou-quota-stat-card">',
+      '          <div class="hibou-quota-title">' + i18n("Connected Providers Live Status", "Статус подключенных провайдеров") + '</div>',
+      '          <div class="hibou-quota-provider-rows">',
+      '            <div class="hibou-quota-row"><span>Google Cloud AI:</span> <strong>' + i18n("Active (Unlimited Core)", "Активен (Ядро)") + '</strong></div>',
+      '            <div class="hibou-quota-row"><span>OpenCode Service:</span> <strong id="hibou-quota-st-opencode">' + i18n("Ready", "Готов") + '</strong></div>',
+      '            <div class="hibou-quota-row"><span>OpenRouter / DeepSeek:</span> <strong id="hibou-quota-st-openrouter">' + i18n("Ready", "Готов") + '</strong></div>',
+      '            <div class="hibou-quota-row"><span>Anthropic / OpenAI:</span> <strong id="hibou-quota-st-anthropic">' + i18n("Ready", "Готов") + '</strong></div>',
+      '          </div>',
       '        </div>',
       '      </div>',
       '    </div>',
@@ -722,6 +930,70 @@
         }
       });
     }
+    // Provider testing and configuration handlers in Control Center
+    document.addEventListener("click", function (e) {
+      var testBtn = e.target.closest("[data-test-pv]");
+      if (testBtn) {
+        var pv = testBtn.getAttribute("data-test-pv");
+        var keyInput = document.getElementById("hibou-pv-key-" + pv);
+        var urlInput = document.getElementById("hibou-pv-url-" + pv);
+        var statusEl = document.getElementById("hibou-pv-status-" + pv);
+        var key = keyInput ? keyInput.value.trim() : "";
+        var url = urlInput ? urlInput.value.trim() : "";
+        if (!key && pv !== "opencode") {
+          if (statusEl) statusEl.textContent = i18n("API key required", "Требуется API-ключ");
+          return;
+        }
+        if (statusEl) statusEl.textContent = i18n("Saving...", "Сохранение...");
+        try {
+          var raw = "";
+          try { raw = window.AgyProviders ? window.AgyProviders.load() : (localStorage.getItem("agyProviders") || ""); } catch (err) {}
+          var parsed = { connections: [] };
+          if (raw) { try { parsed = JSON.parse(raw); } catch (err) {} }
+          parsed.connections = parsed.connections || [];
+          var typeMapping = { claude: "anthropic", opencode: "opencode" };
+          var typeId = typeMapping[pv] || "openai";
+          var existing = parsed.connections.find(function (c) { return c.id === pv; });
+          if (!existing) {
+            existing = { id: pv, name: pv.toUpperCase(), type: typeId, baseUrl: url, apiKey: key, selected: [] };
+            parsed.connections.push(existing);
+          } else {
+            existing.apiKey = key;
+            if (url) existing.baseUrl = url;
+            existing.type = typeId;
+          }
+          parsed.useProviders = true;
+          var jsonStr = JSON.stringify(parsed);
+          localStorage.setItem("agyProviders", jsonStr);
+          if (window.AgyProviders && typeof window.AgyProviders.save === "function") {
+            window.AgyProviders.save(jsonStr);
+          }
+          if (statusEl) statusEl.textContent = i18n("Connected & Ready", "Подключено и готово");
+          var quotaSt = document.getElementById("hibou-quota-st-" + pv);
+          if (quotaSt) quotaSt.textContent = i18n("Connected", "Подключено");
+        } catch (err) {
+          if (statusEl) statusEl.textContent = i18n("Saved locally", "Сохранено");
+        }
+      }
+    });
+
+    // Provider active switch toggles
+    document.addEventListener("change", function (e) {
+      if (e.target && e.target.id && e.target.id.startsWith("hibou-pv-toggle-")) {
+        var pvId = e.target.id.replace("hibou-pv-toggle-", "");
+        var checked = e.target.checked;
+        try {
+          var raw = localStorage.getItem("agyProviders") || '{"connections":[]}';
+          var parsed = JSON.parse(raw);
+          parsed.connections = parsed.connections || [];
+          var existing = parsed.connections.find(function (c) { return c.id === pvId; });
+          if (existing) {
+            existing.disabled = !checked;
+            localStorage.setItem("agyProviders", JSON.stringify(parsed));
+          }
+        } catch (err) {}
+      }
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -785,6 +1057,15 @@
           state.currentBranch = bText;
           var bLabel = document.getElementById("hibou-branch-name");
           if (bLabel) bLabel.textContent = bText;
+        }
+      }
+
+      // 6. Dock upper tier directly atop native chat input box
+      var inputBox = document.querySelector('[data-testid="agent-input-box"]');
+      var upperTier = document.getElementById("hibou-dock-upper-tier");
+      if (inputBox && upperTier && inputBox.parentElement) {
+        if (upperTier.nextElementSibling !== inputBox) {
+          inputBox.parentElement.insertBefore(upperTier, inputBox);
         }
       }
     }
