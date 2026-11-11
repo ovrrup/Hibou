@@ -177,4 +177,50 @@ object HibouBridge {
         }
         return if (text.isNotEmpty()) text else (title ?: "Unknown response")
     }
+
+    @JvmStatic
+    fun openControlCenter(ctx: Context?): String {
+        val activity = (ctx as? android.app.Activity) ?: try {
+            val cls = Class.forName("com.agy.ui.MainActivity")
+            cls.getField("activeActivity").get(null) as? android.app.Activity
+        } catch (_: Exception) {
+            null
+        }
+        if (activity != null) {
+            HibouControlCenterDialog.show(activity)
+            return "ok"
+        }
+        return "error:no_activity"
+    }
+
+    @JvmStatic
+    fun showPermissionSheet(ctx: Context?, type: String?): String {
+        val activity = (ctx as? android.app.Activity) ?: try {
+            val cls = Class.forName("com.agy.ui.MainActivity")
+            cls.getField("activeActivity").get(null) as? android.app.Activity
+        } catch (_: Exception) {
+            null
+        }
+        if (activity != null) {
+            HibouPermissionSheet.show(activity, type)
+            return "ok"
+        }
+        return "error:no_activity"
+    }
+
+    @JvmStatic
+    fun showNativeSplash(parent: android.view.ViewGroup?, fg: String?, bg: String?): android.view.View? {
+        return HibouNativeSplash.show(parent, fg, bg)
+    }
+
+    @JvmStatic
+    fun hideNativeSplash(parent: android.view.ViewGroup?) {
+        HibouNativeSplash.hide(parent)
+    }
+
+    @JvmStatic
+    fun showFatalError(parent: android.view.ViewGroup?, title: String?, err: String?, retry: Runnable?) {
+        HibouNativeSplash.showFatalError(parent, title, err, retry)
+    }
 }
+
