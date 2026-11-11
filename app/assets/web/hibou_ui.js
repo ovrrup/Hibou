@@ -815,6 +815,12 @@
   window.__hibouSyncProviderCardsState = syncProviderCardsState;
 
   function openControlCenter(tab) {
+    if (window.AgyTools && typeof window.AgyTools.openControlCenter === "function") {
+      try {
+        window.AgyTools.openControlCenter();
+        return;
+      } catch (e) {}
+    }
     state.controlCenterOpen = true;
     syncProviderCardsState();
     if (tab) switchControlCenterTab(tab);
@@ -1464,6 +1470,13 @@
     }
 
     if (!permType) return;
+
+    if (window.AgyTools && typeof window.AgyTools.showPermissionSheet === "function") {
+      try {
+        window.AgyTools.showPermissionSheet(permType);
+        return;
+      } catch (e) {}
+    }
 
     var wrap = document.createElement("div");
     wrap.id = "hibou-permission-banner";

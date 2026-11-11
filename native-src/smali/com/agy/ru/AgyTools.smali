@@ -514,3 +514,24 @@
     return-object v0
 .end method
 
+.method public openControlCenter()Ljava/lang/String;
+    .locals 1
+    .annotation runtime Landroid/webkit/JavascriptInterface;
+    .end annotation
+    iget-object v0, p0, Lcom/agy/ru/AgyTools;->ctx:Landroid/content/Context;
+    invoke-static {v0}, Lcom/agy/ru/HibouBridge;->openControlCenter(Landroid/content/Context;)Ljava/lang/String;
+    move-result-object v0
+    return-object v0
+.end method
+
+.method public showPermissionSheet(Ljava/lang/String;)Ljava/lang/String;
+    .locals 1
+    .annotation runtime Landroid/webkit/JavascriptInterface;
+    .end annotation
+    iget-object v0, p0, Lcom/agy/ru/AgyTools;->ctx:Landroid/content/Context;
+    invoke-static {v0, p1}, Lcom/agy/ru/HibouBridge;->showPermissionSheet(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
+    move-result-object v0
+    return-object v0
+.end method
+
+
