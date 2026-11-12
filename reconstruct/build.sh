@@ -65,11 +65,24 @@ kotlinc "${SRCS[@]}" -cp "$SDK_JAR:$KOTLIN_STDLIB" -jvm-target 1.8 -d "$WORK/cla
 find "$WORK/classes" -name '*.class' > "$WORK/classlist.txt"
 echo ">> dexing $(wc -l < "$WORK/classlist.txt") classes"
 ( cd "$WORK/classes" && jar cf "$WORK/classes.jar" . )
+# kotlin-stdlib must be a dex INPUT, not only --lib: --lib is a classpath for
+# desugaring context and its classes are never emitted, which left the
+# packaged APK without the Kotlin runtime (NoClassDefFoundError at process
+# start, before any app code ran).  Keep android.jar as the sole --lib.
 d8 --release --min-api "$MIN_API" \
-   --lib "$SDK_JAR" --lib "$KOTLIN_STDLIB" \
+   --lib "$SDK_JAR" \
    --output "$WORK/dex" \
-   "$WORK/classes.jar" 2>&1 | grep -vE "^(IV:|Stripped|Buckets|Headers)" || true
+   "$WORK/classes.jar" "$KOTLIN_STDLIB" 2>&1 | grep -vE "^(IV:|Stripped|Buckets|Headers)" || true
 [ -f "$WORK/dex/classes.dex" ] || { echo "d8 produced no classes.dex" >&2; exit 1; }
+
+# Guard: the app sources are Kotlin, so the runtime must be merged in.
+python3 - "$WORK/dex/classes.dex" <<'PY'
+import sys
+data = open(sys.argv[1], 'rb').read()
+if b'kotlin/jvm/internal/Intrinsics' not in data:
+    sys.exit('classes.dex lacks the Kotlin runtime (stdlib was not merged)')
+print('>> dex verified: Kotlin runtime merged')
+PY
 
 # --- 3. stage payload --------------------------------------------------------
 cp "$REPO/app/resources.arsc" "$STAGE/"
