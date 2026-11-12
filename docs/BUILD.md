@@ -1,5 +1,7 @@
 # Building Hibou 1.0.0-beta.1
 
+> **Kestrel is the current product.** The pipeline documented below (`rebuild.py`) is the legacy payload tooling that serviced the discontinued Hibou builds; it is kept as build tooling and provenance, not as the product's build path. The current app is **Kestrel** (`com.kestrel.app`), built with `reconstruct/build.sh` — see [Building Kestrel](#building-kestrel-the-rebuild) below.
+
 [Home](../README.md) · [Repair Notes](REPAIR-3.0.6.md)
 
 ## Input Files

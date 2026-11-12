@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-label="Kestrel">
+  <!-- Kestrel banner — mono-graphite terminal aesthetic.
+       Falcon mark geometry mirrors reconstruct/art/make_icons.py (design space 0..100). -->
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#FFFFFF" stroke-opacity="0.030" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="300" fill="#14171C"/>
+  <rect width="1200" height="300" fill="url(#grid)"/>
+  <!-- faint crosshair rules, terminal-cursor vibe -->
+  <line x1="0" y1="150" x2="1200" y2="150" stroke="#FFFFFF" stroke-opacity="0.045" stroke-width="1"/>
+  <line x1="60" y1="0" x2="60" y2="300" stroke="#FFFFFF" stroke-opacity="0.045" stroke-width="1"/>
+
+  <!-- kestrel head, profile facing right; box (80,48)-(350,275) -->
+  <g>
+    <polygon fill="#2F353E" points="80,104.8 229.2,48 293.2,83.5 357.1,147.5 321.6,175.9 264.7,161.7 236.3,232.7 172.4,261.2 108.4,275.4 80,211.4"/>
+    <polygon fill="#4E5663" points="80,104.8 229.2,48 293.2,83.5 193.7,133.3 94.2,147.5"/>
+    <polygon fill="#12151B" points="293.2,83.5 357.1,147.5 321.6,175.9 261.2,151.0"/>
+    <polygon fill="#101318" points="286.1,94.2 300.3,87.1 286.1,154.6 271.8,143.9"/>
+    <polygon fill="#181B21" points="200.8,147.5 236.3,140.4 222.1,225.6 183.0,211.4"/>
+    <polygon fill="#3FD9FF" points="215.0,108.4 261.2,97.7 261.2,115.5 215.0,126.2"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="520" y="152" font-family="'JetBrains Mono','Cascadia Code','Fira Code',ui-monospace,monospace"
+        font-size="88" font-weight="700" letter-spacing="18" fill="#E8ECF1">KESTREL</text>
+  <rect x="524" y="182" width="64" height="4" fill="#3FD9FF"/>
+  <text x="524" y="222" font-family="'JetBrains Mono','Cascadia Code','Fira Code',ui-monospace,monospace"
+        font-size="23" letter-spacing="5" fill="#8A94A0">AI DEVELOPMENT ENVIRONMENT FOR ANDROID</text>
+
+  <!-- terminal cursor detail -->
+  <rect x="1136" y="236" width="22" height="26" fill="#3FD9FF" fill-opacity="0.85"/>
+</svg>
