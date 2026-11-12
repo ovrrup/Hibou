@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 ovrrup <ofeducationc@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
 """Generate the Kestrel launcher/notification/splash icons with Pillow.
 
 The Kestrel mark: an angular falcon head in profile (facing right) built from

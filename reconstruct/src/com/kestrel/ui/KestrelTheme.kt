@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 ovrrup <ofeducationc@gmail.com>
+// SPDX-License-Identifier: Apache-2.0
+
 package com.kestrel.ui
 
 import android.content.Context

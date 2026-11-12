@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 ovrrup <ofeducationc@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
 """Rebrand the compiled binary AndroidManifest.xml for the Kestrel identity.
 
 Moves the app namespace `agy.hibou` to `com.kestrel.app`:

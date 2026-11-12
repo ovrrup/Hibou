@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 ovrrup <ofeducationc@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
 """Rebrand user-visible strings in compiled resources.arsc (global pool).
 
 Rebuilds the global string pool with exact replacements; every other string

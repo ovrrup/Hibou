@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 ovrrup <ofeducationc@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
 """Shared ResStringPool reader/rebuilder.
 
 The compiled string pool (used by both binary AndroidManifest.xml and

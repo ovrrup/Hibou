@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 ovrrup <ofeducationc@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
 """Get or set a color resource value inside compiled resources.arsc.
 
 Colors are stored as Res_value entries with dataType 0x1C (ARGB8) and a

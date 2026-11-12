@@ -1,4 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
+# SPDX-FileCopyrightText: 2026 ovrrup <ofeducationc@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
 # Build Kestrel — the fully redesigned standalone app (new identity, native
 # Kotlin UI, engine contracts unchanged).
 #

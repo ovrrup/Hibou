@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 ovrrup <ofeducationc@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
 """Patches the compiled AndroidManifest.xml without an apktool round-trip.
 
 The launcher activity name is rewritten in the binary XML string pool.  Because
