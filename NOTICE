@@ -1,18 +1,34 @@
-Hibou (Android reconstruction) and Kestrel
+Kestrel — and its predecessor Hibou
 Copyright 2026 ovrrup <ofeducationc@gmail.com>
 
-This repository contains material derived from the Hibou Android app and
-its upstream contributors: werdio325-png / Werdik, Leostrange,
-Aleksei Sobolev, and Dszsu. The engine payload under app/
-(resources.arsc, res/, assets/, lib/) and the 1:1 Kotlin engine port
-under reconstruct/src/com/agy/ are derivative of that app and remain
-licensed under the Apache License, Version 2.0, with attribution to
-its authors (see LICENSE).
+Lineage
+-------
+1. Antigravity on Android — pioneered by werdio325-png
+   (github.com/werdio325-png/antigravity-android): running Google's
+   Antigravity engine natively in an Android userspace sandbox.
+2. Leostryx — by Leostrange (github.com/Leostrange/Leostryx): custom
+   model providers, MCP integration, developer toolchain and security
+   governance built on that foundation.
+3. Hibou — this repository's earlier releases, maintained by ovrrup:
+   heavily based on the projects above. A rebrand with an English-first
+   interface; only the identity changed and bugs were fixed — no
+   substantial engine changes.
+4. Kestrel — the current product: a complete rebuild. The engine is
+   reimplemented 1:1 in native Kotlin, the user interface is redesigned
+   from scratch (terminal-mono-graphite console), and identity, icons
+   and the build pipeline are new.
 
-Original to this project, Copyright 2026 ovrrup, Apache-2.0:
-  - the Kestrel UI, reconstruct/src/com/kestrel/
-  - the binary-resource rebrand tooling, tools/pool_rebuild.py,
-    tools/arsc_strings.py, tools/arsc_color.py,
-    tools/rebrand_manifest.py, tools/patch_manifest.py
-  - the Kestrel icon generator, reconstruct/art/make_icons.py
-  - the build pipeline, reconstruct/build.sh
+Scope
+-----
+- app/ (resources.arsc, res/, assets/, lib/) and the 1:1 Kotlin engine
+  port under reconstruct/src/com/agy/ are derivative of the Hibou /
+  Leostryx / antigravity-android code and remain licensed under the
+  Apache License, Version 2.0, with attribution to their authors
+  (see LICENSE).
+- Original to Kestrel, Copyright 2026 ovrrup, Apache-2.0:
+  the Kestrel UI (reconstruct/src/com/kestrel/), the binary-resource
+  rebrand tooling (tools/pool_rebuild.py, tools/arsc_strings.py,
+  tools/arsc_color.py, tools/rebrand_manifest.py,
+  tools/patch_manifest.py), the Kestrel icon generator
+  (reconstruct/art/make_icons.py), and the build pipeline
+  (reconstruct/build.sh).

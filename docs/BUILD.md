@@ -74,3 +74,13 @@ python3 -m unittest discover -s tests -v
 When modifying `tools/update_backend.py`, its contents must remain byte-for-byte identical to the embedded `HIBOU_UPDATE_PY` block in `app/assets/web/agy_tools.sh`.
 
 The native Java bridge resides in `native-src/com/agy/ru/LeostryxUpdates.java`; it compiles against the Android API and is translated by D8 into `classes4.dex`. The main DEX is reassembled from smali rather than modified by raw byte replacement. `native-src/smali/com/agy/ru/AgyTools.smali` contains the added `getAppInfo()` and `installUpdate()` JavaScript interfaces.
+
+## Building Kestrel (the rebuild)
+
+The repository also builds **Kestrel** — the complete native Kotlin rebuild (`com.kestrel.app`) — via `reconstruct/build.sh`:
+
+```bash
+cd reconstruct && ./build.sh            # → reconstruct/dist/Kestrel-1.0.0-beta.1.apk
+```
+
+CI compiles and verifies it on every push to `main` (the `build-kestrel` job). Signing uses `dist/kestrel-debug.keystore` (alias `kestrel`). Engine contracts and porting conventions are documented in `reconstruct/PORTING.md`.
