@@ -289,8 +289,13 @@ def dead_launcher_present(data):
 
 
 def has_native_launcher(data, activity=DEFAULT_ACTIVITY):
-    ok = find_string(data, activity) is not None
-    return ok and not dead_launcher_present(data)
+    """True when `activity` is present as a (renamed) launcher name string."""
+    return find_string(data, activity) is not None
+
+
+def verify_patched(data, activity=DEFAULT_ACTIVITY):
+    """Full-pipeline check: launcher renamed AND no dead launcher remains."""
+    return has_native_launcher(data, activity) and not dead_launcher_present(data)
 
 
 def main(argv=None):
@@ -305,7 +310,7 @@ def main(argv=None):
     source = Path(args.input)
     data = source.read_bytes()
     if args.check:
-        ok = has_native_launcher(data, args.activity)
+        ok = verify_patched(data, args.activity)
         print(('patched: ' if ok else 'not patched: ') + str(source))
         return 0 if ok else 1
 
