@@ -79,6 +79,7 @@ class KestrelConsoleView(context: Context) : FrameLayout(context) {
     )
 
     init {
+        com.kestrel.diag.FlightLog.w("UI", "init begin")
         setBackgroundColor(KestrelTheme.BG)
         val root = LinearLayout(context)
         root.orientation = LinearLayout.VERTICAL
@@ -113,6 +114,7 @@ class KestrelConsoleView(context: Context) : FrameLayout(context) {
         addView(onboardingOverlay, FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         render()
+        com.kestrel.diag.FlightLog.w("UI", "init complete")
     }
 
     // -- top bar ----------------------------------------------------------
@@ -425,12 +427,15 @@ class KestrelConsoleView(context: Context) : FrameLayout(context) {
     /** Called by the activity after the core service has been requested. */
     fun beginBoot() {
         if (booted || bootThread?.isAlive == true) return
+        com.kestrel.diag.FlightLog.w("BOOT", "beginBoot entered")
         bootOverlay.visibility = VISIBLE
         errorOverlay.visibility = GONE
         bootThread = Thread({
             val deadline = System.currentTimeMillis() + 180_000L
             while (System.currentTimeMillis() < deadline) {
                 if (CoreRuntimeState.serverUrl != null) {
+                    com.kestrel.diag.FlightLog.w(
+                        "BOOT", "engine ready url=" + CoreRuntimeState.serverUrl)
                     post {
                         bootOverlay.visibility = GONE
                         booted = true
@@ -451,6 +456,8 @@ class KestrelConsoleView(context: Context) : FrameLayout(context) {
                     return@Thread
                 }
             }
+            com.kestrel.diag.FlightLog.w(
+                "BOOT", "timeout; lastError=" + CoreRuntimeState.lastError)
             post {
                 bootOverlay.visibility = GONE
                 errorOverlay.visibility = VISIBLE

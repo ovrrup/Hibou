@@ -30,6 +30,7 @@ object ForegroundNotification {
             )
         }
         val notification = build(service, "Core running")
+        com.kestrel.diag.FlightLog.w("NOTIF", "calling startForeground")
         if (Build.VERSION.SDK_INT >= 29) {
             service.startForeground(NOTIFICATION_ID, notification, 1)
         } else {

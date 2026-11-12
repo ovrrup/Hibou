@@ -68,12 +68,17 @@ object CoreLauncher {
     @JvmStatic
     @Throws(IOException::class)
     fun launch(runtimeManager: RuntimeManager, filesDir: File): java.lang.Process {
+        com.kestrel.diag.FlightLog.w("LAUNCH", "killOrphan begin")
         killOrphanCoreProcesses()
+        com.kestrel.diag.FlightLog.w("LAUNCH", "installCore begin")
         runtimeManager.installCore()
+        com.kestrel.diag.FlightLog.w("LAUNCH", "installCore done")
         Handler(Looper.getMainLooper()).postDelayed({
             runtimeManager.installEnvInBackground()
         }, 3500L)
-        val processBuilder = ProcessBuilder(*runtimeManager.coreCommand())
+        val command = runtimeManager.coreCommand()
+        com.kestrel.diag.FlightLog.w("LAUNCH", "spawn: " + command.joinToString(" "))
+        val processBuilder = ProcessBuilder(*command)
         processBuilder.directory(filesDir)
         processBuilder.redirectErrorStream(true)
         runtimeManager.applyEnvironment(processBuilder)

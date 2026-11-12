@@ -33,6 +33,7 @@ class CoreServerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        com.kestrel.diag.FlightLog.w("SVC", "onCreate begin")
         val runtimeManager = RuntimeManager(this)
         runtime = runtimeManager
         val ringBuffer = LogRingBuffer()
@@ -40,6 +41,7 @@ class CoreServerService : Service() {
         val gateway = SystemGatewayServer(this, ringBuffer, 48258)
         gatewayServer = gateway
         gateway.start()
+        com.kestrel.diag.FlightLog.w("SVC", "gateway listening :48258")
         Log.i(
             TAG,
             "state paths: HOME=" + filesDir.absolutePath +
@@ -53,6 +55,7 @@ class CoreServerService : Service() {
         CoreRuntimeState.lastError = null
         CoreRuntimeState.serverUrl = null
         ForegroundNotification.start(this)
+        com.kestrel.diag.FlightLog.w("SVC", "foreground notification shown")
         val lock = WakeLockHolder()
         wakeLock = lock
         lock.acquire(this)
@@ -67,7 +70,9 @@ class CoreServerService : Service() {
         ) { onSupervisorTerminated() }
         supervisor = supervisedSupervisor
         supervisedSupervisor.start()
+        com.kestrel.diag.FlightLog.w("SVC", "supervisor started")
         startBackgroundDaemon()
+        com.kestrel.diag.FlightLog.w("SVC", "onCreate complete")
     }
 
     private fun startBackgroundDaemon() {
