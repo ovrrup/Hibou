@@ -56,3 +56,36 @@ Subsystems (jadx decompile at
 | `com.agy.theme` | theme detection, painter, icon switcher |
 | `com.agy.log`, `com.agy.net`, `com.agy.util` | logging, network monitor, helpers |
 | `com.agy.ru` | Hibou patch layer (AgyConst/AgySTT/AgyVosk/AgyTools/...) |
+
+## Kestrel identity (redesign layer)
+
+The redesigned app ships as **Kestrel** (`com.kestrel.app`): same engine
+payload, new identity, new UI package. `build.sh` applies the rebrand to the
+**staged copies only** — `app/` stays pristine.
+
+**New code (not ports):** `src/com/kestrel/ui/` — `KestrelActivity` (launcher),
+`KestrelConsoleView` (the whole visual layer, terminal-mono-graphite,
+programmatic views), `KestrelTheme` (tokens: graphite `#FF14171C` surfaces,
+single electric-cyan accent `#FF3FD9FF`).
+
+**Build-time rebrand (tools/):** `arsc_strings.py` (`Hibou`→`Kestrel` app_name),
+`arsc_color.py` (all 6 color resources → graphite), `rebrand_manifest.py`
+(`agy.hibou`→`com.kestrel.app`), `patch_manifest.py` (launcher slot), and
+`art/make_icons.py` (Kestrel mark into the staged `res/`; content boxes match
+the original art so the payload's adaptive-icon XMLs keep working).
+
+**Port deltas (documented in class KDocs too):**
+- `HibouCore` — authority for port/CSRF/ready moves from the precompiled
+  `AndroidBridge` reflection to `com.agy.ui.Foreground` + `CoreRuntimeState`
+  (published by `CoreServerService` / `CoreProcessSupervisor`).
+- `HibouBridge` — dialog/sheet fallbacks resolve through `Foreground`.
+- `HibouPermissionSheet` — one user-visible sentence says Kestrel.
+- `HibouCore.metadata` — engine sees `ideName=Kestrel`,
+  `extensionName=kestrel-native`, `productName=kestrel`; prefs file
+  `kestrel_native_ui`.
+
+**Kept contracts (do not rename):** ports 48255/48258/48156/48155, the Connect
+protocol, `ANTIGRAVITY_*`/`AGY_*` env vars, `agy-*` script names, the
+`etc/hibou/` overlay dir, the `agy_core_cert` resource, the `hibou` oauth
+scheme string (arsc global pool index 1), notification channel ids
+`agy_alerts`/`agy_tasks`, class name `CoreServerService`.

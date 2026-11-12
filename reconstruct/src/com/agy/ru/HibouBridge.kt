@@ -180,12 +180,8 @@ object HibouBridge {
 
     @JvmStatic
     fun openControlCenter(ctx: Context?): String {
-        val activity = (ctx as? android.app.Activity) ?: try {
-            val cls = Class.forName("com.agy.ui.MainActivity")
-            cls.getField("activeActivity").get(null) as? android.app.Activity
-        } catch (_: Exception) {
-            null
-        }
+        val activity = (ctx as? android.app.Activity)
+            ?: com.agy.ui.Foreground.current
         if (activity != null) {
             HibouControlCenterDialog.show(activity)
             return "ok"
@@ -195,12 +191,8 @@ object HibouBridge {
 
     @JvmStatic
     fun showPermissionSheet(ctx: Context?, type: String?): String {
-        val activity = (ctx as? android.app.Activity) ?: try {
-            val cls = Class.forName("com.agy.ui.MainActivity")
-            cls.getField("activeActivity").get(null) as? android.app.Activity
-        } catch (_: Exception) {
-            null
-        }
+        val activity = (ctx as? android.app.Activity)
+            ?: com.agy.ui.Foreground.current
         if (activity != null) {
             HibouPermissionSheet.show(activity, type)
             return "ok"

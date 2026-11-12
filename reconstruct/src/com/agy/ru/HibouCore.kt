@@ -2,6 +2,7 @@ package com.agy.ru
 
 import android.app.Activity
 import android.content.Context
+import com.agy.core.CoreRuntimeState
 import org.json.JSONObject
 
 /**
@@ -20,6 +21,9 @@ object HibouCore {
     private const val ACTIVE_FIELD = "activeActivity"
 
     fun currentActivity(): Activity? {
+        // Port delta: the redesigned Kestrel UI has no MainActivity; the
+        // foreground reference moved to com.agy.ui.Foreground.
+        com.agy.ui.Foreground.current?.let { return it }
         try {
             val cls = Class.forName(MAIN_ACTIVITY)
             val field = cls.getDeclaredField(ACTIVE_FIELD)
@@ -60,6 +64,15 @@ object HibouCore {
     fun enginePort(activity: Activity? = currentActivity()): Int {
         val direct = call(bridge(activity), "getEnginePort")
         if (direct is Int && direct > 0) return direct
+        // Port delta: the core service publishes its endpoint through
+        // CoreRuntimeState (supervisor sets serverUrl when the core is ready),
+        // replacing the precompiled AndroidBridge as the authority.
+        if (CoreRuntimeState.serverUrl == null) return 0
+        val fromUrl = CoreRuntimeState.serverUrl
+            ?.substringBefore('?')
+            ?.substringAfterLast(':')
+            ?.toIntOrNull() ?: 0
+        if (fromUrl > 0) return fromUrl
         val config = configJson(activity)
         val fromConfig = config?.optInt("enginePort", 0) ?: 0
         if (fromConfig > 0) return fromConfig
@@ -69,12 +82,14 @@ object HibouCore {
     fun csrfToken(activity: Activity? = currentActivity()): String {
         val direct = call(bridge(activity), "getCsrfToken") as? String
         if (!direct.isNullOrEmpty()) return direct
-        return configJson(activity)?.optString("csrfToken", "") ?: ""
+        return CoreRuntimeState.csrfToken
+            ?: configJson(activity)?.optString("csrfToken", "")
+            ?: ""
     }
 
     fun isReady(activity: Activity? = currentActivity()): Boolean {
         val ready = call(bridge(activity), "isEngineReady")
-        return ready == true || enginePort(activity) > 0
+        return ready == true || CoreRuntimeState.serverUrl != null
     }
 
     /** `https://127.0.0.1:<port>` or null while the core is still starting. */
@@ -96,17 +111,19 @@ object HibouCore {
     /**
      * Metadata block the core expects on `StartCascade` and
      * `SendUserCascadeMessage`.  Only stable, non-identifying fields are sent.
+     * Identity fields carry the Kestrel brand (port delta: the redesigned
+     * app presents itself to the core under its own name).
      */
     fun metadata(ctx: Context): JSONObject {
         val meta = JSONObject()
         try {
-            meta.put("ideName", "Hibou")
+            meta.put("ideName", "Kestrel")
             meta.put("ideVersion", appVersion(ctx))
-            meta.put("extensionName", "hibou-native")
+            meta.put("extensionName", "kestrel-native")
             meta.put("extensionVersion", appVersion(ctx))
             meta.put("locale", "en")
             meta.put("os", "android")
-            meta.put("productName", "hibou")
+            meta.put("productName", "kestrel")
             meta.put("disableTelemetry", true)
             meta.put("sessionId", sessionId(ctx))
         } catch (_: Throwable) {
@@ -127,7 +144,7 @@ object HibouCore {
 
     private fun sessionId(ctx: Context): String {
         cachedSession?.let { return it }
-        val prefs = ctx.getSharedPreferences("hibou_native_ui", Context.MODE_PRIVATE)
+        val prefs = ctx.getSharedPreferences("kestrel_native_ui", Context.MODE_PRIVATE)
         val saved = prefs.getString("session_id", null)
         if (!saved.isNullOrEmpty()) {
             cachedSession = saved

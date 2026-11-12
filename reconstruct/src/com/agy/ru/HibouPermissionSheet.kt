@@ -122,7 +122,7 @@ object HibouPermissionSheet {
                 val (title, description) = when (type) {
                     "storage", "files" -> Pair(
                         "Storage Access Required",
-                        "Hibou needs storage access to read project workspaces, git trees, and run commands."
+                        "Kestrel needs storage access to read project workspaces, git trees, and run commands."
                     )
                     "notifications", "notif" -> Pair(
                         "Notification Access",
