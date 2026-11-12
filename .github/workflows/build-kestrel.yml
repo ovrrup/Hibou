@@ -1,20 +1,9 @@
-name: Compile APKs (Kestrel + Hibou test)
+name: Compile Kestrel APK
 
 on:
   workflow_dispatch:
-    inputs:
-      variant:
-        description: "APK Variant to compile"
-        required: true
-        default: "both"
-        type: choice
-        options:
-          - "both"
-          - "standard"
-          - "bypass"
   push:
     branches:
-      - redesign
       - main
     tags:
       - "v*"
@@ -37,6 +26,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install Pillow (icon generator)
+        run: python3 -m pip install --quiet pillow
+
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
@@ -50,6 +42,7 @@ jobs:
             "https://github.com/JetBrains/kotlin/releases/download/v${KOTLINC_VERSION}/kotlin-compiler-${KOTLINC_VERSION}.zip"
           unzip -q /tmp/kotlin-compiler.zip -d "$HOME"
           echo "$HOME/kotlinc/kotlinc/bin" >> "$GITHUB_PATH"
+          echo "KOTLIN_STDLIB=$HOME/kotlinc/kotlinc/lib/kotlin-stdlib.jar" >> "$GITHUB_ENV"
 
       - name: Put Android Build-Tools on PATH
         run: |
@@ -61,7 +54,7 @@ jobs:
         run: |
           echo "::group::reconstruct/build.sh (kotlinc -> d8 -> stage -> rebrand -> sign)"
           cd reconstruct
-          ./build.sh
+          bash ./build.sh
           echo "::endgroup::"
 
       - name: Verify Kestrel APK Integrity
@@ -80,7 +73,7 @@ jobs:
             || { echo "bad launcher activity" >&2; exit 1; }
           apksigner verify --print-certs "$APK"
           python3 - "$APK" <<'PY'
-          import struct, sys, zipfile
+          import sys, zipfile
           apk = sys.argv[1]
           z = zipfile.ZipFile(apk)
           mf = z.read("AndroidManifest.xml")
@@ -133,104 +126,4 @@ jobs:
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           else
             echo "Build did not generate checksums." >> $GITHUB_STEP_SUMMARY
-          fi
-
-  build-test-apks:
-    name: Compile & Sign Hibou Test APKs
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Setup Java JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "17"
-
-      - name: Setup Kotlin
-        continue-on-error: true
-        run: |
-          sudo snap install --classic kotlin || sudo apt-get update && sudo apt-get install -y kotlin || echo "Pre-compiled Kotlin classes4.dex will be used"
-
-      - name: Cache Base APKs
-        uses: actions/cache@v4
-        with:
-          path: .cache/rebuild
-          key: base-apks-v3.0.5-${{ hashFiles('rebuild.py') }}
-          restore-keys: |
-            base-apks-v3.0.5-
-
-      - name: Build & Assemble Hibou APK
-        id: build_apk
-        run: |
-          echo "::group::Rebuilding APK"
-          VARIANT="${{ github.event.inputs.variant || 'both' }}"
-          echo "Selected variant: $VARIANT"
-          python3 rebuild.py "$VARIANT" --fetch-base
-          echo "::endgroup::"
-
-      - name: Verify Signed APK Integrity
-        run: |
-          echo "::group::Verify Signed Output"
-          ls -lh dist/signed/
-          java -jar tools/uber-apk-signer.jar -y --apks dist/signed/ --verbose
-          AAPT=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools" -name aapt 2>/dev/null | sort -V | tail -n 1)
-          [ -n "$AAPT" ] || AAPT=$(which aapt 2>/dev/null || true)
-          if [ -n "$AAPT" ] && [ -x "$AAPT" ]; then
-            for apk in dist/signed/*.apk; do
-              echo "--- Badging for $apk ($AAPT) ---"
-              "$AAPT" dump badging "$apk" | head -n 25
-            done
-          fi
-          echo "::endgroup::"
-
-      - name: Generate Checksums
-        run: |
-          echo "::group::Checksums"
-          cd dist/signed
-          sha256sum *.apk > SHA256SUMS.txt
-          cat SHA256SUMS.txt
-          echo "::endgroup::"
-
-      - name: Upload Test APK Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: hibou-test-apks-${{ github.sha }}
-          path: |
-            dist/signed/*.apk
-            dist/signed/SHA256SUMS.txt
-          retention-days: 14
-
-      - name: Build Summary
-        if: always()
-        run: |
-          echo "## Hibou Test APK Compilation Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|---|---|">> $GITHUB_STEP_SUMMARY
-          echo "| **Application ID** | \`agy.hibou\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Version** | \`1.0.0-beta.1\` (versionCode 1) |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Git Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Branch / Ref** | \`${{ github.ref }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Generated Artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -f "dist/signed/SHA256SUMS.txt" ]; then
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            cat dist/signed/SHA256SUMS.txt >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "Build did not generate signed checksums file." >> $GITHUB_STEP_SUMMARY
           fi
