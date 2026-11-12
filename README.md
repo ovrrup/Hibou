@@ -26,6 +26,23 @@ Custom model providers, developer toolchains, and granular agent governance.</p>
 
 As the first unified model of the app, Hibou versioning begins with **`1.0.0-beta.1`**.
 
+### Project Lineage
+
+| Stage | What it was |
+|---|---|
+| **Antigravity on Android** ([werdio325-png](https://github.com/werdio325-png)) | Pioneered running Google's Antigravity engine natively in an Android userspace sandbox. |
+| **[Leostryx](https://github.com/Leostrange/Leostryx)** ([Leostrange](https://github.com/Leostrange)) | Custom providers, MCP integration, developer toolchain and security governance on that foundation. |
+| **Hibou** (earlier releases of this repository) | Maintained by [@ovrrup](https://github.com/ovrrup): heavily based on the projects above — a rebrand with an English-first interface and bug fixes only; no substantial engine changes. |
+| **Kestrel** (current) | A complete rebuild: the engine reimplemented 1:1 in native Kotlin, a redesigned terminal-mono-graphite console UI, new identity and icons, and its own build pipeline. Heavily modified by design. |
+
+## Kestrel — the rebuild
+
+Kestrel is produced by this repository as the successor to Hibou. Everything the shipped DEX did is reimplemented in native Kotlin (`reconstruct/src/`), the UI is a new terminal-inspired mono-graphite console (`reconstruct/src/com/kestrel/`), and the app ships as **`com.kestrel.app`** (launcher `com.kestrel.ui.KestrelActivity`) with its own icon set and signing key.
+
+- **Build:** `reconstruct/build.sh` (kotlinc → d8 → payload → rebrand → sign); CI compiles and verifies it on every push to `main`.
+- **Integrity:** engine contracts with the core are unchanged — ports 48255/48258/48155/48156, the Connect protocol, `ANTIGRAVITY_*`/`AGY_*` environment, the `etc/hibou/` overlay, `agy-*` scripts — see [`reconstruct/PORTING.md`](reconstruct/PORTING.md).
+- **Licensing:** see [`NOTICE`](NOTICE) for the full lineage and scope.
+
 | Attribute | Specification |
 |---|---|
 | **Application ID** | `agy.hibou` |
@@ -52,7 +69,7 @@ Hibou is built upon the foundational contributions of two developers whose ingen
   - **Model Context Protocol (MCP):** Enabled MCP server integration and dynamic tool forwarding directly to custom AI models.
   - **Developer Toolchain & Security:** Built the in-app package manager and tool installer (OpenJDK, Python, Node.js, Flutter), the in-app diagnostics console, error history tracking, and the Security Shield policy governance.
 
-Hibou is developed, maintained, and curated by [@ovrrup](https://github.com/ovrrup), unifying these foundations with an English-first interface, streamlined updates, and owl visual branding.
+Hibou is developed, maintained, and curated by [@ovrrup](https://github.com/ovrrup), unifying these foundations with an English-first interface, streamlined updates, and owl visual branding. To be precise about what changed: Hibou was an identity rebrand and bug-fix line over these projects — the engine itself remained upstream's work. The [Kestrel](#kestrel--the-rebuild) rebuild is where the code was re-authored in full.
 
 ---
 
