@@ -45,8 +45,11 @@ if [ ! -f "$SDK_JAR" ]; then
 fi
 
 KOTLIN_STDLIB="${KOTLIN_STDLIB:-/data/data/com.termux/files/usr/opt/kotlin/lib/kotlin-stdlib.jar}"
-[ -f "$KOTLIN_STDLIB" ] || KOTLIN_STDLIB="$(find /data/data/com.termux/files/usr -maxdepth 5 -name kotlin-stdlib.jar 2>/dev/null | head -1)"
-[ -n "$KOTLIN_STDLIB" ] && [ -f "$KOTLIN_STDLIB" ] || { echo "kotlin-stdlib.jar not found" >&2; exit 1; }
+if [ ! -f "$KOTLIN_STDLIB" ]; then
+  # guarded: outside Termux this find finds nothing and must not kill the script
+  KOTLIN_STDLIB="$( { find /data/data/com.termux/files/usr -maxdepth 5 -name kotlin-stdlib.jar 2>/dev/null || true; } | head -n 1 )"
+fi
+[ -n "$KOTLIN_STDLIB" ] && [ -f "$KOTLIN_STDLIB" ] || { echo "kotlin-stdlib.jar not found (set KOTLIN_STDLIB)" >&2; exit 1; }
 
 rm -rf "$WORK/classes" "$WORK/dex" "$STAGE"
 mkdir -p "$WORK/classes" "$WORK/dex" "$STAGE" "$DIST"
