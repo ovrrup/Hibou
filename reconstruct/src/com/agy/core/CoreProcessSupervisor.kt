@@ -87,6 +87,7 @@ class CoreProcessSupervisor(
                 CoreRuntimeState.restarting = restarting
                 val launch = CoreLauncher.launch(runtime, appContext.filesDir)
                 process = launch
+                com.kestrel.diag.FlightLog.w("SUPERV", "core spawned")
                 val streamWriter = writer
                 val streamThread = Thread(
                     { streamLog(launch, streamWriter) },
@@ -104,10 +105,13 @@ class CoreProcessSupervisor(
                             "core did not become ready within 60000ms; readiness error: " + CoreReadyProbe.lastProbeError
                         CoreLogWriter.writeLine(writer, CoreRuntimeState.lastError)
                     }
+                    com.kestrel.diag.FlightLog.w(
+                        "SUPERV", "not ready: " + CoreRuntimeState.lastError)
                     destroy(launch)
                     CoreLogWriter.closeQuietly(writer)
                     return
                 }
+                com.kestrel.diag.FlightLog.w("SUPERV", "core ready")
                 val startTime = System.currentTimeMillis()
                 try {
                     launch.waitFor()
@@ -119,6 +123,8 @@ class CoreProcessSupervisor(
                     return
                 }
                 val exitCode = ProcessUtils.exitCode(launch)
+                com.kestrel.diag.FlightLog.w(
+                    "SUPERV", "core exited code=" + exitCode + " attempts=" + attempts)
                 if (System.currentTimeMillis() - startTime >= CoreRestartPolicy.SUSTAINED_READY_MS) {
                     attempts = 0
                 }
@@ -166,12 +172,14 @@ class CoreProcessSupervisor(
                     return
                 }
                 Log.e(TAG, "core start failed", e)
+                com.kestrel.diag.FlightLog.w("SUPERV", "core start failed: " + e)
                 CoreRuntimeState.lastError = ErrorText.describe(e)
                 CoreLogWriter.writeLine(writer, "core start failed: " + CoreRuntimeState.lastError)
                 CoreLogWriter.closeQuietly(writer)
                 return
             } catch (t: Throwable) {
                 CoreLogWriter.closeQuietly(writer)
+                com.kestrel.diag.FlightLog.w("SUPERV", "loop aborted: " + t)
                 throw t
             }
         }
@@ -190,6 +198,8 @@ class CoreProcessSupervisor(
                     "core process exited before it became ready (exit code $exitCode)" +
                     (if (tail.isEmpty()) "" else "\n--- core.log tail ---\n$tail")
                 CoreLogWriter.writeLine(writer, CoreRuntimeState.lastError)
+                com.kestrel.diag.FlightLog.w(
+                    "SUPERV", "died pre-ready code=" + exitCode + " tail=" + tail.replace('\n', ' '))
                 return false
             }
             if (CoreReadyProbe.probeOnce(appContext, port)) {

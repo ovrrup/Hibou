@@ -44,6 +44,18 @@ class TestManifestPatch(unittest.TestCase):
             1,
         )
 
+    def test_strip_dead_launcher_is_idempotent(self):
+        stripped, changed = patch_manifest.strip_dead_launchers(self.original)
+        self.assertTrue(changed)
+        self.assertEqual(len(stripped), len(self.original))
+        again, changed_again = patch_manifest.strip_dead_launchers(stripped)
+        self.assertFalse(changed_again)
+        self.assertEqual(again, stripped)
+        self.assertFalse(patch_manifest.dead_launcher_present(stripped))
+        # The real launcher's category stays intact in the pool.
+        strings = [value for _, _, value, _ in patch_manifest.iter_strings(stripped)]
+        self.assertIn(patch_manifest.LAUNCHER_CATEGORY, strings)
+
 
 class TestDescriptorIndex(unittest.TestCase):
     def test_chat_methods_are_indexed(self):
