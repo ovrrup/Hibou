@@ -38,8 +38,9 @@ done
 if [ ! -f "$SDK_JAR" ]; then
   mkdir -p "$WORK"
   echo ">> fetching android.jar (API 33)"
-  curl -sL -o "$SDK_JAR" \
-    https://raw.githubusercontent.com/Sable/android-platforms/master/android-33/android.jar
+  curl -fSL --retry 4 --retry-delay 3 --retry-all-errors -o "$SDK_JAR" \
+    https://raw.githubusercontent.com/Sable/android-platforms/master/android-33/android.jar \
+    || { echo "android.jar download failed (network)" >&2; exit 1; }
   unzip -l "$SDK_JAR" >/dev/null 2>&1 || { echo "android.jar download invalid" >&2; exit 1; }
 fi
 
