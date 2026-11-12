@@ -70,6 +70,49 @@ jobs:
           echo "All manifests parsed as valid JSON."
           echo "::endgroup::"
 
+      - name: Verify Kestrel Rebrand Toolchain
+        run: |
+          echo "::group::Kestrel identity toolchain round-trip"
+          TMP="$(mktemp -d)"
+          cp app/resources.arsc "$TMP/resources.arsc"
+          cp app/AndroidManifest.xml "$TMP/AndroidManifest.xml"
+          python3 tools/arsc_strings.py --input "$TMP/resources.arsc" --map Hibou=Kestrel
+          for color in window_background ic_launcher_background \
+                       ic_launcher_background_dark ic_launcher_background_light \
+                       splash_bg_dark splash_bg_light; do
+            python3 tools/arsc_color.py --input "$TMP/resources.arsc" \
+              --name "$color" --set '#FF14171C' > /dev/null
+          done
+          python3 tools/rebrand_manifest.py --input "$TMP/AndroidManifest.xml" \
+            --output "$TMP/AndroidManifest.xml"
+          python3 tools/patch_manifest.py --input "$TMP/AndroidManifest.xml" \
+            --output "$TMP/AndroidManifest.xml" \
+            --activity com.kestrel.ui.KestrelActivity
+          python3 tools/rebrand_manifest.py --check --input "$TMP/AndroidManifest.xml"
+          python3 tools/patch_manifest.py --check \
+            --activity com.kestrel.ui.KestrelActivity --input "$TMP/AndroidManifest.xml"
+          python3 - "$TMP" <<'PY'
+          import sys
+          tmp = sys.argv[1]
+          data = open(f"{tmp}/resources.arsc", "rb").read()
+          assert b"Hibou" not in data, "app_name rebrand failed"
+          assert b"Kestrel" in data, "Kestrel label missing"
+          mf = open(f"{tmp}/AndroidManifest.xml", "rb").read()
+          u16 = lambda s: s.encode("utf-16-le")
+          assert mf.count(u16("agy.hibou")) == 0, "old namespace survived"
+          assert mf.count(u16("com.kestrel.app")) >= 3, "namespace rebrand incomplete"
+          print("Kestrel rebrand round-trip verified (arsc colors + manifest).")
+          PY
+          rm -rf "$TMP"
+          echo "::endgroup::"
+
+      - name: Verify No Leaked API Keys
+        run: |
+          echo "::group::Leak Guard"
+          ! grep -rn "AIza[A-Za-z0-9_-]\{20,\}" --exclude-dir=.git .
+          echo "No leaked Google API keys in the tracked tree."
+          echo "::endgroup::"
+
   verify-antigravity-connection:
     name: Antigravity Connection & Test Suite
     runs-on: ubuntu-latest
