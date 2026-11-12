@@ -1,13 +1,14 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# Rebuild Hibou as a standalone app: fresh Kotlin DEX + reused resource payload.
+# Build Kestrel — the fully redesigned standalone app (new identity, native
+# Kotlin UI, engine contracts unchanged).
 #
-#   ./build.sh            build reconstruct/dist/Hibou-standalone.apk
+#   ./build.sh            build reconstruct/dist/Kestrel-$VERSION.apk
 #   ./build.sh --no-sign  stop after the aligned-but-unsigned APK
 #
 # Program logic (every classes*.dex) is compiled from ./src (Kotlin).
 # resources.arsc, res/, assets/ and lib/ are reused verbatim from ../app as the
-# app's data payload so resource IDs stay stable.  The binary manifest is
-# patched in place to select the launcher activity (tools/patch_manifest.py).
+# app's data payload so resource IDs stay stable; the identity rebrand
+# (package, label, launcher colors) is applied to the staged copies only.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -23,8 +24,9 @@ export PATH="$JVM/bin:$PATH"
 SDK_JAR="${ANDROID_JAR:-$WORK/android.jar}"
 MIN_API=24
 VERSION=1.0.0-beta.1
-LAUNCHER="${HIBOU_LAUNCHER:-com.agy.ui.MainActivity}"
-KEYSTORE="${HIBOU_KEYSTORE:-$REPO/dist/hibou-debug.keystore}"
+LAUNCHER="${KESTREL_LAUNCHER:-com.kestrel.ui.KestrelActivity}"
+KEYSTORE="${KESTREL_KEYSTORE:-$REPO/dist/kestrel-debug.keystore}"
+GRAPHITE='#FF14171C'
 
 for tool in kotlinc d8 aapt zipalign apksigner java; do
   command -v "$tool" >/dev/null 2>&1 || { echo "missing tool: $tool (pkg install ...)" >&2; exit 1; }
@@ -70,9 +72,26 @@ cp -r "$REPO/app/assets" "$STAGE/assets"
 cp -r "$REPO/app/lib" "$STAGE/lib"
 cp "$WORK/dex/classes.dex" "$STAGE/classes.dex"
 
-# manifest: binary, patched in place to select the launcher
-python3 "$REPO/tools/patch_manifest.py" \
+# icons: regenerate the Kestrel mark into the staged res tree (app/ stays
+# pristine; content geometry matches the original payload art)
+python3 "$ROOT/art/make_icons.py" >/dev/null
+
+# identity rebrand (staged copies only; app/ stays pristine)
+python3 "$REPO/tools/arsc_strings.py" \
+  --input "$STAGE/resources.arsc" --map Hibou=Kestrel >/dev/null
+for color in window_background ic_launcher_background \
+             ic_launcher_background_dark ic_launcher_background_light \
+             splash_bg_dark splash_bg_light; do
+  python3 "$REPO/tools/arsc_color.py" \
+    --input "$STAGE/resources.arsc" --name "$color" --set "$GRAPHITE" >/dev/null
+done
+
+# manifest: rebrand the namespace, then select the launcher
+python3 "$REPO/tools/rebrand_manifest.py" \
   --input "$REPO/app/AndroidManifest.xml" \
+  --output "$STAGE/AndroidManifest.xml" >/dev/null
+python3 "$REPO/tools/patch_manifest.py" \
+  --input "$STAGE/AndroidManifest.xml" \
   --output "$STAGE/AndroidManifest.xml" \
   --activity "$LAUNCHER" >/dev/null
 
@@ -100,17 +119,17 @@ zipalign -f -p 4 "$WORK/unsigned.apk" "$WORK/aligned.apk"
 
 UNSIGNED="$WORK/aligned.apk"
 if [ "${1:-}" = "--no-sign" ]; then
-  cp "$UNSIGNED" "$DIST/Hibou-$VERSION-standalone-unsigned.apk"
-  echo ">> done (unsigned): $DIST/Hibou-$VERSION-standalone-unsigned.apk"
+  cp "$UNSIGNED" "$DIST/Kestrel-$VERSION-unsigned.apk"
+  echo ">> done (unsigned): $DIST/Kestrel-$VERSION-unsigned.apk"
   exit 0
 fi
 
 echo ">> signing"
 apksigner sign \
-  --ks "$KEYSTORE" --ks-key-alias "${HIBOU_KEY_ALIAS:-debug}" \
-  --ks-pass pass:"${HIBOU_STORE_PASSWORD:-android}" \
-  --key-pass pass:"${HIBOU_KEY_PASSWORD:-android}" \
-  --out "$DIST/Hibou-$VERSION-standalone.apk" "$UNSIGNED"
+  --ks "$KEYSTORE" --ks-key-alias "${KESTREL_KEY_ALIAS:-kestrel}" \
+  --ks-pass pass:"${KESTREL_STORE_PASSWORD:-kestrel}" \
+  --key-pass pass:"${KESTREL_KEY_PASSWORD:-kestrel}" \
+  --out "$DIST/Kestrel-$VERSION.apk" "$UNSIGNED"
 
-apksigner verify --print-certs "$DIST/Hibou-$VERSION-standalone.apk" | head -3
-echo ">> done: $DIST/Hibou-$VERSION-standalone.apk"
+apksigner verify --print-certs "$DIST/Kestrel-$VERSION.apk" | head -3
+echo ">> done: $DIST/Kestrel-$VERSION.apk"

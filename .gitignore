@@ -1,5 +1,6 @@
 # Intermediate build artifacts
 dist/*-unsigned.apk
+dist/*.apk
 dist/signed/
 dist/.brand/
 __pycache__/
@@ -13,6 +14,7 @@ signing/
 *.p12
 *.keystore
 !dist/hibou-debug.keystore
+!dist/kestrel-debug.keystore
 
 # Verified rebuild cache and test environments
 .cache/
