@@ -42,7 +42,8 @@ jobs:
             "https://github.com/JetBrains/kotlin/releases/download/v${KOTLINC_VERSION}/kotlin-compiler-${KOTLINC_VERSION}.zip"
           unzip -q /tmp/kotlin-compiler.zip -d "$HOME"
           # the zip layout is <top>/kotlinc/bin/kotlinc — resolve it, don't assume it
-          KOTLINC_HOME="$(dirname "$(find "$HOME" -maxdepth 4 -type f -name kotlinc -path '*/bin/*' | head -n 1)")"
+          KOTLINC_HOME="$(dirname "$(dirname "$(find "$HOME" -maxdepth 4 -type f -name kotlinc -path '*/bin/*' | head -n 1)")")"
+          KOTLINC_HOME="$(cd "$KOTLINC_HOME" && pwd)"
           echo "kotlinc home: $KOTLINC_HOME"
           echo "$KOTLINC_HOME/bin" >> "$GITHUB_PATH"
           echo "KOTLIN_STDLIB=$KOTLINC_HOME/lib/kotlin-stdlib.jar" >> "$GITHUB_ENV"
