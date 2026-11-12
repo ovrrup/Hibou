@@ -23,6 +23,11 @@ import zlib
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT/'tools'))
 from patch_web_bundle import patch_bundle
+import patch_manifest
+
+NATIVE_UI = os.environ.get('HIBOU_NATIVE_UI', '1') != '0'
+REQUIRE_KOTLIN = NATIVE_UI or os.environ.get('HIBOU_REQUIRE_KOTLIN', '0') == '1'
+NATIVE_LAUNCHER = 'Lcom/agy/ru/HibouChatActivity;'
 
 VERSION = '1.0.0-beta.1'
 VERSION_CODE = 1
@@ -78,6 +83,35 @@ def validate_dex(data, name):
             raise ValueError(f'Out-of-order DEX string_ids in {name} at index {i}: {prev!r} > {curr!r}')
         prev = curr
 
+def dex_defines_class(data, descriptor):
+    """Returns True when the DEX class_defs table defines `descriptor`."""
+    if len(data) < 112 or not data.startswith(b'dex\n'):
+        return False
+    string_ids_size, string_ids_off = struct.unpack_from('<II', data, 56)
+    type_ids_size, type_ids_off = struct.unpack_from('<II', data, 64)
+    class_defs_size, class_defs_off = struct.unpack_from('<II', data, 96)
+    if class_defs_off + class_defs_size * 32 > len(data):
+        return False
+
+    def read_string(index):
+        offset = struct.unpack_from('<I', data, string_ids_off + index * 4)[0]
+        position = offset
+        while data[position] & 0x80:
+            position += 1
+        position += 1
+        end = data.find(b'\x00', position)
+        return data[position:end].decode('utf-8', errors='replace')
+
+    for index in range(class_defs_size):
+        class_index = struct.unpack_from('<I', data, class_defs_off + index * 32)[0]
+        if class_index >= type_ids_size:
+            continue
+        string_index = struct.unpack_from('<I', data, type_ids_off + class_index * 4)[0]
+        if read_string(string_index) == descriptor:
+            return True
+    return False
+
+
 def validate_arsc(data, name='resources.arsc'):
     if len(data) < 12 or struct.unpack_from('<H', data, 0)[0] != 0x0002:
         raise ValueError('Invalid ARSC header: '+name)
@@ -116,6 +150,13 @@ def validate_apk(path):
         res = subprocess.run([aapt, 'dump', 'badging', str(path)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
         if res.returncode != 0:
             raise ValueError(f'aapt dump badging failed on {path} (exit code {res.returncode}): {res.stderr}')
+    if NATIVE_UI:
+        with zipfile.ZipFile(path) as apk:
+            if not patch_manifest.has_native_launcher(apk.read('AndroidManifest.xml')):
+                raise ValueError('Native UI enabled but the packaged manifest does not launch ' + patch_manifest.DEFAULT_ACTIVITY)
+            dexes = [name for name in apk.namelist() if name.endswith('.dex')]
+            if not any(dex_defines_class(apk.read(name), NATIVE_LAUNCHER) for name in dexes):
+                raise ValueError('Native UI enabled but no packaged DEX defines ' + NATIVE_LAUNCHER)
 
 
 
@@ -145,15 +186,42 @@ def base_apk(variant, supplied, fetch):
 
 def pack(source, variant, destination):
     compile_kt = ROOT / 'tools' / 'compile_kotlin.py'
-    if compile_kt.is_file() and shutil.which('kotlinc') and shutil.which('d8'):
-        try:
-            subprocess.run([sys.executable, str(compile_kt)], check=True)
-        except Exception as e:
-            print('Notice: Kotlin compilation skipped:', e)
+    have_toolchain = bool(shutil.which('kotlinc') and shutil.which('d8'))
+    if compile_kt.is_file() and have_toolchain:
+        subprocess.run([sys.executable, str(compile_kt)], check=True)
+        stdlib = ROOT / 'tools' / 'bundle_kotlin_stdlib.py'
+        if stdlib.is_file():
+            subprocess.run([sys.executable, str(stdlib)], check=True)
+    elif REQUIRE_KOTLIN:
+        raise RuntimeError(
+            'Native UI requires kotlinc and d8. Install the Kotlin toolchain or '
+            'set HIBOU_NATIVE_UI=0 to package the web launcher.')
+    else:
+        print('Notice: Kotlin toolchain unavailable; using the checked-in DEX.')
+
+    dex4 = ROOT / 'app' / 'classes4.dex'
+    if NATIVE_UI:
+        if not dex4.is_file() or not dex_defines_class(dex4.read_bytes(), NATIVE_LAUNCHER):
+            raise RuntimeError(
+                'Native UI is enabled but classes4.dex does not define ' + NATIVE_LAUNCHER +
+                '. Compile the Kotlin sources first.')
+
     overrides = {name: ROOT/'app'/name for name in OVERRIDES}
+    stdlib_dex = ROOT / 'app' / 'classes5.dex'
+    if NATIVE_UI and not stdlib_dex.is_file():
+        raise RuntimeError(
+            'Native UI requires app/classes5.dex (Kotlin stdlib). Run '
+            'tools/bundle_kotlin_stdlib.py with kotlinc/d8 installed.')
+    if stdlib_dex.is_file():
+        overrides['classes5.dex'] = stdlib_dex
     for name, path in overrides.items():
         if not path.is_file():
             raise FileNotFoundError(str(path))
+    manifest_payload = overrides['AndroidManifest.xml'].read_bytes()
+    if NATIVE_UI:
+        manifest_payload, manifest_changed = patch_manifest.patch_manifest(manifest_payload)
+        print(('Patched launcher -> ' if manifest_changed else 'Launcher already native: ')
+              + patch_manifest.DEFAULT_ACTIVITY)
     node = shutil.which('node')
     if node:
         for name in OVERRIDES:
@@ -179,13 +247,16 @@ def pack(source, variant, destination):
             if name.startswith('META-INF/') or name in ('stamp-cert-sha256', metadata_path):
                 continue
             payload = bundle if name == 'assets/web/generated/main.js' else (overrides[name].read_bytes() if name in overrides else old.read(name))
+            if name == 'AndroidManifest.xml':
+                payload = manifest_payload
             if name.endswith('.dex'):
                 validate_dex(payload, name)
             new.writestr(entry, payload)
             seen.add(name)
         for name, path in overrides.items():
             if name not in seen:
-                new.writestr(name, path.read_bytes(), compress_type=zipfile.ZIP_STORED)
+                data = manifest_payload if name == 'AndroidManifest.xml' else path.read_bytes()
+                new.writestr(name, data, compress_type=zipfile.ZIP_STORED)
         new.writestr(metadata_path, json.dumps(info, ensure_ascii=False, indent=2)+'\n', compress_type=zipfile.ZIP_DEFLATED)
     validate_apk(destination)
 

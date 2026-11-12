@@ -20,7 +20,7 @@ def build_stubs():
             'android/content/pm', 'android/content/res', 'android/net', 'android/os',
             'android/app', 'android/provider', 'android/view', 'android/widget',
             'android/graphics', 'android/graphics/drawable', 'android/util',
-            'org/json', 'com/agy/util'
+            'android/text', 'org/json', 'com/agy/util', 'com/agy/ui'
         ]:
             (src / pkg).mkdir(parents=True, exist_ok=True)
         
@@ -31,6 +31,7 @@ def build_stubs():
             '    public JSONObject(String json) throws Exception {}\n'
             '    public JSONObject put(String name, Object val) throws Exception { return this; }\n'
             '    public JSONObject put(String name, int val) throws Exception { return this; }\n'
+            '    public JSONObject put(String name, long val) throws Exception { return this; }\n'
             '    public JSONObject put(String name, boolean val) throws Exception { return this; }\n'
             '    public String getString(String name) throws Exception { return ""; }\n'
             '    public String optString(String name, String def) { return def; }\n'
@@ -38,11 +39,58 @@ def build_stubs():
             '    public Object get(String name) throws Exception { return null; }\n'
             '    public Object opt(String name) { return null; }\n'
             '    public boolean has(String name) { return false; }\n'
+            '    public int length() { return 0; }\n'
+            '    public java.util.Iterator<String> keys() { return null; }\n'
+            '    public java.util.Iterator<String> names() { return null; }\n'
+            '    public double optDouble(String name, double def) { return def; }\n'
+            '    public double optDouble(String name) { return 0d; }\n'
+            '    public JSONObject remove(String name) { return this; }\n'
             '    public String toString() { return "{}"; }\n'
             '    public String toString(int indentSpaces) { return "{}"; }\n'
             '    public JSONObject optJSONObject(String name) { return null; }\n'
+            '    public JSONObject getJSONObject(String name) throws Exception { return null; }\n'
+            '    public JSONArray optJSONArray(String name) { return null; }\n'
+            '    public JSONArray getJSONArray(String name) throws Exception { return null; }\n'
             '    public boolean optBoolean(String name, boolean def) { return def; }\n'
             '    public boolean optBoolean(String name) { return false; }\n'
+            '    public long optLong(String name, long def) { return def; }\n'
+            '    public long getLong(String name) throws Exception { return 0L; }\n'
+            '    public int optInt(String name, int def) { return def; }\n'
+            '    public int getInt(String name) throws Exception { return 0; }\n'
+            '}\n'
+        )
+        (src / 'org/json/JSONArray.java').write_text(
+            'package org.json;\n'
+            'public class JSONArray {\n'
+            '    public JSONArray() {}\n'
+            '    public JSONArray(String json) throws Exception {}\n'
+            '    public JSONArray(java.util.Collection<?> values) {}\n'
+            '    public JSONArray put(Object value) { return this; }\n'
+            '    public JSONArray put(String value) { return this; }\n'
+            '    public JSONArray put(int value) { return this; }\n'
+            '    public int optInt(int index, int def) { return def; }\n'
+            '    public boolean optBoolean(int index, boolean def) { return def; }\n'
+            '    public int length() { return 0; }\n'
+            '    public JSONObject optJSONObject(int index) { return null; }\n'
+            '    public JSONObject getJSONObject(int index) throws Exception { return null; }\n'
+            '    public String optString(int index, String def) { return def; }\n'
+            '    public String getString(int index) throws Exception { return ""; }\n'
+            '    public String toString() { return "[]"; }\n'
+            '}\n'
+        )
+        (src / 'android/os/Bundle.java').write_text(
+            'package android.os;\n'
+            'public class Bundle {\n'
+            '    public Bundle() {}\n'
+            '    public String getString(String key) { return null; }\n'
+            '    public void putString(String key, String value) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/TextUtils.java').write_text(
+            'package android.text;\n'
+            'public class TextUtils {\n'
+            '    public enum TruncateAt { START, MIDDLE, END, MARQUEE }\n'
+            '    public static boolean isEmpty(CharSequence str) { return str == null || str.length() == 0; }\n'
             '}\n'
         )
         
@@ -151,6 +199,7 @@ def build_stubs():
             '    public Intent setData(Uri data) { return this; }\n'
             '    public Uri getData() { return null; }\n'
             '    public Intent putExtra(String name, String value) { return this; }\n'
+            '    public Intent setClassName(String packageName, String className) { return this; }\n'
             '}\n'
         )
         (src / 'android/content/Context.java').write_text(
@@ -170,6 +219,24 @@ def build_stubs():
             '    public abstract void startActivity(Intent intent);\n'
             '    public abstract int checkSelfPermission(String permission);\n'
             '    public abstract Object getSystemService(String name);\n'
+            '    public static final int MODE_PRIVATE = 0;\n'
+            '    public abstract SharedPreferences getSharedPreferences(String name, int mode);\n'
+            '}\n'
+        )
+        (src / 'android/content/SharedPreferences.java').write_text(
+            'package android.content;\n'
+            'public interface SharedPreferences {\n'
+            '    String getString(String key, String defValue);\n'
+            '    int getInt(String key, int defValue);\n'
+            '    boolean getBoolean(String key, boolean defValue);\n'
+            '    Editor edit();\n'
+            '    interface Editor {\n'
+            '        Editor putString(String key, String value);\n'
+            '        Editor putInt(String key, int value);\n'
+            '        Editor putBoolean(String key, boolean value);\n'
+            '        boolean commit();\n'
+            '        void apply();\n'
+            '    }\n'
             '}\n'
         )
         (src / 'android/content/ClipData.java').write_text(
@@ -294,6 +361,7 @@ def build_stubs():
             '    public static final int VISIBLE = 0;\n'
             '    public static final int INVISIBLE = 4;\n'
             '    public static final int GONE = 8;\n'
+            '    public static final int FOCUS_DOWN = 130;\n'
             '    public interface OnClickListener { void onClick(View v); }\n'
             '    public View(Context context) {}\n'
             '    public Context getContext() { return null; }\n'
@@ -325,6 +393,16 @@ def build_stubs():
             '    public void bringToFront() {}\n'
             '    public boolean post(Runnable action) { return true; }\n'
             '    public boolean postDelayed(Runnable action, long delayMillis) { return true; }\n'
+            '    public void setEnabled(boolean enabled) {}\n'
+            '    public boolean isEnabled() { return true; }\n'
+            '    public void setClickable(boolean clickable) {}\n'
+            '    public void setFocusable(boolean focusable) {}\n'
+            '    public void setSystemUiVisibility(int visibility) {}\n'
+            '    public int getHeight() { return 0; }\n'
+            '    public int getWidth() { return 0; }\n'
+            '    public void setMinimumHeight(int minHeight) {}\n'
+            '    public void setContentDescription(CharSequence description) {}\n'
+            '    public CharSequence getContentDescription() { return null; }\n'
             '}\n'
         )
         (src / 'android/view/ViewGroup.java').write_text(
@@ -336,6 +414,8 @@ def build_stubs():
             '    public void addView(View child, LayoutParams params) {}\n'
             '    public void removeView(View child) {}\n'
             '    public void removeAllViews() {}\n'
+            '    public View getChildAt(int index) { return null; }\n'
+            '    public int getChildCount() { return 0; }\n'
             '    public static class LayoutParams {\n'
             '        public static final int MATCH_PARENT = -1;\n'
             '        public static final int WRAP_CONTENT = -2;\n'
@@ -360,6 +440,8 @@ def build_stubs():
             '    public void setLayout(int width, int height) {}\n'
             '    public void setGravity(int gravity) {}\n'
             '    public View getDecorView() { return null; }\n'
+            '    public void setStatusBarColor(int color) {}\n'
+            '    public void setNavigationBarColor(int color) {}\n'
             '    public <T extends View> T findViewById(int id) { return null; }\n'
             '}\n'
         )
@@ -377,6 +459,7 @@ def build_stubs():
             '    public void startActivity(android.content.Intent intent) {}\n'
             '    public int checkSelfPermission(String permission) { return 0; }\n'
             '    public Object getSystemService(String name) { return null; }\n'
+            '    public android.content.SharedPreferences getSharedPreferences(String name, int mode) { return null; }\n'
             '    public <T extends View> T findViewById(int id) { return null; }\n'
             '    public void runOnUiThread(Runnable action) { if (action != null) action.run(); }\n'
             '    public void setContentView(View view) {}\n'
@@ -384,6 +467,22 @@ def build_stubs():
             '    public boolean isFinishing() { return false; }\n'
             '    public boolean isDestroyed() { return false; }\n'
             '    public Window getWindow() { return new Window(); }\n'
+            '    public void onBackPressed() {}\n'
+            '    public android.content.Intent getIntent() { return new android.content.Intent(); }\n'
+            '}\n'
+        )
+        (src / 'com/agy/ui/MainActivity.java').write_text(
+            'package com.agy.ui;\n'
+            'import android.os.Bundle;\n'
+            'public class MainActivity extends android.app.Activity {\n'
+            '    protected void onCreate(Bundle savedInstanceState) {}\n'
+            '    protected void onDestroy() {}\n'
+            '    public void onBackPressed() {}\n'
+            '    public void agyStartCore() {}\n'
+            '    public void agyHoldCore() {}\n'
+            '    public void dismissSplash() {}\n'
+            '    public void showFatalError(String error) {}\n'
+            '    public boolean isDesktopMode() { return false; }\n'
             '}\n'
         )
         (src / 'android/app/Dialog.java').write_text(
@@ -446,6 +545,7 @@ def build_stubs():
             '    public void setText(CharSequence text) {}\n'
             '    public CharSequence getText() { return ""; }\n'
             '    public void setTextColor(int color) {}\n'
+            '    public void setHintTextColor(int color) {}\n'
             '    public float getTextSize() { return 14f; }\n'
             '    public void setTextSize(float size) {}\n'
             '    public void setTextSize(int unit, float size) {}\n'
@@ -456,6 +556,73 @@ def build_stubs():
             '    public void setMaxLines(int maxLines) {}\n'
             '    public void setSingleLine(boolean singleLine) {}\n'
             '    public void setLines(int lines) {}\n'
+            '    public void setEllipsize(android.text.TextUtils.TruncateAt where) {}\n'
+            '    public void setLineSpacing(float add, float mult) {}\n'
+            '    public void setMinHeight(int minHeight) {}\n'
+            '    public void setIncludeFontPadding(boolean includepad) {}\n'
+            '    public void setTextIsSelectable(boolean selectable) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/Spanned.java').write_text(
+            'package android.text;\n'
+            'public interface Spanned {\n'
+            '    int SPAN_EXCLUSIVE_EXCLUSIVE = 33;\n'
+            '    int SPAN_INCLUSIVE_EXCLUSIVE = 17;\n'
+            '    int SPAN_EXCLUSIVE_INCLUSIVE = 34;\n'
+            '    int SPAN_INCLUSIVE_INCLUSIVE = 18;\n'
+            '}\n'
+        )
+        (src / 'android/text/SpannableStringBuilder.java').write_text(
+            'package android.text;\n'
+            'public class SpannableStringBuilder implements CharSequence, Spanned {\n'
+            '    public SpannableStringBuilder() {}\n'
+            '    public SpannableStringBuilder(CharSequence text) {}\n'
+            '    public SpannableStringBuilder append(CharSequence text) { return this; }\n'
+            '    public SpannableStringBuilder append(char text) { return this; }\n'
+            '    public SpannableStringBuilder delete(int start, int end) { return this; }\n'
+            '    public SpannableStringBuilder replace(int start, int end, CharSequence text) { return this; }\n'
+            '    public void insert(int where, CharSequence text) {}\n'
+            '    public void setSpan(Object what, int start, int end, int flags) {}\n'
+            '    public int length() { return 0; }\n'
+            '    public char charAt(int index) { return 0; }\n'
+            '    public CharSequence subSequence(int start, int end) { return this; }\n'
+            '    public String toString() { return ""; }\n'
+            '}\n'
+        )
+        (src / 'android/text/style/StyleSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class StyleSpan {\n'
+            '    public StyleSpan(int style) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/TypefaceSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class TypefaceSpan {\n'
+            '    public TypefaceSpan(String family) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/RelativeSizeSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class RelativeSizeSpan {\n'
+            '    public RelativeSizeSpan(float proportion) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/BackgroundColorSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class BackgroundColorSpan {\n'
+            '    public BackgroundColorSpan(int color) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/ForegroundColorSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class ForegroundColorSpan {\n'
+            '    public ForegroundColorSpan(int color) {}\n'
+            '}\n'
+        )
+        (src / 'android/text/style/UnderlineSpan.java').write_text(
+            'package android.text.style;\n'
+            'public class UnderlineSpan {\n'
+            '    public UnderlineSpan() {}\n'
             '}\n'
         )
         (src / 'android/widget/Button.java').write_text(
@@ -463,6 +630,7 @@ def build_stubs():
             'import android.content.Context;\n'
             'public class Button extends TextView {\n'
             '    public Button(Context context) { super(context); }\n'
+            '    public void setAllCaps(boolean allCaps) {}\n'
             '}\n'
         )
         (src / 'android/widget/ProgressBar.java').write_text(
@@ -492,6 +660,8 @@ def build_stubs():
             'import android.content.Context;\n'
             'public class ScrollView extends FrameLayout {\n'
             '    public ScrollView(Context context) { super(context); }\n'
+            '    public void fullScroll(int direction) {}\n'
+            '    public void smoothScrollTo(int x, int y) {}\n'
             '}\n'
         )
         (src / 'android/widget/EditText.java').write_text(
@@ -502,6 +672,7 @@ def build_stubs():
             '    public CharSequence getHint() { return ""; }\n'
             '    public void setHint(CharSequence hint) {}\n'
             '    public void setInputType(int type) {}\n'
+            '    public void setSelection(int index) {}\n'
             '}\n'
         )
         (src / 'android/widget/Switch.java').write_text(

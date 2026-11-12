@@ -26,14 +26,25 @@ class TestNativeKotlinUI(unittest.TestCase):
         self.assertGreater(len(classes4_dex), 30000)
 
     def test_smali_delegation_to_native_ui(self):
-        splash_loading = (ROOT / ".cache" / "test_apk_out" / "smali" / "com" / "agy" / "ui" / "splash" / "SplashLoadingHtml.smali").read_text()
-        splash_overlay = (ROOT / ".cache" / "test_apk_out" / "smali" / "com" / "agy" / "ui" / "splash" / "SplashOverlayHtml.smali").read_text()
-        agy_tools = (ROOT / "native-src" / "smali" / "com" / "agy" / "ru" / "AgyTools.smali").read_text()
+        # The compiled DEX is the source of truth. Decompiled smali under
+        # .cache/test_apk_out is an optional local artifact, so fall back to
+        # scanning classes.dex when it is not present.
+        classes_dex = (ROOT / "app" / "classes.dex").read_bytes()
+        self.assertIn(b"SplashLoadingHtml", classes_dex)
+        self.assertIn(b"SplashOverlayHtml", classes_dex)
+        self.assertIn(b"showNativeSplash", classes_dex)
+        self.assertIn(b"showFatalError", classes_dex)
 
-        self.assertIn("Lcom/agy/ru/HibouBridge;->showNativeSplash", splash_loading)
-        self.assertIn("Lcom/agy/ru/HibouBridge;->showFatalError", splash_overlay)
+        agy_tools = (ROOT / "native-src" / "smali" / "com" / "agy" / "ru" / "AgyTools.smali").read_text()
         self.assertIn("openControlCenter", agy_tools)
         self.assertIn("showPermissionSheet", agy_tools)
+
+        smali_dir = ROOT / ".cache" / "test_apk_out" / "smali" / "com" / "agy" / "ui" / "splash"
+        if smali_dir.is_dir():
+            splash_loading = (smali_dir / "SplashLoadingHtml.smali").read_text()
+            splash_overlay = (smali_dir / "SplashOverlayHtml.smali").read_text()
+            self.assertIn("Lcom/agy/ru/HibouBridge;->showNativeSplash", splash_loading)
+            self.assertIn("Lcom/agy/ru/HibouBridge;->showFatalError", splash_overlay)
 
 if __name__ == "__main__":
     unittest.main()

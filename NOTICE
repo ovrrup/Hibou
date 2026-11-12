@@ -1,0 +1,18 @@
+Hibou (Android reconstruction) and Kestrel
+Copyright 2026 ovrrup <ofeducationc@gmail.com>
+
+This repository contains material derived from the Hibou Android app and
+its upstream contributors: werdio325-png / Werdik, Leostrange,
+Aleksei Sobolev, and Dszsu. The engine payload under app/
+(resources.arsc, res/, assets/, lib/) and the 1:1 Kotlin engine port
+under reconstruct/src/com/agy/ are derivative of that app and remain
+licensed under the Apache License, Version 2.0, with attribution to
+its authors (see LICENSE).
+
+Original to this project, Copyright 2026 ovrrup, Apache-2.0:
+  - the Kestrel UI, reconstruct/src/com/kestrel/
+  - the binary-resource rebrand tooling, tools/pool_rebuild.py,
+    tools/arsc_strings.py, tools/arsc_color.py,
+    tools/rebrand_manifest.py, tools/patch_manifest.py
+  - the Kestrel icon generator, reconstruct/art/make_icons.py
+  - the build pipeline, reconstruct/build.sh
