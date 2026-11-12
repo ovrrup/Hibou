@@ -1,4 +1,4 @@
-name: Compile Hibou Test APK
+name: Compile APKs (Kestrel + Hibou test)
 
 on:
   workflow_dispatch:
@@ -24,8 +24,119 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build-kestrel:
+    name: Compile & Verify Kestrel APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Kotlin Compiler
+        run: |
+          KOTLINC_VERSION=2.1.20
+          curl -sL -o /tmp/kotlin-compiler.zip \
+            "https://github.com/JetBrains/kotlin/releases/download/v${KOTLINC_VERSION}/kotlin-compiler-${KOTLINC_VERSION}.zip"
+          unzip -q /tmp/kotlin-compiler.zip -d "$HOME"
+          echo "$HOME/kotlinc/kotlinc/bin" >> "$GITHUB_PATH"
+
+      - name: Put Android Build-Tools on PATH
+        run: |
+          BT="$(ls -d "${ANDROID_HOME:-/usr/local/lib/android/sdk}"/build-tools/* | sort -V | tail -n 1)"
+          echo "Using build-tools: $BT"
+          echo "$BT" >> "$GITHUB_PATH"
+
+      - name: Build Kestrel APK
+        run: |
+          echo "::group::reconstruct/build.sh (kotlinc -> d8 -> stage -> rebrand -> sign)"
+          cd reconstruct
+          ./build.sh
+          echo "::endgroup::"
+
+      - name: Verify Kestrel APK Integrity
+        run: |
+          echo "::group::Verify Kestrel Output"
+          APK="$(find reconstruct/dist -name 'Kestrel-*.apk' ! -name '*-unsigned.apk' | head -n 1)"
+          test -n "$APK" || { echo "no signed Kestrel APK produced" >&2; exit 1; }
+          echo "APK: $APK"
+          aapt dump badging "$APK" > /tmp/kestrel-badging.txt
+          head -n 6 /tmp/kestrel-badging.txt
+          grep -q "package: name='com.kestrel.app'" /tmp/kestrel-badging.txt \
+            || { echo "bad package id" >&2; exit 1; }
+          grep -q "application-label:'Kestrel'" /tmp/kestrel-badging.txt \
+            || { echo "bad application label" >&2; exit 1; }
+          grep -q "launchable-activity: name='com.kestrel.ui.KestrelActivity'" /tmp/kestrel-badging.txt \
+            || { echo "bad launcher activity" >&2; exit 1; }
+          apksigner verify --print-certs "$APK"
+          python3 - "$APK" <<'PY'
+          import struct, sys, zipfile
+          apk = sys.argv[1]
+          z = zipfile.ZipFile(apk)
+          mf = z.read("AndroidManifest.xml")
+          u16 = lambda s: s.encode("utf-16-le")
+          assert mf.count(u16("agy.hibou")) == 0, "old namespace survived in manifest"
+          assert mf.count(u16("com.kestrel.app")) >= 3, "manifest not rebranded"
+          arsc = z.read("resources.arsc")
+          assert b"Hibou" not in arsc, "old app_name survived in resources"
+          assert b"Kestrel" in arsc, "Kestrel label missing from resources"
+          for name in z.namelist():
+              if b"AIza" in z.read(name):
+                  raise AssertionError(f"leaked Google API key inside {name}")
+          print("manifest + arsc rebrand verified, no leaked API keys inside APK")
+          PY
+          echo "::endgroup::"
+
+      - name: Generate Checksums
+        run: |
+          echo "::group::Checksums"
+          cd reconstruct/dist
+          sha256sum Kestrel-*.apk > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          echo "::endgroup::"
+
+      - name: Upload Kestrel APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kestrel-apk-${{ github.sha }}
+          path: |
+            reconstruct/dist/Kestrel-*.apk
+            reconstruct/dist/SHA256SUMS.txt
+          retention-days: 14
+
+      - name: Build Summary
+        if: always()
+        run: |
+          echo "## Kestrel APK Compilation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Application ID** | \`com.kestrel.app\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version** | \`1.0.0-beta.1\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Launcher** | \`com.kestrel.ui.KestrelActivity\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Git Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch / Ref** | \`${{ github.ref }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "reconstruct/dist/SHA256SUMS.txt" ]; then
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat reconstruct/dist/SHA256SUMS.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Build did not generate checksums." >> $GITHUB_STEP_SUMMARY
+          fi
+
   build-test-apks:
-    name: Compile & Sign Test APKs
+    name: Compile & Sign Hibou Test APKs
     runs-on: ubuntu-latest
 
     steps:
